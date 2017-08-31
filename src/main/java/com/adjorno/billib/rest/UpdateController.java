@@ -1,0 +1,650 @@
+package com.adjorno.billib.rest;
+
+import com.adjorno.billib.rest.db.Artist;
+import com.adjorno.billib.rest.db.ArtistRelation;
+import com.adjorno.billib.rest.db.ArtistRelationRepository;
+import com.adjorno.billib.rest.db.ArtistRepository;
+import com.adjorno.billib.rest.db.ArtistUtils;
+import com.adjorno.billib.rest.db.Chart;
+import com.adjorno.billib.rest.db.ChartList;
+import com.adjorno.billib.rest.db.ChartListRepository;
+import com.adjorno.billib.rest.db.ChartRepository;
+import com.adjorno.billib.rest.db.ChartTrack;
+import com.adjorno.billib.rest.db.ChartTrackRepository;
+import com.adjorno.billib.rest.db.DuplicateArtistRepository;
+import com.adjorno.billib.rest.db.DuplicateTrack;
+import com.adjorno.billib.rest.db.DuplicateTrackRepository;
+import com.adjorno.billib.rest.db.GlobalRankArtistRepository;
+import com.adjorno.billib.rest.db.GlobalRankTrackRepository;
+import com.adjorno.billib.rest.db.Journal;
+import com.adjorno.billib.rest.db.JournalRepository;
+import com.adjorno.billib.rest.db.SpotifyUrl;
+import com.adjorno.billib.rest.db.SpotifyUrlRepository;
+import com.adjorno.billib.rest.db.Track;
+import com.adjorno.billib.rest.db.TrackCover;
+import com.adjorno.billib.rest.db.TrackCoverRepository;
+import com.adjorno.billib.rest.db.TrackRepository;
+import com.adjorno.billib.rest.db.Week;
+import com.adjorno.billib.rest.db.WeekRepository;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.m14n.billib.data.BB;
+import com.m14n.billib.data.html.BBHtmlParser;
+import com.m14n.billib.data.model.BBChart;
+import com.m14n.billib.data.model.BBChartMetadata;
+import com.m14n.billib.data.model.BBJournalMetadata;
+import com.m14n.billib.data.model.BBPositionInfo;
+import com.m14n.billib.data.model.BBTrack;
+import com.m14n.ex.Ex;
+
+import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
+
+@RestController
+public class UpdateController implements IUpdateController {
+
+    private static final String PASSWORD = "vtldtlm";
+
+    @Autowired
+    private EntityManager mEntityManager;
+
+    @Autowired
+    private ChartTrackRepository mChartTrackRepository;
+
+    @Autowired
+    private ChartListRepository mChartListRepository;
+
+    @Autowired
+    private WeekRepository mWeekRepository;
+
+    @Autowired
+    private ArtistRepository mArtistRepository;
+
+    @Autowired
+    private TrackRepository mTrackRepository;
+
+    @Autowired
+    private ChartRepository mChartRepository;
+
+    @Autowired
+    private TrackCoverRepository mTrackCoverRepository;
+
+    @Autowired
+    private SpotifyUrlRepository mSpotifyUrlRepository;
+
+    @Autowired
+    private GlobalRankTrackRepository mGlobalRankTrackRepository;
+
+    @Autowired
+    private GlobalRankArtistRepository mGlobalRankArtistRepository;
+
+    @Autowired
+    private JournalRepository mJournalRepository;
+
+    @Autowired
+    private DuplicateArtistRepository mDuplicateArtistRepository;
+
+    @Autowired
+    private DuplicateTrackRepository mDuplicateTrackRepository;
+
+    @Autowired
+    private DuplicateController mDuplicateController;
+
+    @Autowired
+    private ArtistRelationRepository mArtistRelationRepository;
+
+    @Autowired
+    private ArtistController mArtistController;
+
+    @Autowired
+    private ApplicationEventPublisher mApplicationEventPublisher;
+
+    @Transactional
+    @RequestMapping(value = "/update/relations", method = RequestMethod.POST)
+    public void updateRelationAPI(@RequestParam(name = "password") String password,
+            @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
+            @RequestParam(name = "ignore") List<Long> ignore, @RequestParam() boolean dryRun) {
+        if (!PASSWORD.equals(password)) {
+            return;
+        }
+        System.out.println("STARTED");
+        List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
+        List<String[]> theSplits = new ArrayList<>();
+        for (Artist theArtist : theArtists) {
+            theSplits.add(ArtistUtils.splitCollaboration(theArtist.getName()));
+        }
+        System.out.println("SPLITS ARE BUILT");
+        for (int i = 0; i < theArtists.size(); i++) {
+            Artist theSingleArtist = theArtists.get(i);
+            if (theSingleArtist.getId() < from) {
+                continue;
+            }
+            if (ignore.indexOf(theSingleArtist.getId()) >= 0) {
+                System.out.println("IGNORED " + theSingleArtist.getId());
+                continue;
+            }
+            String theSingleArtistName = theSingleArtist.getName().toLowerCase();
+            String[] theSingleSplits = theSplits.get(i);
+
+            for (int j = 0; j < i; j++) {
+                Artist theBandArtist = theArtists.get(j);
+                String theBandArtistName = theBandArtist.getName().toLowerCase();
+                String[] theBandSplits = theSplits.get(j);
+
+                boolean contains = theBandArtistName.startsWith(theSingleArtistName + " ") ||
+                        theBandArtistName.startsWith(theSingleArtistName + ",") ||
+                        theBandArtistName.endsWith(" " + theSingleArtistName) ||
+                        theBandArtistName.contains(" " + theSingleArtistName + " ") ||
+                        theBandArtistName.contains(" " + theSingleArtistName + ",");
+                if (contains) {
+                    System.out.println(String.format("RELATION DIRECT! %d => %d %s => %s", theSingleArtist.getId(),
+                            theBandArtist.getId(), theSingleArtist.getName(), theBandArtist.getName()));
+                    if (!dryRun) {
+                        mArtistRelationRepository.save(new ArtistRelation(theSingleArtist, theBandArtist));
+                    }
+                } else {
+                    boolean found = true;
+                    for (int k = 0; k < theSingleSplits.length; k++) {
+                        boolean same = false;
+                        for (int l = 0; l < theBandSplits.length; l++) {
+                            if (ArtistUtils.equalsEasy(theSingleSplits[k], theBandSplits[l], mArtistRepository,
+                                    mDuplicateArtistRepository)) {
+                                same = true;
+                                break;
+                            }
+                        }
+                        if (same == false) {
+                            found = false;
+                            break;
+                        }
+                    }
+                    if (found == true) {
+                        System.out.println(
+                                String.format("RELATION INDIRECT! %d => %d %s => %s", theSingleArtist.getId(),
+                                        theBandArtist.getId(), theSingleArtist.getName(), theBandArtist.getName()));
+                        if (!dryRun) {
+                            mArtistRelationRepository.save(new ArtistRelation(theSingleArtist, theBandArtist));
+                        }
+                    }
+                }
+            }
+
+            if (i % 100 == 0) {
+                System.out.println("CHECKED " + i);
+            }
+            if (theSingleArtist.getId() - from >= size) {
+                break;
+            }
+        }
+        System.out.println("FINISHED");
+    }
+
+    @Transactional
+    @RequestMapping(value = "/update/fixChartList", method = RequestMethod.GET)
+    public List<ChartTrack> fixChartListAPI(@RequestParam(name = "password") String password,
+            @RequestParam(name = "chartListId") Long chartListId) {
+        if (!PASSWORD.equals(password)) {
+            return null;
+        }
+        ChartList theChartList = mChartListRepository.findOne(chartListId);
+        if (theChartList == null) {
+            throw new ChartListNotFoundException();
+        }
+        try {
+            final BBJournalMetadata theJournal = new GsonBuilder().create()
+                    .fromJson(new FileReader(new File(getClass().getResource("/metadata_billboard.json").getFile())),
+                            BBJournalMetadata.class);
+            for (BBChartMetadata theChartMetadata : theJournal.getCharts()) {
+                if (theChartMetadata.getName().equals(theChartList.getChart().getName())) {
+                    Document theChartDocument = BBHtmlParser
+                            .getChartDocument(theJournal, theChartMetadata, theChartList.getWeek().getDate());
+                    List<BBTrack> theTracks = BBHtmlParser.getTracks(theChartDocument);
+                    if (theTracks.size() == theChartList.getChart().getListSize()) {
+                        List<ChartTrack> theOldTracks = mChartTrackRepository.findBymChartList(theChartList);
+                        System.out.println("CLEAR OLD " + theOldTracks.size() + " TRACKS");
+                        mChartTrackRepository.delete(theOldTracks);
+                        fillChartList(theChartList, theTracks);
+                        mDuplicateController.checkLastWeek(theChartList.getId(), 1);
+                        return mChartTrackRepository.findBymChartList(theChartList);
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Transactional
+    @RequestMapping(value = "/insertMissingChartList", method = RequestMethod.GET)
+    public ChartList insertMissingChartList(@RequestParam(name = "password") String password,
+            long chartId, String date) {
+        if (!PASSWORD.equals(password)) {
+            return null;
+        }
+        Chart theChart = mChartRepository.findOne(chartId);
+        if (theChart == null) {
+            return null;
+        }
+        Week theWeek = mWeekRepository.findBymDate(date);
+        if (theWeek == null) {
+            return null;
+        }
+        ChartList theChartList = mChartListRepository.findByMChartAndMWeek(theChart, theWeek);
+        if (theChartList != null) {
+            return null;
+        }
+        List<ChartList> theAfter = mChartListRepository.findAfter(theChart, theWeek.getDate());
+        ChartList theLastBefore =
+                Ex.isNotEmpty(theAfter) ? mChartListRepository.findOne(theAfter.get(0).getPreviousChartListId())
+                        : null;
+        ChartList theMissingChartList = getOrCreateChartList(theChart, theWeek, theLastBefore);
+        for (int i = 0; i < theAfter.size(); i++) {
+            final ChartList theAfterChartList = theAfter.get(i);
+            if (i == 0) {
+                mChartListRepository.updatePreviousId(theAfterChartList, theMissingChartList.getId());
+            }
+            mChartListRepository.updateNumber(theAfterChartList, theAfterChartList.getNumber() + 1);
+        }
+        return theMissingChartList;
+    }
+
+    @Transactional
+    @RequestMapping(value = "/updateDB", method = RequestMethod.GET)
+    public UpdateResult updateDBAPI(@RequestParam(name = "password") String password) {
+        if (!PASSWORD.equals(password)) {
+            return null;
+        }
+        return updateDB();
+    }
+
+    @RequestMapping(value = "/addChartFromLocal", method = RequestMethod.GET)
+    public void addChartFromLocal(@RequestParam(name = "password") String password, String chart,
+            @RequestParam(required = false) String start) {
+        if (!PASSWORD.equals(password)) {
+            return;
+        }
+        try {
+            Gson theGson = new GsonBuilder().create();
+            Reader theReader = new InputStreamReader(getClass().getResourceAsStream("/metadata_billboard.json"));
+            final BBJournalMetadata theJournalMetadata =
+                    theGson.fromJson(theReader, BBJournalMetadata.class);
+            theReader.close();
+            if (theJournalMetadata == null) {
+                return;
+            }
+            Calendar theCalendar = Calendar.getInstance();
+            theCalendar.set(2017, 10, 18);
+            Date TODAY = theCalendar.getTime();
+            Journal theJournal = getOrCreateJournal(theJournalMetadata.getName());
+            for (BBChartMetadata theBBChartMetadata : theJournalMetadata.getCharts()) {
+                if (chart.equals(theBBChartMetadata.getName())) {
+                    Chart theChart = getOrCreateChart(theJournal, theBBChartMetadata);
+                    ChartList theLastChartList = null;
+                    if (Ex.isEmpty(start)) {
+                        theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(theBBChartMetadata.getStartDate()));
+                    } else {
+                        theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(start));
+                        theLastChartList = mChartListRepository.findLast(
+                                theChart, new PageRequest(0, 1)).getContent().get(0);
+                    }
+                    while (theCalendar.getTime().compareTo(TODAY) <= 0) {
+                        String theDate = BB.CHART_DATE_FORMAT.format(theCalendar.getTime());
+                        String theFileName = theBBChartMetadata.getPrefix() + "-" + theDate + ".json";
+                        theReader = new InputStreamReader(getClass()
+                                .getResourceAsStream("/" + theBBChartMetadata.getFolder() + "/" + theFileName));
+                        try {
+                            BBChart theBBChart = theGson.fromJson(theReader, BBChart.class);
+                            final Week theWeek = getOrCreateWeek(theDate);
+                            ChartList theChartList = getOrCreateChartList(theChart, theWeek, theLastChartList);
+                            fillChartList(theChartList, theBBChart.getTracks());
+                            theLastChartList = theChartList;
+                        } finally {
+                            theReader.close();
+                        }
+                        theCalendar.add(Calendar.DATE, 7);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public UpdateResult updateDB() {
+        final Iterable<Chart> theCharts = mChartRepository.findAll();
+        try {
+            Reader theReader = new InputStreamReader(getClass().getResourceAsStream("/metadata_billboard.json"));
+            final BBJournalMetadata theJournal =
+                    new GsonBuilder().create().fromJson(theReader, BBJournalMetadata.class);
+            if (theJournal == null) {
+                return null;
+            }
+            theReader.close();
+            final UpdateResult theUpdates = new UpdateResult();
+
+
+            Date theHot100Update = null;
+            Date theLastUpdate = null;
+            for (Chart theChart : theCharts) {
+                BBChartMetadata theChartMetadata = null;
+                for (BBChartMetadata theMetadata : theJournal.getCharts()) {
+                    if (theChart.getName().equals(theMetadata.getName())) {
+                        theChartMetadata = theMetadata;
+                        break;
+                    }
+                }
+                Document theLastChartDocument = BBHtmlParser.getChartDocument(theJournal, theChartMetadata, null);
+                Date theLastWeekDate = BBHtmlParser.getChartDate(theLastChartDocument);
+                String theLastWeek = BB.CHART_DATE_FORMAT.format(theLastWeekDate);
+                ChartList theLastChartList =
+                        mChartListRepository.findLast(theChart, new PageRequest(0, 1)).getContent().get(0);
+
+                Calendar theCalendar = Calendar.getInstance();
+                theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(theLastChartList.getWeek().getDate()));
+                while (theCalendar.getTime().before(theLastWeekDate)) {
+                    String thePrevious = BB.CHART_DATE_FORMAT.format(theCalendar.getTime());
+                    theCalendar.add(Calendar.DATE,
+                            "2017-12-30".equals(thePrevious) ? 4 : "2018-01-03".equals(thePrevious) ? 3 : 7);
+                    Date theRequestedDate = theCalendar.getTime();
+                    String theRequestedDateString = BB.CHART_DATE_FORMAT.format(theRequestedDate);
+                    final Week theWeek = getOrCreateWeek(theRequestedDateString);
+                    ChartList theChartList = mChartListRepository.findByMChartAndMWeek(theChart, theWeek);
+                    if (theChartList != null) {
+                        System.out.println("The chart list " + theChartList.toString() + " is already exist!");
+                        theLastChartList = theChartList;
+                        continue;
+                    }
+                    Document theDocument = theRequestedDateString.equals(theLastWeek)
+                            ? theLastChartDocument
+                            : BBHtmlParser.getChartDocument(theJournal, theChartMetadata, theRequestedDateString);
+                    List<BBTrack> theTracks = BBHtmlParser.getTracks(theDocument);
+                    if (theRequestedDate.equals(BBHtmlParser.getChartDate(theDocument)) && Ex.isNotEmpty(theTracks)) {
+                        theChartList = getOrCreateChartList(theChart, theWeek, theLastChartList);
+                        fillChartList(theChartList, theTracks);
+                        theLastChartList = theChartList;
+                        theUpdates.addChartUpdate(theChart.getName() + " " + theRequestedDateString,
+                                theChart.getListSize() == theTracks.size() ? UpdateResult.RESULT_OK
+                                        : UpdateResult.RESULT_DIFFERENT_SIZE);
+                        // check Hot-100 update
+                        if (theLastUpdate == null || theLastUpdate.before(theRequestedDate)) {
+                            theLastUpdate = theRequestedDate;
+                        }
+                        if (theChart.getId() == 1) {
+                            theHot100Update = theRequestedDate;
+                        }
+                    } else {
+                        duplicateChartList(theLastChartList, theChartList);
+                        theUpdates.addChartUpdate(theChart.getName() + " " + theRequestedDateString,
+                                UpdateResult.RESULT_DUPLICATE);
+                    }
+                }
+            }
+            theUpdates.setUpdateWeek(
+                    theHot100Update != null && theHot100Update.compareTo(theLastUpdate) == 0 ? theHot100Update : null);
+            updateGlobalRankingTrack();
+            updateGlobalRankingArtist();
+
+            mApplicationEventPublisher.publishEvent(theUpdates);
+            return theUpdates;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Transactional
+    @RequestMapping(value = "/sendUpdateDB", method = RequestMethod.GET)
+    public boolean sendUpdateDBAPI(@RequestParam(name = "password") String password) {
+        if (!PASSWORD.equals(password)) {
+            return false;
+        }
+        UpdateResult theUpdateResult = new UpdateResult();
+        theUpdateResult.setUpdateWeek(Calendar.getInstance().getTime());
+        theUpdateResult.addChartUpdate("Hot 300", UpdateResult.RESULT_OK);
+        mApplicationEventPublisher.publishEvent(theUpdateResult);
+        return true;
+    }
+
+    private void duplicateChartList(ChartList from, ChartList to) {
+        List<ChartTrack> theChartTracks = mChartTrackRepository.findBymChartList(from);
+        List<ChartTrack> theNewChartTracks = new ArrayList<>();
+        for (ChartTrack theChartTrack : theChartTracks) {
+            ChartTrack theNewChartTrack = new ChartTrack();
+            theNewChartTrack.setTrack(theChartTrack.getTrack());
+            theChartTrack.setRank(theChartTrack.getRank());
+            theChartTrack.setLastWeekRank(theChartTrack.getRank());
+            theChartTrack.setChartList(to);
+            theNewChartTracks.add(theNewChartTrack);
+        }
+        mChartTrackRepository.save(theNewChartTracks);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @RequestMapping(value = "/updateGlobal", method = RequestMethod.POST)
+    public void updateGlobalAPI(@RequestParam(name = "password") String password) {
+        if (!PASSWORD.equals(password)) {
+            return;
+        }
+        updateGlobalRankingTrack();
+        updateGlobalRankingArtist();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateGlobalRankingTrack() {
+        System.out.println("STARTED UPDATE GLOBAL TRACK");
+        mEntityManager.createNativeQuery("TRUNCATE TABLE GLOBAL_RANK_TRACK").executeUpdate();
+        mGlobalRankTrackRepository.refreshAll();
+        System.out.println("FINISHED UPDATE GLOBAL TRACK");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateGlobalRankingArtist() {
+        System.out.println("STARTED UPDATE GLOBAL ARTIST");
+        mEntityManager.createNativeQuery("TRUNCATE TABLE GLOBAL_RANK_ARTIST").executeUpdate();
+        mGlobalRankArtistRepository.refreshAll();
+        mGlobalRankArtistRepository.addMissing();
+        System.out.println("FINISHED UPDATE GLOBAL ARTIST");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    private void fillChartList(ChartList chartList, List<BBTrack> tracks) {
+        for (BBTrack theBBTrack : tracks) {
+            final Artist theArtist = getOrCreateArtist(theBBTrack.getArtist().trim());
+            final Track theTrack = getOrCreateTrack(theArtist, theBBTrack.getTitle().trim());
+            final String theCoverUrl = theBBTrack.getCoverUrl();
+            if (Ex.isNotEmpty(theCoverUrl)) {
+                getOrCreateCoverUrl(theTrack.getId(), theCoverUrl.trim());
+            }
+            final String theSpotifyUrl = theBBTrack.getSpotifyUrl();
+            if (Ex.isNotEmpty(theSpotifyUrl)) {
+                getOrCreateSpotifyUrl(theTrack.getId(), theSpotifyUrl.trim());
+            }
+            final BBPositionInfo thePositionInfo = theBBTrack.getPositionInfo();
+            final int theLastWeek =
+                    BB.extractLastWeekRank(thePositionInfo == null ? null : thePositionInfo.getLastWeek());
+            createChartTrack(chartList, theTrack, theBBTrack.getRank(), theLastWeek);
+        }
+    }
+
+    private Chart getOrCreateChart(Journal journal, BBChartMetadata theChartMetadata) {
+        Chart theChart = mChartRepository.findBymName(theChartMetadata.getName());
+        if (theChart == null) {
+            theChart = new Chart();
+            theChart.setJournal(journal);
+            theChart.setName(theChartMetadata.getName());
+            theChart.setListSize(theChartMetadata.getSize());
+            theChart.setStartDate(theChartMetadata.getStartDate());
+            mChartRepository.save(theChart);
+            System.out.println("CREATED Chart " + theChart.getName());
+        }
+        return theChart;
+    }
+
+    private Journal getOrCreateJournal(String journalName) {
+        Journal theJournal = mJournalRepository.findBymName(journalName);
+        if (theJournal == null) {
+            theJournal = new Journal();
+            theJournal.setName(journalName);
+            mJournalRepository.save(theJournal);
+            System.out.println("CREATED Journal " + journalName);
+        }
+        return theJournal;
+    }
+
+    private SpotifyUrl getOrCreateSpotifyUrl(Long trackId, String spotifyUrl) {
+        SpotifyUrl theSpotifyUrl = mSpotifyUrlRepository.findOne(trackId);
+        if (theSpotifyUrl == null) {
+            theSpotifyUrl = new SpotifyUrl();
+            theSpotifyUrl.setTrackId(trackId);
+            theSpotifyUrl.setSpotifyUrl(spotifyUrl);
+            mSpotifyUrlRepository.save(theSpotifyUrl);
+        }
+        return theSpotifyUrl;
+    }
+
+    private TrackCover getOrCreateCoverUrl(Long trackId, String coverUrl) {
+        TrackCover theTrackCover = mTrackCoverRepository.findOne(trackId);
+        if (theTrackCover == null) {
+            theTrackCover = new TrackCover();
+            theTrackCover.setTrackId(trackId);
+            theTrackCover.setCoverUrl(coverUrl);
+            mTrackCoverRepository.save(theTrackCover);
+        }
+        return theTrackCover;
+    }
+
+    private ChartList getOrCreateChartList(Chart chart, Week week, ChartList previousChartList) {
+        ChartList theNewChartList = mChartListRepository.findByMChartAndMWeek(chart, week);
+        if (theNewChartList == null) {
+            final ChartList theLastChartList;
+            if (previousChartList != null) {
+                theLastChartList = previousChartList;
+            } else {
+                List<ChartList> theLast = mChartListRepository.findLast(chart, new PageRequest(0, 1)).getContent();
+                theLastChartList = Ex.isNotEmpty(theLast) ? theLast.get(0) : null;
+            }
+            theNewChartList = new ChartList();
+            theNewChartList.setChart(chart);
+            theNewChartList.setWeek(week);
+            theNewChartList.setNumber(theLastChartList == null ? 1 : theLastChartList.getNumber() + 1);
+            theNewChartList.setPreviousChartListId(theLastChartList == null ? 0 : theLastChartList.getId());
+            mChartListRepository.save(theNewChartList);
+            System.out.println("CREATED ChartList " + theNewChartList.toString() + ". ID = " + theNewChartList.getId());
+        }
+        return theNewChartList;
+    }
+
+    private Week getOrCreateWeek(String chartDate) {
+        Week theWeek = mWeekRepository.findBymDate(chartDate);
+        if (theWeek == null) {
+            theWeek = new Week();
+            theWeek.setDate(chartDate);
+            mWeekRepository.save(theWeek);
+        }
+        return theWeek;
+    }
+
+    private Artist getOrCreateArtist(String rawArtistName) {
+        String artistName = ArtistUtils.optimizeName(rawArtistName);
+        Artist theArtist = mArtistController.findArtist(artistName);
+        if (theArtist == null) {
+            theArtist = new Artist();
+            theArtist.setName(artistName);
+            mArtistRepository.save(theArtist);
+            System.out.println("CREATED Artist: " + theArtist.toString() + ". ID = " + theArtist.getId());
+            updateRelationsForArtist(theArtist);
+        }
+        return theArtist;
+    }
+
+    private void updateRelationsForArtist(Artist artist) {
+        String[] splits = ArtistUtils.splitCollaboration(artist.getName());
+        List<ArtistRelation> theArtistRelations = new ArrayList<>();
+        if (splits.length > 1) {
+            for (String split : splits) {
+                Artist theArtist = mArtistController.findArtist(split);
+                if (theArtist != null && theArtist.getId() != artist.getId()) {
+                    theArtistRelations.add(new ArtistRelation(theArtist, artist));
+                }
+            }
+        }
+        List<Artist> theLikeArtists = mArtistRepository.findBymNameLike(artist.getName());
+        for (Artist theLikeArtist : theLikeArtists) {
+            if (theLikeArtist.getId() != artist.getId()) {
+                theArtistRelations.add(new ArtistRelation(artist, theLikeArtist));
+            }
+        }
+        mArtistRelationRepository.save(theArtistRelations);
+        for (ArtistRelation theArtistRelation : theArtistRelations) {
+            System.out.println(
+                    String.format("Created ArtistRelation: %d => %d, %s => %s", theArtistRelation.getSingle().getId(),
+                            theArtistRelation.getBand().getId(), theArtistRelation.getSingle().getName(),
+                            theArtistRelation.getBand().getName()));
+        }
+    }
+
+    private Track getOrCreateTrack(Artist artist, String trackTitle) {
+        Track theTrack = mTrackRepository.findByMTitleAndMArtist(trackTitle, artist);
+        if (theTrack == null) {
+            final DuplicateTrack theDuplicate = mDuplicateTrackRepository.
+                    findBymDuplicateTitle(DuplicateTrack.generateDuplicateTitle(artist, trackTitle));
+            if (theDuplicate != null) {
+                System.out.println(
+                        "FOUND DUPLICATE Track: " + DuplicateTrack.generateDuplicateTitle(artist, trackTitle) + " => " +
+                                theDuplicate.getTrack().toString());
+                theTrack = theDuplicate.getTrack();
+            }
+        }
+        if (theTrack == null) {
+            theTrack = new Track();
+            theTrack.setArtist(artist);
+            theTrack.setTitle(trackTitle);
+            mTrackRepository.save(theTrack);
+            System.out.println("CREATED Track: " + theTrack.toString() + ". ID = " + theTrack.getId());
+        }
+        return theTrack;
+    }
+
+    private ChartTrack createChartTrack(ChartList chartList, Track track, int rank, int lastWeek) {
+        final ChartTrack theChartTrack = new ChartTrack();
+        theChartTrack.setChartList(chartList);
+        theChartTrack.setTrack(track);
+        theChartTrack.setRank(rank);
+        theChartTrack.setLastWeekRank(lastWeek);
+        mChartTrackRepository.save(theChartTrack);
+        return theChartTrack;
+    }
+
+}
