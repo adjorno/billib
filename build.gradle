@@ -1,22 +1,16 @@
-group 'com.adjorno.billib.rest'
-version '0.0.1'
-
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.6.RELEASE")
-    }
+plugins {
+    id "java"
+    id "idea"
+    id "org.springframework.boot" version "${springBootVersion}"
+    id "io.spring.dependency-management" version "${springDependencyVersion}"
 }
 
+group "com.adjorno.billib.rest"
+version "0.0.1"
+
 jar {
-    baseName = 'billib-rest-service'
-    version = '0.0.1'
+    baseName = "billib-rest-service"
+    version = "0.0.1"
 }
 
 repositories {
@@ -24,14 +18,14 @@ repositories {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-web"
-    compile "org.springframework.boot:spring-boot-starter-data-jpa"
-    compile "com.google.code.gson:gson:2.8.0"
-    compile "org.postgresql:postgresql:42.1.4"
-    compile "mysql:mysql-connector-java:8.0.20"
-    compile "org.jsoup:jsoup:1.7.2"
-    compile "com.m14n:ex:0.0.2"
-    compile "com.m14n.billib:data:0.0.5"
-    compile "de.bytefish.fcmjava:fcmjava-core:2.5"
-    compile "de.bytefish.fcmjava:fcmjava-client:2.5"
+    compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+    compile "com.google.code.gson:gson:${gsonVersion}"
+    compile "org.postgresql:postgresql:${postgreSQLVersion}"
+    compile "mysql:mysql-connector-java:${mySQLConnectorVersion}"
+    compile "org.jsoup:jsoup:${jsoupVersion}"
+    compile "com.m14n:ex:${m14nExVersion}"
+    compile "com.m14n.billib:data:${m14nBillibDataVersion}"
+    compile "de.bytefish.fcmjava:fcmjava-core:${fcmJavaVersion}"
+    compile "de.bytefish.fcmjava:fcmjava-client:${fcmJavaVersion}"
 }
