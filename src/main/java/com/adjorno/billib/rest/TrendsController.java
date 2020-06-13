@@ -56,7 +56,7 @@ public class TrendsController implements ITrendsController {
             @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String date) {
         final Week theWeek =
                 date == null ? mChartListRepository.findLast(1L, new PageRequest(0, 1)).getContent().get(0).getWeek()
-                        : mWeekRepository.findBymDate(BB.CHART_DATE_FORMAT.format(date));
+                        : mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date));
         final List<TrendTrack> theTrendTracks = mTrendTrackRepository.findTrendsOfTheWeek(theWeek);
         TrackUtils
                 .updateTracksExt(TrackUtils.asTrackList(theTrendTracks), mTrackCoverRepository, mSpotifyUrlRepository);
@@ -89,7 +89,7 @@ public class TrendsController implements ITrendsController {
     @Override
     public void generateTrends(String week, long type) {
         System.out.println("STARTED GENERATING TRENDS " + week);
-        Week theWeek = mWeekRepository.findBymDate(week);
+        Week theWeek = mWeekRepository.findByDate(week);
         if (week != null) {
             if (type == TrendType.TYPE_ALL || type == TrendType.TYPE_GAINERS) {
                 generateGainers(theWeek);

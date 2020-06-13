@@ -4,5 +4,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface JournalRepository extends CrudRepository<Journal, Long> {
 
-    Journal findBymName(String name);
+    Journal findByName(String name);
 }

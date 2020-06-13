@@ -8,14 +8,14 @@ import java.util.List;
 
 public interface DuplicateArtistRepository extends CrudRepository<DuplicateArtist, String> {
     @Modifying
-    @Query(value = "update DuplicateArtist da set da.mArtist = ?2 where da.mArtist = ?1")
+    @Query(value = "update DuplicateArtist da set da.artist = ?2 where da.artist = ?1")
     void updateArtists(Artist from, Artist to);
 
-    DuplicateArtist findBymDuplicateName(String name);
+    DuplicateArtist findByDuplicateName(String name);
 
-    List<DuplicateArtist> findBymArtist(Artist artist);
+    List<DuplicateArtist> findByArtist(Artist artist);
 
     @Modifying
-    @Query(value = "update DuplicateArtist da set da.mDuplicateName = ?2 where da = ?1")
+    @Query(value = "update DuplicateArtist da set da.duplicateName = ?2 where da = ?1")
     void rename(DuplicateArtist duplicateArtist, String optimizedName);
 }

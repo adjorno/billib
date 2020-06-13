@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "idea"
+    id "org.jetbrains.kotlin.jvm" version "${kotlinVersion}"
     id "org.springframework.boot" version "${springBootVersion}"
     id "io.spring.dependency-management" version "${springDependencyVersion}"
 }
@@ -9,23 +10,30 @@ group "com.adjorno.billib.rest"
 version "0.0.1"
 
 jar {
-    baseName = "billib-rest-service"
-    version = "0.0.1"
+    archiveBaseName = "billib-rest-service"
+    archiveVersion = "0.0.1"
 }
 
 repositories {
     mavenCentral()
 }
 
+compileKotlin {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
+}
+
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-    compile "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
-    compile "com.google.code.gson:gson:${gsonVersion}"
-    compile "org.postgresql:postgresql:${postgreSQLVersion}"
-    compile "mysql:mysql-connector-java:${mySQLConnectorVersion}"
-    compile "org.jsoup:jsoup:${jsoupVersion}"
-    compile "com.m14n:ex:${m14nExVersion}"
-    compile "com.m14n.billib:data:${m14nBillibDataVersion}"
-    compile "de.bytefish.fcmjava:fcmjava-core:${fcmJavaVersion}"
-    compile "de.bytefish.fcmjava:fcmjava-client:${fcmJavaVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+    implementation "com.google.code.gson:gson:${gsonVersion}"
+    implementation "org.postgresql:postgresql:${postgreSQLVersion}"
+    implementation "mysql:mysql-connector-java:${mySQLConnectorVersion}"
+    implementation "org.jsoup:jsoup:${jsoupVersion}"
+    implementation "com.m14n:ex:${m14nExVersion}"
+    implementation "com.m14n.billib:data:${m14nBillibDataVersion}"
+    implementation "de.bytefish.fcmjava:fcmjava-core:${fcmJavaVersion}"
+    implementation "de.bytefish.fcmjava:fcmjava-client:${fcmJavaVersion}"
 }

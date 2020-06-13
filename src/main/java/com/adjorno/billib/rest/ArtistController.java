@@ -51,7 +51,7 @@ public class ArtistController {
         }
         ArtistInfo theInfo = new ArtistInfo();
         theInfo.setArtist(theArtist);
-        theInfo.setGlobalRank(mGlobalRankArtistRepository.findBymArtistId(theArtist.getId()).getRank());
+        theInfo.setGlobalRank(mGlobalRankArtistRepository.findByArtistId(theArtist.getId()).getRank());
         theInfo.setArtistRelations(getRelations(id, relationsSize));
         theInfo.setTracks(mTrackController.getTracks(theArtist, tracksSize));
         return theInfo;
@@ -59,7 +59,7 @@ public class ArtistController {
 
     @RequestMapping(value = "/artist/global", method = RequestMethod.GET)
     public List<Artist> getGlobalArtists(@RequestParam() Long rank,
-            @RequestParam(required = false, defaultValue = "1") Long size) {
+                                         @RequestParam(required = false, defaultValue = "1") Long size) {
         return mArtistRepository.findGlobalList(rank, rank + size);
     }
 
@@ -72,7 +72,7 @@ public class ArtistController {
             throw new ArtistNotFoundException();
         }
         List<Artist> theResult = new ArrayList<>();
-        List<Artist> theSingleArtists = ArtistUtils.asSingleArtists(mArtistRelationRepository.findBymBand(theArtist));
+        List<Artist> theSingleArtists = ArtistUtils.asSingleArtists(mArtistRelationRepository.findByBand(theArtist));
         int theSinglesSize = 0;
         if (Ex.isNotEmpty(theSingleArtists)) {
             theSinglesSize = size == 0 || size >= theSingleArtists.size() ? theSingleArtists.size() : size;
@@ -80,7 +80,7 @@ public class ArtistController {
                     .sortByGlobalRank(ArtistUtils.asArtistIds(theSingleArtists), theSinglesSize));
         }
         if (size == 0 || size > theSinglesSize) {
-            List<Artist> theBandArtists = ArtistUtils.asBandArtists(mArtistRelationRepository.findBymSingle(theArtist));
+            List<Artist> theBandArtists = ArtistUtils.asBandArtists(mArtistRelationRepository.findBySingle(theArtist));
             if (Ex.isNotEmpty(theBandArtists)) {
                 int theBandsSize = size == 0 || size - theSinglesSize >= theBandArtists.size() ? theBandArtists.size()
                         : size - theSinglesSize;
@@ -98,7 +98,7 @@ public class ArtistController {
         if (theArtist == null) {
             throw new ArtistNotFoundException();
         }
-        DuplicateArtist theDuplicate = mDuplicateArtistRepository.findBymDuplicateName(newName);
+        DuplicateArtist theDuplicate = mDuplicateArtistRepository.findByDuplicateName(newName);
         String theOldName = theArtist.getName();
         if (theDuplicate != null) {
             if (!theDuplicate.getArtist().getId().equals(id)) {
@@ -114,9 +114,9 @@ public class ArtistController {
     }
 
     Artist findArtist(String artistName) {
-        Artist theArtist = mArtistRepository.findBymName(artistName);
+        Artist theArtist = mArtistRepository.findByName(artistName);
         if (theArtist == null) {
-            final DuplicateArtist theDuplicate = mDuplicateArtistRepository.findBymDuplicateName(artistName);
+            final DuplicateArtist theDuplicate = mDuplicateArtistRepository.findByDuplicateName(artistName);
             if (theDuplicate != null) {
                 System.out
                         .println("FOUND DUPLICATE Artist: " + artistName + " => " + theDuplicate.getArtist().getName());

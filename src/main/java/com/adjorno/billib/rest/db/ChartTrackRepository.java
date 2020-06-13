@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ChartTrackRepository extends CrudRepository<ChartTrack, Long> {
 
-    List<ChartTrack> findBymChartList(ChartList chartList);
+    List<ChartTrack> findByChartList(ChartList chartList);
 
-    ChartTrack findBymTrackAndMChartList(Track track, ChartList chartList);
+    ChartTrack findByTrackAndChartList(Track track, ChartList chartList);
 
     @Query(value = "SELECT RANK FROM CHART_TRACK\n" +
                    "                INNER JOIN TRACK ON TRACK._ID = CHART_TRACK.TRACK_ID\n" +
@@ -26,44 +26,44 @@ public interface ChartTrackRepository extends CrudRepository<ChartTrack, Long> {
     List<Integer> findPreviousWeekRank(@Param(value = "id") Long mChartTrackId);
 
     @Query(value =
-            "select ct, (c.mListSize - ct.mRank)*(c.mListSize - ct.mRank) - c.mListSize as rating from ChartTrack ct " +
-            "inner join ct.mChartList cl inner join cl.mWeek w inner join cl.mChart c " +
-            "where w.mId = ?1 and ct.mLastWeekRank = 0")
+            "select ct, (c.listSize - ct.rank)*(c.listSize - ct.rank) - c.listSize as rating from ChartTrack ct " +
+            "inner join ct.chartList cl inner join cl.week w inner join cl.chart c " +
+            "where w.id = ?1 and ct.lastWeekRank = 0")
     List<Object[]> findDebuts(Long weekId);
 
-    @Query(value = "select ct from ChartTrack ct inner join ct.mChartList cl where cl.mId = ?1 and ct.mRank = ?2")
+    @Query(value = "select ct from ChartTrack ct inner join ct.chartList cl where cl.id = ?1 and ct.rank = ?2")
     List<ChartTrack> findByChartListIdAndRank(Long id, int rank);
 
     @Modifying
-    @Query(value = "update ChartTrack ct set ct.mTrack = ?2 where ct.mTrack = ?1")
+    @Query(value = "update ChartTrack ct set ct.track = ?2 where ct.track = ?1")
     void updateTracks(Track from, Track to);
 
     @Modifying
-    @Query(value = "update ChartTrack ct set ct.mRank = ?2 where ct = ?1")
+    @Query(value = "update ChartTrack ct set ct.rank = ?2 where ct = ?1")
     void updateRank(ChartTrack sameTrack, int rank);
 
     @Modifying
-    @Query(value = "update ChartTrack ct set ct.mLastWeekRank = ?2 where ct = ?1")
+    @Query(value = "update ChartTrack ct set ct.lastWeekRank = ?2 where ct = ?1")
     void updateLastWeekRank(ChartTrack sameTrack, int lastWeekRank);
 
     @Modifying
-    @Query(value = "update ChartTrack ct set ct.mTrack = ?2 where ct = ?1")
+    @Query(value = "update ChartTrack ct set ct.track = ?2 where ct = ?1")
     void updateTrack(ChartTrack chartTrack, Track track);
 
-    @Query(value = "select ct from ChartTrack ct where ct.mChartList = ?1")
+    @Query(value = "select ct from ChartTrack ct where ct.chartList = ?1")
     List<ChartTrack> countRealChartListSize(ChartList previousChartList);
 
-    @Query(value = "select ct from ChartTrack ct inner join ct.mChartList cl inner join cl.mWeek w where ct.mTrack = ?1")
+    @Query(value = "select ct from ChartTrack ct inner join ct.chartList cl inner join cl.week w where ct.track = ?1")
     List<ChartTrack> findByTrackAndSort(Track track, Sort sort);
 
-    @Query(value = "select ct from ChartTrack ct inner join ct.mChartList cl where cl.mChart = ?2 and ct.mTrack = ?1")
+    @Query(value = "select ct from ChartTrack ct inner join ct.chartList cl where cl.chart = ?2 and ct.track = ?1")
     List<ChartTrack> findByTrackAndChart(Chart chart, Track track);
 
-    List<ChartTrack> findBymTrack(Track track);
+    List<ChartTrack> findByTrack(Track track);
 
-    @Query(value = "select ct from ChartTrack ct inner join ct.mChartList cl where cl.mChart in ?2 and ct.mTrack = ?1")
+    @Query(value = "select ct from ChartTrack ct inner join ct.chartList cl where cl.chart in ?2 and ct.track = ?1")
     List<ChartTrack> findByTrackInCharts(Track track, Iterable<Chart> charts);
 
-    @Query(value = "select ct from ChartTrack ct inner join ct.mChartList cl where cl.mWeek = ?1")
+    @Query(value = "select ct from ChartTrack ct inner join ct.chartList cl where cl.week = ?1")
     List<ChartTrack> findByWeek(Week week);
 }

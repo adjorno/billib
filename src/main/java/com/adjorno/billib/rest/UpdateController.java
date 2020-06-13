@@ -223,12 +223,12 @@ public class UpdateController implements IUpdateController {
                             .getChartDocument(theJournal, theChartMetadata, theChartList.getWeek().getDate());
                     List<BBTrack> theTracks = BBHtmlParser.getTracks(theChartDocument);
                     if (theTracks.size() == theChartList.getChart().getListSize()) {
-                        List<ChartTrack> theOldTracks = mChartTrackRepository.findBymChartList(theChartList);
+                        List<ChartTrack> theOldTracks = mChartTrackRepository.findByChartList(theChartList);
                         System.out.println("CLEAR OLD " + theOldTracks.size() + " TRACKS");
                         mChartTrackRepository.delete(theOldTracks);
                         fillChartList(theChartList, theTracks);
                         mDuplicateController.checkLastWeek(theChartList.getId(), 1);
-                        return mChartTrackRepository.findBymChartList(theChartList);
+                        return mChartTrackRepository.findByChartList(theChartList);
                     }
                 }
             }
@@ -251,11 +251,11 @@ public class UpdateController implements IUpdateController {
         if (theChart == null) {
             return null;
         }
-        Week theWeek = mWeekRepository.findBymDate(date);
+        Week theWeek = mWeekRepository.findByDate(date);
         if (theWeek == null) {
             return null;
         }
-        ChartList theChartList = mChartListRepository.findByMChartAndMWeek(theChart, theWeek);
+        ChartList theChartList = mChartListRepository.findByChartAndWeek(theChart, theWeek);
         if (theChartList != null) {
             return null;
         }
@@ -378,7 +378,7 @@ public class UpdateController implements IUpdateController {
                     Date theRequestedDate = theCalendar.getTime();
                     String theRequestedDateString = BB.CHART_DATE_FORMAT.format(theRequestedDate);
                     final Week theWeek = getOrCreateWeek(theRequestedDateString);
-                    ChartList theChartList = mChartListRepository.findByMChartAndMWeek(theChart, theWeek);
+                    ChartList theChartList = mChartListRepository.findByChartAndWeek(theChart, theWeek);
                     if (theChartList != null) {
                         System.out.println("The chart list " + theChartList.toString() + " is already exist!");
                         theLastChartList = theChartList;
@@ -438,7 +438,7 @@ public class UpdateController implements IUpdateController {
     }
 
     private void duplicateChartList(ChartList from, ChartList to) {
-        List<ChartTrack> theChartTracks = mChartTrackRepository.findBymChartList(from);
+        List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(from);
         List<ChartTrack> theNewChartTracks = new ArrayList<>();
         for (ChartTrack theChartTrack : theChartTracks) {
             ChartTrack theNewChartTrack = new ChartTrack();
@@ -499,7 +499,7 @@ public class UpdateController implements IUpdateController {
     }
 
     private Chart getOrCreateChart(Journal journal, BBChartMetadata theChartMetadata) {
-        Chart theChart = mChartRepository.findBymName(theChartMetadata.getName());
+        Chart theChart = mChartRepository.findByName(theChartMetadata.getName());
         if (theChart == null) {
             theChart = new Chart();
             theChart.setJournal(journal);
@@ -513,7 +513,7 @@ public class UpdateController implements IUpdateController {
     }
 
     private Journal getOrCreateJournal(String journalName) {
-        Journal theJournal = mJournalRepository.findBymName(journalName);
+        Journal theJournal = mJournalRepository.findByName(journalName);
         if (theJournal == null) {
             theJournal = new Journal();
             theJournal.setName(journalName);
@@ -546,7 +546,7 @@ public class UpdateController implements IUpdateController {
     }
 
     private ChartList getOrCreateChartList(Chart chart, Week week, ChartList previousChartList) {
-        ChartList theNewChartList = mChartListRepository.findByMChartAndMWeek(chart, week);
+        ChartList theNewChartList = mChartListRepository.findByChartAndWeek(chart, week);
         if (theNewChartList == null) {
             final ChartList theLastChartList;
             if (previousChartList != null) {
@@ -567,7 +567,7 @@ public class UpdateController implements IUpdateController {
     }
 
     private Week getOrCreateWeek(String chartDate) {
-        Week theWeek = mWeekRepository.findBymDate(chartDate);
+        Week theWeek = mWeekRepository.findByDate(chartDate);
         if (theWeek == null) {
             theWeek = new Week();
             theWeek.setDate(chartDate);
@@ -600,7 +600,7 @@ public class UpdateController implements IUpdateController {
                 }
             }
         }
-        List<Artist> theLikeArtists = mArtistRepository.findBymNameLike(artist.getName());
+        List<Artist> theLikeArtists = mArtistRepository.findByNameLike(artist.getName());
         for (Artist theLikeArtist : theLikeArtists) {
             if (theLikeArtist.getId() != artist.getId()) {
                 theArtistRelations.add(new ArtistRelation(artist, theLikeArtist));
@@ -616,13 +616,13 @@ public class UpdateController implements IUpdateController {
     }
 
     private Track getOrCreateTrack(Artist artist, String trackTitle) {
-        Track theTrack = mTrackRepository.findByMTitleAndMArtist(trackTitle, artist);
+        Track theTrack = mTrackRepository.findByTitleAndArtist(trackTitle, artist);
         if (theTrack == null) {
             final DuplicateTrack theDuplicate = mDuplicateTrackRepository.
-                    findBymDuplicateTitle(DuplicateTrack.generateDuplicateTitle(artist, trackTitle));
+                    findByDuplicateTitle(artist.generateDuplicateTitle(trackTitle));
             if (theDuplicate != null) {
                 System.out.println(
-                        "FOUND DUPLICATE Track: " + DuplicateTrack.generateDuplicateTitle(artist, trackTitle) + " => " +
+                        "FOUND DUPLICATE Track: " + artist.generateDuplicateTitle(trackTitle) + " => " +
                                 theDuplicate.getTrack().toString());
                 theTrack = theDuplicate.getTrack();
             }

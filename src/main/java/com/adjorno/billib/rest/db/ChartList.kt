@@ -1,0 +1,31 @@
+package com.adjorno.billib.rest.db
+
+import javax.persistence.*
+
+@Entity
+@Table(name = "CHART_LIST")
+data class ChartList(
+    @Id
+    @Column(name = "_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    var id: Long? = null,
+
+    @OneToOne
+    @JoinColumn(name = "CHART_ID")
+    var chart: Chart? = null,
+
+    @OneToOne
+    @JoinColumn(name = "WEEK_ID")
+    var week: Week? = null,
+
+    @Column(name = "NUMBER")
+    var number: Int? = null,
+
+    @Column(name = "PREVIOUS_CHART_LIST_ID")
+    var previousChartListId: Long? = null,
+
+    @Transient
+    var chartTracks: List<ChartTrack>? = null
+) {
+    override fun toString() = "$number. ${chart.toString()} ${week.toString()}"
+}

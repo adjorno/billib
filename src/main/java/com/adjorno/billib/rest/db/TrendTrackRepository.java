@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface TrendTrackRepository extends CrudRepository<TrendTrack, Long> {
 
-    @Query(value = "select tt from TrendTrack tt where tt.mWeek = ?1")
+    @Query(value = "select tt from TrendTrack tt where tt.week = ?1")
     List<TrendTrack> findTrendsOfTheWeek(Week week);
 
     @Modifying
-    @Query(value = "update TrendTrack tt set tt.mTrack = ?2 where tt.mTrack = ?1")
+    @Query(value = "update TrendTrack tt set tt.track = ?2 where tt.track = ?1")
     void updateTracks(Track from, Track to);
 }
