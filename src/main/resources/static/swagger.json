@@ -8,7 +8,7 @@
       "email": "adjorno@gmail.com"
     }
   },
-  "host": "billibrest.herokuapp.com",
+  "host": "localhost:8080",
   "tags": [
     {
       "name": "track",
@@ -28,6 +28,7 @@
     }
   ],
   "schemes": [
+    "http",
     "https"
   ],
   "paths": {

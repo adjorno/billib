@@ -67,6 +67,6 @@ public class Schedule {
     @Scheduled(fixedRate = 1000 * 60 * 15)
     void pingApp() {
         System.out.println("PING APP");
-        new RestTemplate().getForObject("https://billibrest.herokuapp.com", String.class);
+        //new RestTemplate().getForObject("https://billibrest.herokuapp.com", String.class);
     }
 }
