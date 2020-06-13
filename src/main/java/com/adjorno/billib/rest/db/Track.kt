@@ -5,21 +5,23 @@ import javax.persistence.*
 @Entity
 @Table(name = "TRACK")
 data class Track(
-        @Id
-        @Column(name = "_id")
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        var id: Long? = null,
+    @Id
+    @Column(name = "_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    var id: Long? = null,
 
-        @Column(name = "TITLE")
-        var title: String? = null,
+    @Column(name = "TITLE")
+    var title: String? = null,
 
-        @OneToOne
-        @JoinColumn(name = "ARTIST_ID")
-        var artist: Artist? = null,
+    @OneToOne
+    @JoinColumn(name = "ARTIST_ID")
+    var artist: Artist? = null,
 
-        @Transient
-        var coverUrl: String? = null,
+    @Transient
+    var coverUrl: String? = null,
 
-        @Transient
-        var spotifyUrl: String? = null
-)
+    @Transient
+    var spotifyUrl: String? = null
+) {
+    override fun toString() = "${artist?.name} - $title"
+}

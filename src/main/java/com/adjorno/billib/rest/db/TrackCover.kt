@@ -8,10 +8,12 @@ import javax.persistence.Table
 @Entity
 @Table(name = "TRACK_COVER")
 data class TrackCover(
-        @Id
-        @Column(name = "TRACK_ID")
-        var trackId: Long? = null,
+    @Id
+    @Column(name = "TRACK_ID")
+    var trackId: Long? = null,
 
-        @Column(name = "COVER_URL")
-        var coverUrl: String? = null
-)
+    @Column(name = "COVER_URL")
+    var coverUrl: String? = null
+) {
+    override fun toString() = "${trackId.toString()} - $coverUrl"
+}
