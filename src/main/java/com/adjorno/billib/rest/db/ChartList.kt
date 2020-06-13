@@ -1,5 +1,6 @@
 package com.adjorno.billib.rest.db
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -19,9 +20,11 @@ data class ChartList(
     var week: Week? = null,
 
     @Column(name = "NUMBER")
+    @JsonIgnore
     var number: Int? = null,
 
     @Column(name = "PREVIOUS_CHART_LIST_ID")
+    @JsonIgnore
     var previousChartListId: Long? = null,
 
     @Transient
