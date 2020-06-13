@@ -26,5 +26,5 @@ public interface GlobalRankArtistRepository extends CrudRepository<GlobalRankArt
             nativeQuery = true)
     void addMissing();
 
-    GlobalRankArtist findBymArtistId(Long artistId);
+    GlobalRankArtist findByArtistId(Long artistId);
 }

@@ -1,26 +1,8 @@
 package com.adjorno.billib.rest;
 
-import com.adjorno.billib.rest.db.Artist;
-import com.adjorno.billib.rest.db.ArtistRelationRepository;
-import com.adjorno.billib.rest.db.ArtistRepository;
-import com.adjorno.billib.rest.db.ArtistUtils;
-import com.adjorno.billib.rest.db.ChartList;
-import com.adjorno.billib.rest.db.ChartListRepository;
-import com.adjorno.billib.rest.db.ChartTrack;
-import com.adjorno.billib.rest.db.ChartTrackRepository;
-import com.adjorno.billib.rest.db.DayTrackRepository;
-import com.adjorno.billib.rest.db.DuplicateArtist;
-import com.adjorno.billib.rest.db.DuplicateArtistRepository;
-import com.adjorno.billib.rest.db.DuplicateTrack;
-import com.adjorno.billib.rest.db.DuplicateTrackRepository;
-import com.adjorno.billib.rest.db.SpotifyUrlRepository;
-import com.adjorno.billib.rest.db.Track;
-import com.adjorno.billib.rest.db.TrackCoverRepository;
-import com.adjorno.billib.rest.db.TrackRepository;
-import com.adjorno.billib.rest.db.TrendTrackRepository;
+import com.adjorno.billib.rest.db.*;
 import com.adjorno.billib.rest.model.MergeOperation;
 import com.m14n.ex.Ex;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,16 +10,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class DuplicateController implements IDuplicateController {
+
+    public static final String PASSWORD = "vtldtlm";
 
     @Autowired
     private ChartListRepository mChartListRepository;
@@ -80,13 +58,13 @@ public class DuplicateController implements IDuplicateController {
     public void checkTracksAPI(@RequestParam(name = "password") String password,
             @RequestParam(name = "fromArtist", defaultValue = "1") int from,
             @RequestParam(name = "checkSize", defaultValue = "100") int size) {
-        if (!BBRestApplication.PASSWORD.equals(password)) {
+        if (!PASSWORD.equals(password)) {
             return;
         }
         List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
         Map<Track, Track> theLeftDuplicates = new HashMap<>();
         for (int a = from; a < theArtists.size(); a++) {
-            List<Track> theTracks = mTrackRepository.findBymArtist(theArtists.get(a));
+            List<Track> theTracks = mTrackRepository.findByArtist(theArtists.get(a));
             for (int t1 = 0; t1 < theTracks.size(); t1++) {
                 Track theTrack1 = theTracks.get(t1);
                 for (int t2 = t1 + 1; t2 < theTracks.size(); t2++) {
@@ -128,7 +106,7 @@ public class DuplicateController implements IDuplicateController {
     public void checkArtistsAPI(@RequestParam(name = "password") String password,
             @RequestParam(name = "fromArtist", defaultValue = "1") int from,
             @RequestParam(name = "checkSize", defaultValue = "100") int size) {
-        if (!BBRestApplication.PASSWORD.equals(password)) {
+        if (!PASSWORD.equals(password)) {
             return;
         }
         List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
@@ -173,7 +151,7 @@ public class DuplicateController implements IDuplicateController {
     public void checkLastWeekAPI(@RequestParam(name = "password") String password,
             @RequestParam(name = "from", defaultValue = "1") long from,
             @RequestParam(name = "size", defaultValue = "500") long size) {
-        if (!BBRestApplication.PASSWORD.equals(password)) {
+        if (!PASSWORD.equals(password)) {
             return;
         }
         checkLastWeek(from, size);
@@ -184,7 +162,7 @@ public class DuplicateController implements IDuplicateController {
     public List<MergeOperation> removeDuplicateArtistAPI(@RequestParam(name = "password") String password,
             @RequestParam(name = "originalArtistId") Long originalId,
             @RequestParam(name = "duplicateArtistId") Long duplicateId) {
-        if (!BBRestApplication.PASSWORD.equals(password)) {
+        if (!PASSWORD.equals(password)) {
             return null;
         }
         List<MergeOperation> theMergeOperations = removeDuplicateArtist(originalId, duplicateId);
@@ -200,7 +178,7 @@ public class DuplicateController implements IDuplicateController {
     public MergeOperation<Track> removeDuplicateTrackAPI(@RequestParam(name = "password") String password,
             @RequestParam(name = "originalTrackId") Long originalId,
             @RequestParam(name = "duplicateTrackId") Long duplicateId) {
-        if (!BBRestApplication.PASSWORD.equals(password)) {
+        if (!PASSWORD.equals(password)) {
             return null;
         }
         MergeOperation<Track> theTrackMergeOperation = removeDuplicateTrack(originalId, duplicateId);
@@ -216,7 +194,7 @@ public class DuplicateController implements IDuplicateController {
     public void removeDuplicateCollaborationsAPI(@RequestParam(name = "password") String password,
             @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
             @RequestParam() boolean dryRun) {
-        if (!BBRestApplication.PASSWORD.equals(password)) {
+        if (!PASSWORD.equals(password)) {
             return;
         }
         List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
@@ -278,7 +256,7 @@ public class DuplicateController implements IDuplicateController {
         System.out.println("CHECK STARTED");
         while (from <= theSize) {
             final ChartList theChartList = mChartListRepository.findOne(from);
-            final List<ChartTrack> theChartTracks = mChartTrackRepository.findBymChartList(theChartList);
+            final List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(theChartList);
 
             if (thePreviousChartList != null &&
                     !thePreviousChartList.getChart().getId().equals(theChartList.getChart().getId())) {
@@ -290,7 +268,7 @@ public class DuplicateController implements IDuplicateController {
                 thePreviousChartList = mChartListRepository.findOne(theChartList.getPreviousChartListId());
             }
             if (Ex.isEmpty(thePreviousChartTracks) && thePreviousChartList != null) {
-                thePreviousChartTracks = mChartTrackRepository.findBymChartList(thePreviousChartList);
+                thePreviousChartTracks = mChartTrackRepository.findByChartList(thePreviousChartList);
             }
             if (Ex.isNotEmpty(thePreviousChartTracks)) {
                 for (ChartTrack theChartTrack : theChartTracks) {
@@ -311,7 +289,7 @@ public class DuplicateController implements IDuplicateController {
                             if (Ex.isEmpty(theSameRankTracks)) {
                                 // try to find the same track in previous list
                                 ChartTrack theSameTrack = mChartTrackRepository
-                                        .findBymTrackAndMChartList(theChartTrack.getTrack(), thePreviousChartList);
+                                        .findByTrackAndChartList(theChartTrack.getTrack(), thePreviousChartList);
                                 if (theSameTrack != null) {
                                     mChartTrackRepository.updateRank(theSameTrack, theLastWeekRank);
                                     mChartTrackRepository.updateLastWeekRank(theChartTrack, theSameTrack.getRank());
@@ -410,8 +388,8 @@ public class DuplicateController implements IDuplicateController {
                     mTrackRepository.findRepeatTitles(theDuplicateArtist.getId(), theOriginalArtist.getId());
             for (String theTitle : theRepeatTitles) {
                 MergeOperation<Track> theTrackMergeOperation = removeDuplicateTrack(
-                        mTrackRepository.findByMTitleAndMArtist(theTitle, theOriginalArtist).getId(),
-                        mTrackRepository.findByMTitleAndMArtist(theTitle, theDuplicateArtist).getId());
+                        mTrackRepository.findByTitleAndArtist(theTitle, theOriginalArtist).getId(),
+                        mTrackRepository.findByTitleAndArtist(theTitle, theDuplicateArtist).getId());
                 if (theTrackMergeOperation == null) {
                     System.out.println("Could not merge the track - " + theTitle);
                 } else {
@@ -468,7 +446,7 @@ public class DuplicateController implements IDuplicateController {
             mTrendTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDuplicateTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDuplicateTrackRepository.save(new DuplicateTrack(
-                    DuplicateTrack.generateDuplicateTitle(originalTrack.getArtist(), duplicateTrack.getTitle()),
+                    originalTrack.getArtist().generateDuplicateTitle(duplicateTrack.getTitle()),
                     originalTrack));
 
             mTrackRepository.delete(duplicateTrack);
@@ -478,7 +456,7 @@ public class DuplicateController implements IDuplicateController {
     }
 
     private void reportLastWeekRankProblem(ChartList previousChartList, ChartList chartList, ChartTrack theChartTrack,
-            List<ChartTrack> sameRankTracks) {
+                                           List<ChartTrack> sameRankTracks) {
         System.out.println("****************");
         System.out.println("--- ORIGINAL TRACK FROM CHART LIST " + chartList.getId());
         System.out.println(theChartTrack.toString() + " TRACK_ID = " + theChartTrack.getTrack().getId());

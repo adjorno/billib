@@ -63,7 +63,7 @@ public class ChartListController {
         } else {
             List<Week> theWeeks = mWeekRepository.findClosest(date);
             if (Ex.isNotEmpty(theWeeks)) {
-                theChartList = mChartListRepository.findByMChartAndMWeek(theChart, theWeeks.get(0));
+                theChartList = mChartListRepository.findByChartAndWeek(theChart, theWeeks.get(0));
             }
         }
         if (theChartList == null) {
@@ -85,7 +85,7 @@ public class ChartListController {
     }
 
     private ChartList getPrintableChartList(ChartList chartList) {
-        List<ChartTrack> theChartTracks = mChartTrackRepository.findBymChartList(chartList);
+        List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(chartList);
         TrackUtils.updateTracksExt(TrackUtils.asTracks(theChartTracks), mTrackCoverRepository, mSpotifyUrlRepository);
         chartList.setChartTracks(theChartTracks);
         return chartList;

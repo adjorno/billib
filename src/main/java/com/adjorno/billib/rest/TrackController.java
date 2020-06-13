@@ -70,7 +70,7 @@ public class TrackController implements ITrackController {
 
     @Override
     public List<Track> getTracks(Artist artist, int size) {
-        List<Track> theTracks = mTrackRepository.findBymArtist(artist);
+        List<Track> theTracks = mTrackRepository.findByArtist(artist);
         List<Track> theResult = mTrackRepository
                 .sortByGlobalRank(TrackUtils.asTrackIds(theTracks), size == 0 ? theTracks.size() : size);
         TrackUtils.updateTracksExt(theResult, mTrackCoverRepository, mSpotifyUrlRepository);
@@ -152,7 +152,7 @@ public class TrackController implements ITrackController {
         TrackInfo theTrackInfo = new TrackInfo();
         theTrackInfo.setTrack(theTrack);
         theTrackInfo.setHistory(getTrackHistory(id, null));
-        theTrackInfo.setGlobalRank(mGlobalRankTrackRepository.findBymTrackId(theTrack.getId()).getRank());
+        theTrackInfo.setGlobalRank(mGlobalRankTrackRepository.findByTrackId(theTrack.getId()).getRank());
         return theTrackInfo;
     }
 

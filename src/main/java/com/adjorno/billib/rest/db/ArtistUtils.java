@@ -34,10 +34,10 @@ public class ArtistUtils {
     public static String[] artistAlternatives(String artistName, ArtistRepository artistRepository,
             DuplicateArtistRepository duplicateArtistRepository) {
         List<String> theResult = new ArrayList<>();
-        Artist theArtist = artistRepository.findBymName(artistName);
+        Artist theArtist = artistRepository.findByName(artistName);
         theResult.add(artistName);
         if (theArtist != null) {
-            List<DuplicateArtist> theDuplicates = duplicateArtistRepository.findBymArtist(theArtist);
+            List<DuplicateArtist> theDuplicates = duplicateArtistRepository.findByArtist(theArtist);
             for (DuplicateArtist theDuplicateArtist : theDuplicates) {
                 theResult.add(theDuplicateArtist.getDuplicateName());
             }

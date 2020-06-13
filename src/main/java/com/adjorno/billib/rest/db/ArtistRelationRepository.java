@@ -9,11 +9,11 @@ import java.util.List;
 public interface ArtistRelationRepository extends CrudRepository<ArtistRelation, Long> {
 
     @Modifying
-    @Query(value = "update ArtistRelation ar set ar.mSingle = ?2 where ar.mSingle = ?1")
+    @Query(value = "update ArtistRelation ar set ar.single = ?2 where ar.single = ?1")
     void updateSingleArtists(Artist duplicateArtist, Artist originalArtist);
 
     @Modifying
-    @Query(value = "update ArtistRelation ar set ar.mBand = ?2 where ar.mBand = ?1")
+    @Query(value = "update ArtistRelation ar set ar.band = ?2 where ar.band = ?1")
     void updateBandArtists(Artist duplicateArtist, Artist originalArtist);
 
     @Query(value = "SELECT SINGLE_ID FROM ARTIST_RELATION WHERE BAND_ID IN (?1, ?2) GROUP BY SINGLE_ID",
@@ -25,10 +25,10 @@ public interface ArtistRelationRepository extends CrudRepository<ArtistRelation,
     List<Long> findMergingBandIds(Long singleId1, Long singleId2);
 
     @Modifying
-    @Query(value = "delete from ArtistRelation ar where ar.mSingle.mId = ?1 and ar.mBand.mId = ?2")
+    @Query(value = "delete from ArtistRelation ar where ar.single.id = ?1 and ar.band.id = ?2")
     void deleteBySingleIdAndBandId(Long singleId, Long bandId);
 
-    List<ArtistRelation> findBymBand(Artist artist);
+    List<ArtistRelation> findByBand(Artist artist);
 
-    List<ArtistRelation> findBymSingle(Artist artist);
+    List<ArtistRelation> findBySingle(Artist artist);
 }

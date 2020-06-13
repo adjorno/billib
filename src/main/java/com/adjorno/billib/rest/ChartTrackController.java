@@ -63,7 +63,7 @@ public class ChartTrackController {
             return;
         }
         List<ChartTrack> theChartListTracks =
-                mChartTrackRepository.findBymChartList(mChartListRepository.findOne(chartListId));
+                mChartTrackRepository.findByChartList(mChartListRepository.findOne(chartListId));
         for (ChartTrack ct : theChartListTracks) {
             List<Integer> thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(ct.getId());
             final int theLast = Ex.isEmpty(thePreviousWeekRanks) ? 0 : thePreviousWeekRanks.get(0);
@@ -91,14 +91,14 @@ public class ChartTrackController {
     }
 
     ChartTrack getDebut(Track track) {
-        return mChartTrackRepository.findByTrackAndSort(track, new Sort("w.mDate")).get(0);
+        return mChartTrackRepository.findByTrackAndSort(track, new Sort("w.date")).get(0);
     }
 
     ChartTrack addMissingTrackInternal(ChartList chartList, Track track, int rank) {
         int theLastWeekRank = 0;
         final ChartList thePreviousChartList = mChartListRepository.findOne(chartList.getPreviousChartListId());
         if (thePreviousChartList != null) {
-            final ChartTrack thePrevious = mChartTrackRepository.findBymTrackAndMChartList(track, thePreviousChartList);
+            final ChartTrack thePrevious = mChartTrackRepository.findByTrackAndChartList(track, thePreviousChartList);
             if (thePrevious != null) {
                 theLastWeekRank = thePrevious.getRank();
             }

@@ -9,13 +9,13 @@ import java.util.List;
 public class TrackUtils {
 
     public static void updateTrackExt(Track track, TrackCoverRepository trackCoverRepository,
-            SpotifyUrlRepository spotifyUrlRepository) {
+                                      SpotifyUrlRepository spotifyUrlRepository) {
         updateTrackWithTrackCover(track, trackCoverRepository);
         updateTrackWithSpotifyUrl(track, spotifyUrlRepository);
     }
 
     public static void updateTracksExt(List<Track> tracks, TrackCoverRepository trackCoverRepository,
-            SpotifyUrlRepository spotifyUrlRepository) {
+                                       SpotifyUrlRepository spotifyUrlRepository) {
         updateTracksWithTrackCover(tracks, trackCoverRepository);
         updateTracksWithSpotifyUrl(tracks, spotifyUrlRepository);
     }
@@ -118,7 +118,7 @@ public class TrackUtils {
         if (!Ex.isEmpty(to)) {
             theQueryBuilder.append("AND date(WEEK.DATE) < date('").append(to).append("') ");
         }
-        theQueryBuilder.append("GROUP BY TRACK_ID ORDER BY SUM((LIST_SIZE + 1 - RANK) * (LIST_SIZE + 1 - RANK)) DESC ");
+        theQueryBuilder.append("GROUP BY TRACK_ID ORDER BY SUM((LIST_SIZE + 1 - CHART_TRACK.RANK) * (LIST_SIZE + 1 - CHART_TRACK.RANK)) DESC ");
         theQueryBuilder.append("LIMIT ").append(limit);
 
         return theQueryBuilder.toString();

@@ -16,5 +16,5 @@ public interface GlobalRankTrackRepository extends CrudRepository<GlobalRankTrac
             nativeQuery = true)
     void refreshAll();
 
-    GlobalRankTrack findBymTrackId(Long trackId);
+    GlobalRankTrack findByTrackId(Long trackId);
 }

@@ -11,10 +11,10 @@ import java.sql.Date;
 
 public interface DayTrackRepository extends CrudRepository<DayTrack, Date> {
     @Modifying
-    @Query(value = "update DayTrack dt set dt.mTrack = ?2 where dt.mTrack = ?1")
+    @Query(value = "update DayTrack dt set dt.track = ?2 where dt.track = ?1")
     void updateTracks(Track from, Track to);
 
-    @Query(value = "select dt from DayTrack dt order by dt.mDay desc")
+    @Query(value = "select dt from DayTrack dt order by dt.day desc")
     Page<DayTrack> findLast(Pageable pageable);
 
 }

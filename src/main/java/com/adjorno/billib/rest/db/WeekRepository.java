@@ -8,11 +8,11 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface WeekRepository extends CrudRepository<Week, Long> {
-    @Query(value = "select w from Week w order by w.mDate desc")
+    @Query(value = "select w from Week w order by w.date desc")
     Page<Week> findLastWeek(Pageable pageable);
 
-    Week findBymDate(String chartDate);
+    Week findByDate(String chartDate);
 
-    @Query(value = "select w from Week w where w.mDate >= ?1 order by w.mDate asc")
+    @Query(value = "select w from Week w where w.date >= ?1 order by w.date asc")
     List<Week> findClosest(String chartDate);
 }
