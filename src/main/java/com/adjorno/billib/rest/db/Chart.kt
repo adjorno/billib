@@ -1,9 +1,11 @@
 package com.adjorno.billib.rest.db
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import javax.persistence.*
 
 @Entity
 @Table(name = "CHART")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Chart(
     @Id
     @Column(name = "_id")
@@ -21,7 +23,10 @@ data class Chart(
     var listSize: Int? = null,
 
     @Column(name = "START_DATE")
-    var startDate: String? = null
+    var startDate: String? = null,
+
+    @Column(name = "END_DATE")
+    var endDate: String? = null
 ) {
     override fun toString(): String = name.toString()
 }
