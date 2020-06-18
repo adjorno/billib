@@ -87,8 +87,11 @@ public class UpdateController implements IUpdateController {
     @Autowired
     private ApplicationEventPublisher mApplicationEventPublisher;
 
-    @Value("${rawJsonData.path}")
+    @Value("${update.rawJsonData.path}")
     private String rawJsonDataPath;
+
+    @Value("${update.today}")
+    private String today;
 
     @Transactional
     @RequestMapping(value = "/update/relations", method = RequestMethod.POST)
@@ -264,14 +267,13 @@ public class UpdateController implements IUpdateController {
             if (theJournalMetadata == null) {
                 return;
             }
-            Calendar theCalendar = Calendar.getInstance();
-            theCalendar.set(2020, Calendar.JUNE, 13);
-            Date TODAY = theCalendar.getTime();
+            Date TODAY = BB.CHART_DATE_FORMAT.parse(today);
             Journal theJournal = getOrCreateJournal(theJournalMetadata.getName());
             for (BBChartMetadata theBBChartMetadata : theJournalMetadata.getCharts()) {
                 if (chart.equals(theBBChartMetadata.getName())) {
                     Chart theChart = getOrCreateChart(theJournal, theBBChartMetadata);
                     ChartList theLastChartList = null;
+                    Calendar theCalendar = Calendar.getInstance();
                     if (Ex.isEmpty(start)) {
                         theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(theBBChartMetadata.getStartDate()));
                     } else {
@@ -297,9 +299,7 @@ public class UpdateController implements IUpdateController {
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
