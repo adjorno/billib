@@ -43,12 +43,6 @@ public class TrendsController implements ITrendsController {
     private TrendTrackRepository mTrendTrackRepository;
 
     @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
-
-    @Autowired
     private TrackController mTrackController;
 
     @RequestMapping(value = "/trends", method = RequestMethod.GET)
@@ -58,8 +52,6 @@ public class TrendsController implements ITrendsController {
                 date == null ? mChartListRepository.findLast(1L, new PageRequest(0, 1)).getContent().get(0).getWeek()
                         : mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date));
         final List<TrendTrack> theTrendTracks = mTrendTrackRepository.findTrendsOfTheWeek(theWeek);
-        TrackUtils
-                .updateTracksExt(TrackUtils.asTrackList(theTrendTracks), mTrackCoverRepository, mSpotifyUrlRepository);
         final Map<Long, TrendList> theTrendLists = new HashMap<>();
         for (TrendTrack theTrendTrack : theTrendTracks) {
             final long trendType = theTrendTrack.getType().getId();

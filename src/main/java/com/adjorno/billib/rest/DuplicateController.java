@@ -36,12 +36,6 @@ public class DuplicateController implements IDuplicateController {
     private ChartTrackRepository mChartTrackRepository;
 
     @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
-
-    @Autowired
     private DayTrackRepository mDayTrackRepository;
 
     @Autowired
@@ -56,8 +50,8 @@ public class DuplicateController implements IDuplicateController {
     @Transactional
     @RequestMapping(value = "/duplicate/checkTracks", method = RequestMethod.POST)
     public void checkTracksAPI(@RequestParam(name = "password") String password,
-            @RequestParam(name = "fromArtist", defaultValue = "1") int from,
-            @RequestParam(name = "checkSize", defaultValue = "100") int size) {
+                               @RequestParam(name = "fromArtist", defaultValue = "1") int from,
+                               @RequestParam(name = "checkSize", defaultValue = "100") int size) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -104,8 +98,8 @@ public class DuplicateController implements IDuplicateController {
     @Transactional
     @RequestMapping(value = "/duplicate/checkArtists", method = RequestMethod.POST)
     public void checkArtistsAPI(@RequestParam(name = "password") String password,
-            @RequestParam(name = "fromArtist", defaultValue = "1") int from,
-            @RequestParam(name = "checkSize", defaultValue = "100") int size) {
+                                @RequestParam(name = "fromArtist", defaultValue = "1") int from,
+                                @RequestParam(name = "checkSize", defaultValue = "100") int size) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -149,8 +143,8 @@ public class DuplicateController implements IDuplicateController {
     @Transactional
     @RequestMapping(value = "/duplicate/checkLastWeek", method = RequestMethod.POST)
     public void checkLastWeekAPI(@RequestParam(name = "password") String password,
-            @RequestParam(name = "from", defaultValue = "1") long from,
-            @RequestParam(name = "size", defaultValue = "500") long size) {
+                                 @RequestParam(name = "from", defaultValue = "1") long from,
+                                 @RequestParam(name = "size", defaultValue = "500") long size) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -160,8 +154,8 @@ public class DuplicateController implements IDuplicateController {
     @Transactional
     @RequestMapping(value = "/duplicate/artist", method = RequestMethod.GET)
     public List<MergeOperation> removeDuplicateArtistAPI(@RequestParam(name = "password") String password,
-            @RequestParam(name = "originalArtistId") Long originalId,
-            @RequestParam(name = "duplicateArtistId") Long duplicateId) {
+                                                         @RequestParam(name = "originalArtistId") Long originalId,
+                                                         @RequestParam(name = "duplicateArtistId") Long duplicateId) {
         if (!PASSWORD.equals(password)) {
             return null;
         }
@@ -176,8 +170,8 @@ public class DuplicateController implements IDuplicateController {
     @Transactional
     @RequestMapping(value = "/duplicate/track", method = RequestMethod.GET)
     public MergeOperation<Track> removeDuplicateTrackAPI(@RequestParam(name = "password") String password,
-            @RequestParam(name = "originalTrackId") Long originalId,
-            @RequestParam(name = "duplicateTrackId") Long duplicateId) {
+                                                         @RequestParam(name = "originalTrackId") Long originalId,
+                                                         @RequestParam(name = "duplicateTrackId") Long duplicateId) {
         if (!PASSWORD.equals(password)) {
             return null;
         }
@@ -192,8 +186,8 @@ public class DuplicateController implements IDuplicateController {
     @Transactional
     @RequestMapping(value = "/duplicate/checkCollaborations", method = RequestMethod.POST)
     public void removeDuplicateCollaborationsAPI(@RequestParam(name = "password") String password,
-            @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
-            @RequestParam() boolean dryRun) {
+                                                 @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
+                                                 @RequestParam() boolean dryRun) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -428,21 +422,6 @@ public class DuplicateController implements IDuplicateController {
         if (originalTrack != null && duplicateTrack != null) {
             mChartTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDayTrackRepository.updateTracks(duplicateTrack, originalTrack);
-
-            if (mSpotifyUrlRepository.findOne(duplicateTrack.getId()) != null) {
-                if (mSpotifyUrlRepository.findOne(originalTrack.getId()) != null) {
-                    mSpotifyUrlRepository.delete(duplicateTrack.getId());
-                } else {
-                    mSpotifyUrlRepository.updateTrackIds(duplicateTrack.getId(), originalTrack.getId());
-                }
-            }
-            if (mTrackCoverRepository.findOne(duplicateTrack.getId()) != null) {
-                if (mTrackCoverRepository.findOne(originalTrack.getId()) != null) {
-                    mTrackCoverRepository.delete(duplicateTrack.getId());
-                } else {
-                    mTrackCoverRepository.updateTrackIds(duplicateTrack.getId(), originalTrack.getId());
-                }
-            }
             mTrendTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDuplicateTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDuplicateTrackRepository.save(new DuplicateTrack(

@@ -840,6 +840,11 @@
           "type": "string",
           "format": "date"
         },
+        "endDate": {
+          "type": "string",
+          "format": "date",
+          "required": false
+        },
         "listSize": {
           "type": "integer",
           "format": "int32"
@@ -912,12 +917,6 @@
         "artist": {
           "$ref": "#/definitions/Artist"
         },
-        "coverUrl": {
-          "type": "string"
-        },
-        "spotifyUrl": {
-          "type": "string"
-        }
       }
     },
     "Week": {
