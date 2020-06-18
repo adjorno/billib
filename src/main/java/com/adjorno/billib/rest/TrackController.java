@@ -48,7 +48,6 @@ public class TrackController implements ITrackController {
         if (theOne == null) {
             throw new TrackNotFoundException();
         }
-//        TrackUtils.updateTrackExt(theOne, mTrackCoverRepository, mSpotifyUrlRepository);
         return theOne;
     }
 

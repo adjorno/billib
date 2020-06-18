@@ -1,40 +1,15 @@
 package com.adjorno.billib.rest;
 
-import com.adjorno.billib.rest.db.Artist;
-import com.adjorno.billib.rest.db.ArtistRelation;
-import com.adjorno.billib.rest.db.ArtistRelationRepository;
-import com.adjorno.billib.rest.db.ArtistRepository;
-import com.adjorno.billib.rest.db.ArtistUtils;
-import com.adjorno.billib.rest.db.Chart;
-import com.adjorno.billib.rest.db.ChartList;
-import com.adjorno.billib.rest.db.ChartListRepository;
-import com.adjorno.billib.rest.db.ChartRepository;
-import com.adjorno.billib.rest.db.ChartTrack;
-import com.adjorno.billib.rest.db.ChartTrackRepository;
-import com.adjorno.billib.rest.db.DuplicateArtistRepository;
-import com.adjorno.billib.rest.db.DuplicateTrack;
-import com.adjorno.billib.rest.db.DuplicateTrackRepository;
-import com.adjorno.billib.rest.db.GlobalRankArtistRepository;
-import com.adjorno.billib.rest.db.GlobalRankTrackRepository;
-import com.adjorno.billib.rest.db.Journal;
-import com.adjorno.billib.rest.db.JournalRepository;
-import com.adjorno.billib.rest.db.Track;
-import com.adjorno.billib.rest.db.TrackRepository;
-import com.adjorno.billib.rest.db.Week;
-import com.adjorno.billib.rest.db.WeekRepository;
+import com.adjorno.billib.rest.db.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.m14n.billib.data.BB;
 import com.m14n.billib.data.html.BBHtmlParser;
-import com.m14n.billib.data.model.BBChart;
-import com.m14n.billib.data.model.BBChartMetadata;
-import com.m14n.billib.data.model.BBJournalMetadata;
-import com.m14n.billib.data.model.BBPositionInfo;
-import com.m14n.billib.data.model.BBTrack;
+import com.m14n.billib.data.model.*;
 import com.m14n.ex.Ex;
-
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,19 +19,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import javax.persistence.EntityManager;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.EntityManager;
 
 
 @RestController
@@ -112,11 +81,17 @@ public class UpdateController implements IUpdateController {
     @Autowired
     private ApplicationEventPublisher mApplicationEventPublisher;
 
+    @Value("${update.rawJsonData.path}")
+    private String rawJsonDataPath;
+
+    @Value("${update.today}")
+    private String today;
+
     @Transactional
     @RequestMapping(value = "/update/relations", method = RequestMethod.POST)
     public void updateRelationAPI(@RequestParam(name = "password") String password,
-            @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
-            @RequestParam(name = "ignore") List<Long> ignore, @RequestParam() boolean dryRun) {
+                                  @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
+                                  @RequestParam(name = "ignore") List<Long> ignore, @RequestParam() boolean dryRun) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -195,7 +170,7 @@ public class UpdateController implements IUpdateController {
     @Transactional
     @RequestMapping(value = "/update/fixChartList", method = RequestMethod.GET)
     public List<ChartTrack> fixChartListAPI(@RequestParam(name = "password") String password,
-            @RequestParam(name = "chartListId") Long chartListId) {
+                                            @RequestParam(name = "chartListId") Long chartListId) {
         if (!PASSWORD.equals(password)) {
             return null;
         }
@@ -231,7 +206,7 @@ public class UpdateController implements IUpdateController {
     @Transactional
     @RequestMapping(value = "/insertMissingChartList", method = RequestMethod.GET)
     public ChartList insertMissingChartList(@RequestParam(name = "password") String password,
-            long chartId, String date) {
+                                            long chartId, String date) {
         if (!PASSWORD.equals(password)) {
             return null;
         }
@@ -273,7 +248,7 @@ public class UpdateController implements IUpdateController {
 
     @RequestMapping(value = "/addChartFromLocal", method = RequestMethod.GET)
     public void addChartFromLocal(@RequestParam(name = "password") String password, String chart,
-            @RequestParam(required = false) String start) {
+                                  @RequestParam(required = false) String start) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -286,14 +261,13 @@ public class UpdateController implements IUpdateController {
             if (theJournalMetadata == null) {
                 return;
             }
-            Calendar theCalendar = Calendar.getInstance();
-            theCalendar.set(2017, 10, 18);
-            Date TODAY = theCalendar.getTime();
+            Date TODAY = BB.CHART_DATE_FORMAT.parse(today);
             Journal theJournal = getOrCreateJournal(theJournalMetadata.getName());
             for (BBChartMetadata theBBChartMetadata : theJournalMetadata.getCharts()) {
                 if (chart.equals(theBBChartMetadata.getName())) {
                     Chart theChart = getOrCreateChart(theJournal, theBBChartMetadata);
                     ChartList theLastChartList = null;
+                    Calendar theCalendar = Calendar.getInstance();
                     if (Ex.isEmpty(start)) {
                         theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(theBBChartMetadata.getStartDate()));
                     } else {
@@ -304,8 +278,8 @@ public class UpdateController implements IUpdateController {
                     while (theCalendar.getTime().compareTo(TODAY) <= 0) {
                         String theDate = BB.CHART_DATE_FORMAT.format(theCalendar.getTime());
                         String theFileName = theBBChartMetadata.getPrefix() + "-" + theDate + ".json";
-                        theReader = new InputStreamReader(getClass()
-                                .getResourceAsStream("/" + theBBChartMetadata.getFolder() + "/" + theFileName));
+                        theReader = new InputStreamReader(new FileInputStream(new File(rawJsonDataPath +
+                                theBBChartMetadata.getFolder() + "/" + theFileName)));
                         try {
                             BBChart theBBChart = theGson.fromJson(theReader, BBChart.class);
                             final Week theWeek = getOrCreateWeek(theDate);
@@ -319,9 +293,7 @@ public class UpdateController implements IUpdateController {
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
