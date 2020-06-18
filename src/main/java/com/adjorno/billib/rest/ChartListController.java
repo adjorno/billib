@@ -33,12 +33,6 @@ public class ChartListController {
     private TrackRepository mTrackRepository;
 
     @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
-
-    @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
     private ChartTrackController mChartTrackController;
 
     @RequestMapping(value = "/chartList/getById", method = RequestMethod.GET)
@@ -86,7 +80,6 @@ public class ChartListController {
 
     private ChartList getPrintableChartList(ChartList chartList) {
         List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(chartList);
-        TrackUtils.updateTracksExt(TrackUtils.asTracks(theChartTracks), mTrackCoverRepository, mSpotifyUrlRepository);
         chartList.setChartTracks(theChartTracks);
         return chartList;
     }

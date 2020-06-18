@@ -55,12 +55,6 @@ public class UpdateController implements IUpdateController {
     private ChartRepository mChartRepository;
 
     @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
-
-    @Autowired
     private GlobalRankTrackRepository mGlobalRankTrackRepository;
 
     @Autowired
@@ -449,14 +443,6 @@ public class UpdateController implements IUpdateController {
         for (BBTrack theBBTrack : tracks) {
             final Artist theArtist = getOrCreateArtist(theBBTrack.getArtist().trim());
             final Track theTrack = getOrCreateTrack(theArtist, theBBTrack.getTitle().trim());
-            final String theCoverUrl = theBBTrack.getCoverUrl();
-            if (Ex.isNotEmpty(theCoverUrl)) {
-                getOrCreateCoverUrl(theTrack.getId(), theCoverUrl.trim());
-            }
-            final String theSpotifyUrl = theBBTrack.getSpotifyUrl();
-            if (Ex.isNotEmpty(theSpotifyUrl)) {
-                getOrCreateSpotifyUrl(theTrack.getId(), theSpotifyUrl.trim());
-            }
             final BBPositionInfo thePositionInfo = theBBTrack.getPositionInfo();
             final int theLastWeek =
                     BB.extractLastWeekRank(thePositionInfo == null ? null : thePositionInfo.getLastWeek());
@@ -487,28 +473,6 @@ public class UpdateController implements IUpdateController {
             System.out.println("CREATED Journal " + journalName);
         }
         return theJournal;
-    }
-
-    private SpotifyUrl getOrCreateSpotifyUrl(Long trackId, String spotifyUrl) {
-        SpotifyUrl theSpotifyUrl = mSpotifyUrlRepository.findOne(trackId);
-        if (theSpotifyUrl == null) {
-            theSpotifyUrl = new SpotifyUrl();
-            theSpotifyUrl.setTrackId(trackId);
-            theSpotifyUrl.setSpotifyUrl(spotifyUrl);
-            mSpotifyUrlRepository.save(theSpotifyUrl);
-        }
-        return theSpotifyUrl;
-    }
-
-    private TrackCover getOrCreateCoverUrl(Long trackId, String coverUrl) {
-        TrackCover theTrackCover = mTrackCoverRepository.findOne(trackId);
-        if (theTrackCover == null) {
-            theTrackCover = new TrackCover();
-            theTrackCover.setTrackId(trackId);
-            theTrackCover.setCoverUrl(coverUrl);
-            mTrackCoverRepository.save(theTrackCover);
-        }
-        return theTrackCover;
     }
 
     private ChartList getOrCreateChartList(Chart chart, Week week, ChartList previousChartList) {

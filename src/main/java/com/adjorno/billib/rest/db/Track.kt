@@ -15,13 +15,7 @@ data class Track(
 
     @OneToOne
     @JoinColumn(name = "ARTIST_ID")
-    var artist: Artist? = null,
-
-    @Transient
-    var coverUrl: String? = null,
-
-    @Transient
-    var spotifyUrl: String? = null
+    var artist: Artist? = null
 ) {
     override fun toString() = "${artist?.name} - $title"
 }
