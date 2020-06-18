@@ -76,13 +76,10 @@ private fun String.removeTableUnLock(): String =
 
 private fun String.foreach(search: String, callback: (builder: StringBuilder, index: Int) -> Unit): String {
     val result = StringBuilder(this)
-    var index = 0
-    while (true) {
-        val searchIndex = result.indexOf(search, index)
-        if (searchIndex < 0) {
-            return result.toString()
-        }
-        callback(result, searchIndex)
-        index = searchIndex + 1
+    var index = result.indexOf(search)
+    while (index >= 0) {
+        callback(result, index)
+        index = result.indexOf(search, index + 1)
     }
+    return result.toString()
 }
