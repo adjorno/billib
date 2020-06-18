@@ -6,12 +6,13 @@ fun main(args: Array<String>) {
     val inputSqlPath = args[0]
     val outputSqlPath = args[1]
 
-    File(outputSqlPath).writeText(File(inputSqlPath).readText()
-            .insertDropDbCommand()
-            .fixCreateTableCommand()
-            .fixBackslashQuotes()
-            .removeTableUnLock()
-            .removeTableLock())
+    File(outputSqlPath).writeText(
+            File(inputSqlPath).readText()
+                .insertDropDbCommand()
+                .fixCreateTableCommand()
+                .fixBackslashQuotes()
+                .removeTableUnLock()
+                .removeTableLock())
 }
 
 /**
