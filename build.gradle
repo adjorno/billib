@@ -36,4 +36,5 @@ dependencies {
     implementation "com.m14n.billib:data:${m14nBillibDataVersion}"
     implementation "de.bytefish.fcmjava:fcmjava-core:${fcmJavaVersion}"
     implementation "de.bytefish.fcmjava:fcmjava-client:${fcmJavaVersion}"
+    implementation "com.h2database:h2:${h2Version}"
 }
