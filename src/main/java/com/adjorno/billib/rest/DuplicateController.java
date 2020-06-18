@@ -36,12 +36,6 @@ public class DuplicateController implements IDuplicateController {
     private ChartTrackRepository mChartTrackRepository;
 
     @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
-
-    @Autowired
     private DayTrackRepository mDayTrackRepository;
 
     @Autowired
@@ -429,20 +423,6 @@ public class DuplicateController implements IDuplicateController {
             mChartTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDayTrackRepository.updateTracks(duplicateTrack, originalTrack);
 
-            if (mSpotifyUrlRepository.findOne(duplicateTrack.getId()) != null) {
-                if (mSpotifyUrlRepository.findOne(originalTrack.getId()) != null) {
-                    mSpotifyUrlRepository.delete(duplicateTrack.getId());
-                } else {
-                    mSpotifyUrlRepository.updateTrackIds(duplicateTrack.getId(), originalTrack.getId());
-                }
-            }
-            if (mTrackCoverRepository.findOne(duplicateTrack.getId()) != null) {
-                if (mTrackCoverRepository.findOne(originalTrack.getId()) != null) {
-                    mTrackCoverRepository.delete(duplicateTrack.getId());
-                } else {
-                    mTrackCoverRepository.updateTrackIds(duplicateTrack.getId(), originalTrack.getId());
-                }
-            }
             mTrendTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDuplicateTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDuplicateTrackRepository.save(new DuplicateTrack(

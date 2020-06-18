@@ -2,9 +2,7 @@ package com.adjorno.billib.rest;
 
 import com.adjorno.billib.rest.db.Artist;
 import com.adjorno.billib.rest.db.ArtistUtils;
-import com.adjorno.billib.rest.db.SpotifyUrlRepository;
 import com.adjorno.billib.rest.db.Track;
-import com.adjorno.billib.rest.db.TrackCoverRepository;
 import com.adjorno.billib.rest.db.TrackUtils;
 import com.adjorno.billib.rest.model.MergedSearchResult;
 import com.adjorno.billib.rest.model.SearchResult;
@@ -30,12 +28,6 @@ public class SearchController {
 
     @Autowired
     private EntityManager mEntityManager;
-
-    @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
 
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     public MergedSearchResult search(@RequestParam() String query,
@@ -86,7 +78,6 @@ public class SearchController {
                         theTracks = theTracks.subList(0, MAX_RESULT_SIZE);
                     }
                 }
-                TrackUtils.updateTracksExt(theTracks, mTrackCoverRepository, mSpotifyUrlRepository);
                 theTrackSearchResult.setResults(theTracks);
                 theTrackSearchResult.setTotal(theTotal);
                 theTrackSearchResult.setOffset(tracksOffset);

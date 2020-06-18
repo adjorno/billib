@@ -8,60 +8,6 @@ import java.util.List;
 
 public class TrackUtils {
 
-    public static void updateTrackExt(Track track, TrackCoverRepository trackCoverRepository,
-                                      SpotifyUrlRepository spotifyUrlRepository) {
-        updateTrackWithTrackCover(track, trackCoverRepository);
-        updateTrackWithSpotifyUrl(track, spotifyUrlRepository);
-    }
-
-    public static void updateTracksExt(List<Track> tracks, TrackCoverRepository trackCoverRepository,
-                                       SpotifyUrlRepository spotifyUrlRepository) {
-        updateTracksWithTrackCover(tracks, trackCoverRepository);
-        updateTracksWithSpotifyUrl(tracks, spotifyUrlRepository);
-    }
-
-    private static void updateTracksWithTrackCover(List<Track> tracks, TrackCoverRepository trackCoverRepository) {
-        if (Ex.isNotEmpty(tracks)) {
-            final List<TrackCover> covers = trackCoverRepository.findCoversByTrackIds(asTrackIds(tracks));
-            for (TrackCover theTrackCover : covers) {
-                for (Track theTrack : tracks) {
-                    if (theTrack.getId().equals(theTrackCover.getTrackId())) {
-                        theTrack.setCoverUrl(theTrackCover.getCoverUrl());
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    private static void updateTrackWithTrackCover(Track track, TrackCoverRepository trackCoverRepository) {
-        TrackCover theCover = trackCoverRepository.findOne(track.getId());
-        if (theCover != null) {
-            track.setCoverUrl(theCover.getCoverUrl());
-        }
-    }
-
-    public static void updateTracksWithSpotifyUrl(List<Track> tracks, SpotifyUrlRepository spotifyUrlRepository) {
-        if (Ex.isNotEmpty(tracks)) {
-            final List<SpotifyUrl> theSpotifyUrls = spotifyUrlRepository.findCoversByTrackIds(asTrackIds(tracks));
-            for (SpotifyUrl theSpotifyUrl : theSpotifyUrls) {
-                for (Track theTrack : tracks) {
-                    if (theTrack.getId().equals(theSpotifyUrl.getTrackId())) {
-                        theTrack.setSpotifyUrl(theSpotifyUrl.getSpotifyUrl());
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    public static void updateTrackWithSpotifyUrl(Track track, SpotifyUrlRepository spotifyUrlRepository) {
-        final SpotifyUrl theSpotifyUrl = spotifyUrlRepository.findOne(track.getId());
-        if (theSpotifyUrl != null) {
-            track.setSpotifyUrl(theSpotifyUrl.getSpotifyUrl());
-        }
-    }
-
     public static List<Track> asTracks(List<ChartTrack> tracks) {
         return Collections.unmodifiableList(new AbstractList<Track>() {
             @Override

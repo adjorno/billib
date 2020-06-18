@@ -18,11 +18,7 @@ import com.adjorno.billib.rest.db.GlobalRankArtistRepository;
 import com.adjorno.billib.rest.db.GlobalRankTrackRepository;
 import com.adjorno.billib.rest.db.Journal;
 import com.adjorno.billib.rest.db.JournalRepository;
-import com.adjorno.billib.rest.db.SpotifyUrl;
-import com.adjorno.billib.rest.db.SpotifyUrlRepository;
 import com.adjorno.billib.rest.db.Track;
-import com.adjorno.billib.rest.db.TrackCover;
-import com.adjorno.billib.rest.db.TrackCoverRepository;
 import com.adjorno.billib.rest.db.TrackRepository;
 import com.adjorno.billib.rest.db.Week;
 import com.adjorno.billib.rest.db.WeekRepository;
@@ -88,12 +84,6 @@ public class UpdateController implements IUpdateController {
 
     @Autowired
     private ChartRepository mChartRepository;
-
-    @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
 
     @Autowired
     private GlobalRankTrackRepository mGlobalRankTrackRepository;
@@ -481,14 +471,6 @@ public class UpdateController implements IUpdateController {
         for (BBTrack theBBTrack : tracks) {
             final Artist theArtist = getOrCreateArtist(theBBTrack.getArtist().trim());
             final Track theTrack = getOrCreateTrack(theArtist, theBBTrack.getTitle().trim());
-            final String theCoverUrl = theBBTrack.getCoverUrl();
-            if (Ex.isNotEmpty(theCoverUrl)) {
-                getOrCreateCoverUrl(theTrack.getId(), theCoverUrl.trim());
-            }
-            final String theSpotifyUrl = theBBTrack.getSpotifyUrl();
-            if (Ex.isNotEmpty(theSpotifyUrl)) {
-                getOrCreateSpotifyUrl(theTrack.getId(), theSpotifyUrl.trim());
-            }
             final BBPositionInfo thePositionInfo = theBBTrack.getPositionInfo();
             final int theLastWeek =
                     BB.extractLastWeekRank(thePositionInfo == null ? null : thePositionInfo.getLastWeek());
@@ -519,28 +501,6 @@ public class UpdateController implements IUpdateController {
             System.out.println("CREATED Journal " + journalName);
         }
         return theJournal;
-    }
-
-    private SpotifyUrl getOrCreateSpotifyUrl(Long trackId, String spotifyUrl) {
-        SpotifyUrl theSpotifyUrl = mSpotifyUrlRepository.findOne(trackId);
-        if (theSpotifyUrl == null) {
-            theSpotifyUrl = new SpotifyUrl();
-            theSpotifyUrl.setTrackId(trackId);
-            theSpotifyUrl.setSpotifyUrl(spotifyUrl);
-            mSpotifyUrlRepository.save(theSpotifyUrl);
-        }
-        return theSpotifyUrl;
-    }
-
-    private TrackCover getOrCreateCoverUrl(Long trackId, String coverUrl) {
-        TrackCover theTrackCover = mTrackCoverRepository.findOne(trackId);
-        if (theTrackCover == null) {
-            theTrackCover = new TrackCover();
-            theTrackCover.setTrackId(trackId);
-            theTrackCover.setCoverUrl(coverUrl);
-            mTrackCoverRepository.save(theTrackCover);
-        }
-        return theTrackCover;
     }
 
     private ChartList getOrCreateChartList(Chart chart, Week week, ChartList previousChartList) {

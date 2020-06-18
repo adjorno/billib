@@ -33,12 +33,6 @@ public class TrackController implements ITrackController {
     private EntityManager mEntityManager;
 
     @Autowired
-    private TrackCoverRepository mTrackCoverRepository;
-
-    @Autowired
-    private SpotifyUrlRepository mSpotifyUrlRepository;
-
-    @Autowired
     private DayTrackRepository mDayTrackRepository;
 
     @Autowired
@@ -54,7 +48,7 @@ public class TrackController implements ITrackController {
         if (theOne == null) {
             throw new TrackNotFoundException();
         }
-        TrackUtils.updateTrackExt(theOne, mTrackCoverRepository, mSpotifyUrlRepository);
+//        TrackUtils.updateTrackExt(theOne, mTrackCoverRepository, mSpotifyUrlRepository);
         return theOne;
     }
 
@@ -73,7 +67,6 @@ public class TrackController implements ITrackController {
         List<Track> theTracks = mTrackRepository.findByArtist(artist);
         List<Track> theResult = mTrackRepository
                 .sortByGlobalRank(TrackUtils.asTrackIds(theTracks), size == 0 ? theTracks.size() : size);
-        TrackUtils.updateTracksExt(theResult, mTrackCoverRepository, mSpotifyUrlRepository);
         return theResult;
     }
 
@@ -86,7 +79,6 @@ public class TrackController implements ITrackController {
         final List<Track> theBestTracks =
                 mEntityManager.createNativeQuery(TrackUtils.getBestTracksQuery(chartId, size, from, to), Track.class)
                         .getResultList();
-        TrackUtils.updateTracksExt(theBestTracks, mTrackCoverRepository, mSpotifyUrlRepository);
         return theBestTracks;
     }
 
@@ -95,9 +87,7 @@ public class TrackController implements ITrackController {
             @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String date) {
         final DayTrack theOne = Ex.isNotEmpty(date) ? mDayTrackRepository.findOne(java.sql.Date.valueOf(date))
                 : mDayTrackRepository.findLast(new PageRequest(0, 1)).getContent().get(0);
-        if (theOne != null) {
-            TrackUtils.updateTrackExt(theOne.getTrack(), mTrackCoverRepository, mSpotifyUrlRepository);
-        } else {
+        if (theOne == null) {
             throw new TrackNotFoundException();
         }
         return theOne;
@@ -148,7 +138,6 @@ public class TrackController implements ITrackController {
         if (theTrack == null) {
             throw new TrackNotFoundException();
         }
-        TrackUtils.updateTrackExt(theTrack, mTrackCoverRepository, mSpotifyUrlRepository);
         TrackInfo theTrackInfo = new TrackInfo();
         theTrackInfo.setTrack(theTrack);
         theTrackInfo.setHistory(getTrackHistory(id, null));
@@ -160,7 +149,6 @@ public class TrackController implements ITrackController {
     public List<Track> getGlobalTracks(@RequestParam() Long rank,
             @RequestParam(required = false, defaultValue = "1") Long size) {
         List<Track> theGlobalTracks = mTrackRepository.findGlobalList(rank, rank + size);
-        TrackUtils.updateTracksExt(theGlobalTracks, mTrackCoverRepository, mSpotifyUrlRepository);
         return theGlobalTracks;
     }
 
