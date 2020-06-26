@@ -57,14 +57,15 @@ public class TrackUtils {
                         "INNER JOIN CHART ON CHART._ID = CHART_LIST.CHART_ID " +
                         "INNER JOIN TRACK ON TRACK._ID = CHART_TRACK.TRACK_ID " +
                         "INNER JOIN WEEK ON WEEK.WEEK_ID = CHART_LIST.WEEK_ID " +
-                        "INNER JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID " + "WHERE CHART_ID = " + chartId + " ");
+                        "INNER JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID " +
+                        "WHERE CHART_LIST.CHART_ID = " + chartId + " ");
         if (!Ex.isEmpty(from)) {
-            theQueryBuilder.append("AND date(WEEK.DATE) > date('").append(from).append("') ");
+            theQueryBuilder.append("AND WEEK.DATE > '").append(from).append("' ");
         }
         if (!Ex.isEmpty(to)) {
-            theQueryBuilder.append("AND date(WEEK.DATE) < date('").append(to).append("') ");
+            theQueryBuilder.append("AND WEEK.DATE < '").append(to).append("' ");
         }
-        theQueryBuilder.append("GROUP BY TRACK_ID ORDER BY SUM((LIST_SIZE + 1 - CHART_TRACK.RANK) * (LIST_SIZE + 1 - CHART_TRACK.RANK)) DESC ");
+        theQueryBuilder.append("GROUP BY CHART_TRACK.TRACK_ID ORDER BY SUM((CHART.LIST_SIZE + 1 - CHART_TRACK.RANK) * (CHART.LIST_SIZE + 1 - CHART_TRACK.RANK)) DESC ");
         theQueryBuilder.append("LIMIT ").append(limit);
 
         return theQueryBuilder.toString();
