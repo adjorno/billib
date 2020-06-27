@@ -1,495 +1,481 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "description": "This is a RESTful service for BilliB application. It provides data about all charts of Billboard music journal.",
-    "version": "1.0.0",
-    "title": "BilliB RESTful service",
-    "contact": {
-      "email": "adjorno@gmail.com"
+  "openapi" : "3.0.0",
+  "info" : {
+    "description" : "This is a RESTful service for BilliB application. It provides data about all charts of Billboard music journal.",
+    "version" : "1.0.0",
+    "title" : "BilliB RESTful service",
+    "contact" : {
+      "email" : "adjorno@gmail.com",
+      "url" : "https://github.com/adjorno/billibdata",
+      "name" : "Mykhailo Dorokhin"
     }
   },
-  "host": "localhost:8080",
-  "tags": [
-    {
-      "name": "track",
-      "description": "Operations on tracks"
-    },
-    {
-      "name": "artist",
-      "description": "Operations on artists"
-    },
-    {
-      "name": "chart",
-      "description": "Operations on charts"
-    },
-    {
-      "name": "chartlist",
-      "description": "Operations on chart lists"
-    }
-  ],
-  "schemes": [
-    "http",
-    "https"
-  ],
-  "paths": {
-    "/chart/all": {
-      "get": {
-        "tags": [
-          "chart"
-        ],
-        "summary": "Get all charts",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Chart"
+  "tags" : [ {
+    "name" : "track",
+    "description" : "Operations on tracks"
+  }, {
+    "name" : "artist",
+    "description" : "Operations on artists"
+  }, {
+    "name" : "chart",
+    "description" : "Operations on charts"
+  }, {
+    "name" : "chartlist",
+    "description" : "Operations on chart lists"
+  } ],
+  "paths" : {
+    "/chart/all" : {
+      "get" : {
+        "tags" : [ "chart" ],
+        "summary" : "Get all charts",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Chart"
+                  }
+                }
               }
             }
           }
         }
       }
     },
-    "/chartList/getFirstAppearance": {
-      "get": {
-        "tags": [
-          "chartlist"
-        ],
-        "summary": "Get chart list with first appearance of the given track",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "track_id",
-            "in": "query",
-            "description": "Id of the track to search first appearance for",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
+    "/chartList/getFirstAppearance" : {
+      "get" : {
+        "tags" : [ "chartlist" ],
+        "summary" : "Get chart list with first appearance of the given track",
+        "parameters" : [ {
+          "name" : "track_id",
+          "in" : "query",
+          "description" : "Id of the track to search first appearance for",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/ChartList"
-            }
-          },
-          "404": {
-            "description": "Track not found"
-          }
-        }
-      }
-    },
-    "/chartList/getById": {
-      "get": {
-        "tags": [
-          "chartlist"
-        ],
-        "summary": "Get chart list by its id",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "Id of the chart list to search for",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/ChartList"
-            }
-          },
-          "404": {
-            "description": "Chart list not found"
-          }
-        }
-      }
-    },
-    "/chartList/getByDate": {
-      "get": {
-        "tags": [
-          "chartlist"
-        ],
-        "summary": "Get chart list by release date",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "chart_id",
-            "in": "query",
-            "description": "Id of the chart to search for specific list",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "type": "string",
-            "format": "date",
-            "required": false,
-            "description": "The date to search for specific list. If it's absent the last one will be given."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/ChartList"
-            }
-          },
-          "404": {
-            "description": "Chart list not found"
-          }
-        }
-      }
-    },
-    "/track/getById": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Get track by track id",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The id of the track to be found",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Track"
-            }
-          },
-          "400": {
-            "description": "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'"
-          },
-          "404": {
-            "description": "Track not found"
-          }
-        }
-      }
-    },
-    "/track/best": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Generate list of best tracks for the given date range",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "chart_id",
-            "in": "query",
-            "description": "The id of chart source to generate the list of best tracks",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "from",
-            "in": "query",
-            "description": "The date of charts to search for best tracks from",
-            "required": false,
-            "type": "string",
-            "format": "date"
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "description": "The date of charts to search for best tracks to",
-            "required": false,
-            "type": "string",
-            "format": "date"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Track"
-              }
-            }
-          },
-          "500": {
-            "description": "org.hibernate.exception.SQLGrammarException"
-          }
-        }
-      }
-    },
-    "/track/getByArtist": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Generate list of best tracks of the given Artist",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "artist_id",
-            "in": "query",
-            "description": "The id of artist to generate the list of best tracks",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "description": "The size of track list. If it's absent all tracks of the given artist will be returned",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Track"
-              }
-            }
-          },
-          "404": {
-            "description": "Artist not found"
-          },
-          "500": {
-            "description": "org.hibernate.exception.SQLGrammarException"
-          }
-        }
-      }
-    },
-    "/track/day": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Get track of the day",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "date",
-            "in": "query",
-            "description": "The date to get the track of. If it's absent the last one will be given",
-            "required": false,
-            "type": "string",
-            "format": "date"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "date": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "desc": {
-                  "type": "string"
-                },
-                "track": {
-                  "$ref": "#/definitions/Track"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChartList"
                 }
               }
             }
           },
-          "400": {
-            "description": "Failed to convert value of type 'java.lang.String' to required type 'java.util.Date'"
+          "404" : {
+            "description" : "Track not found"
           }
         }
       }
     },
-    "/track/history": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Get charts history of the track",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The id of the track to be found",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "chart_id",
-            "in": "query",
-            "description": "The id of the chart to get the history of. If it's absent then history of all charts will be given.",
-            "required": false,
-            "type": "integer",
-            "format": "int64"
+    "/chartList/getById" : {
+      "get" : {
+        "tags" : [ "chartlist" ],
+        "summary" : "Get chart list by its id",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "Id of the chart list to search for",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/HistoryChartMap"
-            }
-          },
-          "404": {
-            "description": "Track not found"
-          }
-        }
-      }
-    },
-    "/track/info": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Get full information about track",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The id of the track to be found",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "track": {
-                  "$ref": "#/definitions/Track"
-                },
-                "history": {
-                  "$ref": "#/definitions/HistoryChartMap"
-                },
-                "globalRank": {
-                  "type": "integer",
-                  "format": "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChartList"
                 }
               }
             }
           },
-          "404": {
-            "description": "Track not found"
+          "404" : {
+            "description" : "Chart list not found"
           }
         }
       }
     },
-    "/track/global": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Get list of tracks according to global ranking",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "rank",
-            "in": "query",
-            "type": "integer",
-            "description": "Starting global rank",
-            "format": "int32",
-            "required": true
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "type": "integer",
-            "description": "Size of list with tracks to return",
-            "default": 1,
-            "format": "int32",
-            "required": false
+    "/chartList/getByDate" : {
+      "get" : {
+        "tags" : [ "chartlist" ],
+        "summary" : "Get chart list by release date",
+        "parameters" : [ {
+          "name" : "chart_id",
+          "in" : "query",
+          "description" : "Id of the chart to search for specific list",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Track"
+        }, {
+          "name" : "date",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "required" : false,
+          "description" : "The date to search for specific list. If it's absent the last one will be given."
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChartList"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Chart list not found"
+          }
+        }
+      }
+    },
+    "/track/getById" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Get track by track id",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "The id of the track to be found",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Track"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'"
+          },
+          "404" : {
+            "description" : "Track not found"
+          }
+        }
+      }
+    },
+    "/track/best" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Generate list of best tracks for the given date range",
+        "parameters" : [ {
+          "name" : "chart_id",
+          "in" : "query",
+          "description" : "The id of chart source to generate the list of best tracks",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "The date of charts to search for best tracks from",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "description" : "The date of charts to search for best tracks to",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Track"
+                  }
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "org.hibernate.exception.SQLGrammarException"
+          }
+        }
+      }
+    },
+    "/track/getByArtist" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Generate list of best tracks of the given Artist",
+        "parameters" : [ {
+          "name" : "artist_id",
+          "in" : "query",
+          "description" : "The id of artist to generate the list of best tracks",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of track list. If it's absent all tracks of the given artist will be returned",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Track"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Artist not found"
+          },
+          "500" : {
+            "description" : "org.hibernate.exception.SQLGrammarException"
+          }
+        }
+      }
+    },
+    "/track/day" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Get track of the day",
+        "parameters" : [ {
+          "name" : "date",
+          "in" : "query",
+          "description" : "The date to get the track of. If it's absent the last one will be given",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "date" : {
+                      "type" : "string",
+                      "format" : "date"
+                    },
+                    "desc" : {
+                      "type" : "string"
+                    },
+                    "track" : {
+                      "$ref" : "#/components/schemas/Track"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Failed to convert value of type 'java.lang.String' to required type 'java.util.Date'"
+          }
+        }
+      }
+    },
+    "/track/history" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Get charts history of the track",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "The id of the track to be found",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "chart_id",
+          "in" : "query",
+          "description" : "The id of the chart to get the history of. If it's absent then history of all charts will be given.",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HistoryChartMap"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Track not found"
+          }
+        }
+      }
+    },
+    "/track/info" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Get full information about track",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "The id of the track to be found",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "track" : {
+                      "$ref" : "#/components/schemas/Track"
+                    },
+                    "history" : {
+                      "$ref" : "#/components/schemas/HistoryChartMap"
+                    },
+                    "globalRank" : {
+                      "type" : "integer",
+                      "format" : "int32"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Track not found"
+          }
+        }
+      }
+    },
+    "/track/global" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Get list of tracks according to global ranking",
+        "parameters" : [ {
+          "name" : "rank",
+          "in" : "query",
+          "description" : "Starting global rank",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "required" : true
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Size of list with tracks to return",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 1
+          },
+          "required" : false
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Track"
+                  }
+                }
               }
             }
           }
         }
       }
     },
-    "/trends": {
-      "get": {
-        "tags": [
-          "track"
-        ],
-        "summary": "Get trends of the week",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "week": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "trendLists": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "trendName": {
-                        "type": "string"
-                      },
-                      "tracks": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/definitions/Track"
+    "/trends" : {
+      "get" : {
+        "tags" : [ "track" ],
+        "summary" : "Get trends of the week",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "week" : {
+                      "type" : "string",
+                      "format" : "date"
+                    },
+                    "trendLists" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "trendName" : {
+                            "type" : "string"
+                          },
+                          "tracks" : {
+                            "type" : "array",
+                            "items" : {
+                              "$ref" : "#/components/schemas/Track"
+                            }
+                          }
                         }
                       }
                     }
@@ -498,307 +484,310 @@
               }
             }
           },
-          "400": {
-            "description": "Failed to convert value of type 'java.lang.String' to required type 'java.util.Date'"
+          "400" : {
+            "description" : "Failed to convert value of type 'java.lang.String' to required type 'java.util.Date'"
           }
         }
       }
     },
-    "/artist/getById": {
-      "get": {
-        "tags": [
-          "artist"
-        ],
-        "summary": "Get artist by artist id",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The id of the artist to be found",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
+    "/artist/getById" : {
+      "get" : {
+        "tags" : [ "artist" ],
+        "summary" : "Get artist by artist id",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "The id of the artist to be found",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Artist"
-            }
-          },
-          "400": {
-            "description": "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'"
-          },
-          "404": {
-            "description": "Artist not found"
-          }
-        }
-      }
-    },
-    "/artist/global": {
-      "get": {
-        "tags": [
-          "artist"
-        ],
-        "summary": "Get list of artists according to global ranking",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "rank",
-            "in": "query",
-            "type": "integer",
-            "description": "Starting global rank",
-            "format": "int32",
-            "required": true
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "type": "integer",
-            "description": "Size of artist list to return. If it's absent the one track will be given",
-            "format": "int32",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Artist"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/artist/relations": {
-      "get": {
-        "tags": [
-          "artist"
-        ],
-        "summary": "Get list of artists related to the given one",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The id of the artist to be found",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "type": "integer",
-            "description": "Size of related artist list to return. If it's absent all related artists will be returned",
-            "format": "int32",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Artist"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Artist"
+                }
               }
             }
           },
-          "404": {
-            "description": "Artist not found"
+          "400" : {
+            "description" : "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'"
+          },
+          "404" : {
+            "description" : "Artist not found"
           }
         }
       }
     },
-    "/artist/info": {
-      "get": {
-        "tags": [
-          "artist"
-        ],
-        "summary": "Get full information about artist",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "The id of the artist to get information of",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
+    "/artist/global" : {
+      "get" : {
+        "tags" : [ "artist" ],
+        "summary" : "Get list of artists according to global ranking",
+        "parameters" : [ {
+          "name" : "rank",
+          "in" : "query",
+          "description" : "Starting global rank",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
           },
-          {
-            "name": "tracks_size",
-            "in": "query",
-            "description": "The size of list with best artist tracks",
-            "default": 5,
-            "required": false,
-            "type": "integer",
-            "format": "int32"
+          "required" : true
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Size of artist list to return. If it's absent the one track will be given",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
           },
-          {
-            "name": "relations_size",
-            "in": "query",
-            "description": "The size of list with best related artists",
-            "default": 5,
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artist": {
-                  "$ref": "#/definitions/Artist"
-                },
-                "globalRank": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "tracks": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Track"
+          "required" : false
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Artist"
                   }
-                },
-                "artistRelations": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Artist"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/artist/relations" : {
+      "get" : {
+        "tags" : [ "artist" ],
+        "summary" : "Get list of artists related to the given one",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "The id of the artist to be found",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Size of related artist list to return. If it's absent all related artists will be returned",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "required" : false
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Artist"
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'"
-          },
-          "404": {
-            "description": "Artist not found"
+          "404" : {
+            "description" : "Artist not found"
           }
         }
       }
     },
-    "/search": {
-      "get": {
-        "tags": [
-          "track",
-          "artist"
-        ],
-        "summary": "Search for artists and tracks by query",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "description": "Search query",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "artists_offset",
-            "in": "query",
-            "description": "Offset of the returning list of artists.",
-            "required": false,
-            "type": "integer",
-            "format": "int32",
-            "default": 0
-          },
-          {
-            "name": "artists_size",
-            "in": "query",
-            "description": "Size of list with found artists. If it's 0 then searching for artists will be skipped and empty artist list will be returned.",
-            "required": false,
-            "type": "integer",
-            "format": "int32",
-            "default": 5
-          },
-          {
-            "name": "tracks_offset",
-            "in": "query",
-            "description": "Offset of the returning list of tracks.",
-            "required": false,
-            "type": "integer",
-            "format": "int32",
-            "default": 0
-          },
-          {
-            "name": "tracks_size",
-            "in": "query",
-            "description": "Size of list with found tracks. If it's 0 then searching for tracks will be skipped and empty track list will be returned.",
-            "required": false,
-            "type": "integer",
-            "format": "int32",
-            "default": 10
-          },
-          {
-            "name": "alphabetical",
-            "in": "query",
-            "description": "True - alphabetical order, False (by default) - popularity order.",
-            "required": false,
-            "type": "boolean",
-            "default": false
+    "/artist/info" : {
+      "get" : {
+        "tags" : [ "artist" ],
+        "summary" : "Get full information about artist",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "description" : "The id of the artist to get information of",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artists": {
-                  "type": "object",
-                  "properties": {
-                    "total": {
-                      "type": "integer",
-                      "format": "int64"
+        }, {
+          "name" : "tracks_size",
+          "in" : "query",
+          "description" : "The size of list with best artist tracks",
+          "required" : false,
+          "schema" : {
+            "default" : 5,
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "relations_size",
+          "in" : "query",
+          "description" : "The size of list with best related artists",
+          "required" : false,
+          "schema" : {
+            "default" : 5,
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "artist" : {
+                      "$ref" : "#/components/schemas/Artist"
                     },
-                    "offset": {
-                      "type": "integer",
-                      "format": "int64"
+                    "globalRank" : {
+                      "type" : "integer",
+                      "format" : "int64"
                     },
-                    "results": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/definitions/Artist"
+                    "tracks" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Track"
+                      }
+                    },
+                    "artistRelations" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Artist"
                       }
                     }
                   }
-                },
-                "tracks": {
-                  "type": "object",
-                  "properties": {
-                    "total": {
-                      "type": "integer",
-                      "format": "int64"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'"
+          },
+          "404" : {
+            "description" : "Artist not found"
+          }
+        }
+      }
+    },
+    "/search" : {
+      "get" : {
+        "tags" : [ "track", "artist" ],
+        "summary" : "Search for artists and tracks by query",
+        "parameters" : [ {
+          "name" : "query",
+          "in" : "query",
+          "description" : "Search query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "artists_offset",
+          "in" : "query",
+          "description" : "Offset of the returning list of artists.",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "artists_size",
+          "in" : "query",
+          "description" : "Size of list with found artists. If it's 0 then searching for artists will be skipped and empty artist list will be returned.",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 5
+          }
+        }, {
+          "name" : "tracks_offset",
+          "in" : "query",
+          "description" : "Offset of the returning list of tracks.",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "tracks_size",
+          "in" : "query",
+          "description" : "Size of list with found tracks. If it's 0 then searching for tracks will be skipped and empty track list will be returned.",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        }, {
+          "name" : "alphabetical",
+          "in" : "query",
+          "description" : "True - alphabetical order, False (by default) - popularity order.",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "artists" : {
+                      "type" : "object",
+                      "properties" : {
+                        "total" : {
+                          "type" : "integer",
+                          "format" : "int64"
+                        },
+                        "offset" : {
+                          "type" : "integer",
+                          "format" : "int64"
+                        },
+                        "results" : {
+                          "type" : "array",
+                          "items" : {
+                            "$ref" : "#/components/schemas/Artist"
+                          }
+                        }
+                      }
                     },
-                    "offset": {
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "results": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/definitions/Track"
+                    "tracks" : {
+                      "type" : "object",
+                      "properties" : {
+                        "total" : {
+                          "type" : "integer",
+                          "format" : "int64"
+                        },
+                        "offset" : {
+                          "type" : "integer",
+                          "format" : "int64"
+                        },
+                        "results" : {
+                          "type" : "array",
+                          "items" : {
+                            "$ref" : "#/components/schemas/Track"
+                          }
+                        }
                       }
                     }
                   }
@@ -810,167 +799,176 @@
       }
     }
   },
-  "definitions": {
-    "Journal": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "Chart": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "journal": {
-          "$ref": "#/definitions/Journal"
-        },
-        "startDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "endDate": {
-          "type": "string",
-          "format": "date",
-          "required": false
-        },
-        "listSize": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "ChartList": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "chart": {
-          "$ref": "#/definitions/Chart"
-        },
-        "week": {
-          "$ref": "#/definitions/Week"
-        },
-        "chartTracks": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ChartTrack"
+  "components" : {
+    "schemas" : {
+      "Journal" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
           }
         }
-      }
-    },
-    "ChartTrack": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
+      },
+      "Chart" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "journal" : {
+            "$ref" : "#/components/schemas/Journal"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "listSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
         },
-        "track": {
-          "$ref": "#/definitions/Track"
-        },
-        "rank": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "lastWeekRank": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "Artist": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "Track": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "title": {
-          "type": "string"
-        },
-        "artist": {
-          "$ref": "#/definitions/Artist"
-        },
-      }
-    },
-    "Week": {
-      "type": "object",
-      "properties": {
-        "date": {
-          "type": "string",
-          "format": "date"
-        }
-      }
-    },
-    "HistoryMapItem": {
-      "properties": {
-        "date": {
-          "type": "string",
-          "format": "date"
-        },
-        "rank": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "HistoryMap": {
-      "description": "a (key, HistoryMapItem) map. `2000-01-01` is an example key",
-      "properties": {
-        "default": {
-          "$ref": "#/definitions/HistoryMapItem"
+        "required" : [ "id", "name", "journal", "startDate", "listSize" ]
+      },
+      "ChartList" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "chart" : {
+            "$ref" : "#/components/schemas/Chart"
+          },
+          "week" : {
+            "$ref" : "#/components/schemas/Week"
+          },
+          "chartTracks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChartTrack"
+            }
+          }
         }
       },
-      "additionalProperties": {
-        "$ref": "#/definitions/HistoryMapItem"
-      }
-    },
-    "HistoryChartMapItem": {
-      "properties": {
-        "chart": {
-          "type": "string"
-        },
-        "chartHistory": {
-          "$ref": "#/definitions/HistoryMap"
-        }
-      }
-    },
-    "HistoryChartMap": {
-      "description": "a (key, HistoryChartMapItem) map. `Hot 100` is an example key",
-      "properties": {
-        "default": {
-          "$ref": "#/definitions/HistoryChartMapItem"
+      "ChartTrack" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "track" : {
+            "$ref" : "#/components/schemas/Track"
+          },
+          "rank" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "lastWeekRank" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
         }
       },
-      "additionalProperties": {
-        "$ref": "#/definitions/HistoryChartMapItem"
+      "Artist" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Track" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "artist" : {
+            "$ref" : "#/components/schemas/Artist"
+          }
+        }
+      },
+      "Week" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }
+      },
+      "HistoryMapItem" : {
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "rank" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "HistoryMap" : {
+        "description" : "a (key, HistoryMapItem) map. `2000-01-01` is an example key",
+        "properties" : {
+          "default" : {
+            "$ref" : "#/components/schemas/HistoryMapItem"
+          }
+        },
+        "additionalProperties" : {
+          "$ref" : "#/components/schemas/HistoryMapItem"
+        }
+      },
+      "HistoryChartMapItem" : {
+        "properties" : {
+          "chart" : {
+            "type" : "string"
+          },
+          "chartHistory" : {
+            "$ref" : "#/components/schemas/HistoryMap"
+          }
+        }
+      },
+      "HistoryChartMap" : {
+        "description" : "a (key, HistoryChartMapItem) map. `Hot 100` is an example key",
+        "properties" : {
+          "default" : {
+            "$ref" : "#/components/schemas/HistoryChartMapItem"
+          }
+        },
+        "additionalProperties" : {
+          "$ref" : "#/components/schemas/HistoryChartMapItem"
+        }
       }
     }
-  }
+  },
+  "servers" : [ {
+    "description" : "Localhost",
+    "url" : "http://localhost:8080"
+  }, {
+    "description" : "Production server deployed to DigitalOcean",
+    "url" : "http://161.35.153.108"
+  } ]
 }
