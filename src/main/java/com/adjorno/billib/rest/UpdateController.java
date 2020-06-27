@@ -22,10 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.persistence.EntityManager;
 import java.io.*;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -246,9 +243,15 @@ public class UpdateController implements IUpdateController {
         return updateDB();
     }
 
-    @RequestMapping(value = "/addChartFromLocal", method = RequestMethod.GET)
-    public void addChartFromLocal(@RequestParam(name = "password") String password, String chart,
-                                  @RequestParam(required = false) String start) {
+    @RequestMapping(
+            value = "/addChartFromLocal",
+            method = RequestMethod.GET
+    )
+    public void addChartFromLocal(
+            @RequestParam(name = "password") String password,
+            String chart,
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false, defaultValue = "false") boolean skipMissingFiles) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -278,16 +281,28 @@ public class UpdateController implements IUpdateController {
                     while (theCalendar.getTime().compareTo(TODAY) <= 0) {
                         String theDate = BB.CHART_DATE_FORMAT.format(theCalendar.getTime());
                         String theFileName = theBBChartMetadata.getPrefix() + "-" + theDate + ".json";
-                        theReader = new InputStreamReader(new FileInputStream(new File(rawJsonDataPath +
-                                theBBChartMetadata.getFolder() + "/" + theFileName)));
-                        try {
-                            BBChart theBBChart = theGson.fromJson(theReader, BBChart.class);
-                            final Week theWeek = getOrCreateWeek(theDate);
-                            ChartList theChartList = getOrCreateChartList(theChart, theWeek, theLastChartList);
-                            fillChartList(theChartList, theBBChart.getTracks());
-                            theLastChartList = theChartList;
-                        } finally {
-                            theReader.close();
+                        File chartListFile = new File(rawJsonDataPath + theBBChartMetadata.getFolder() + "/" + theFileName);
+                        if (chartListFile.exists()) {
+                            theReader = new InputStreamReader(new FileInputStream(chartListFile));
+                            try {
+                                BBChart theBBChart = theGson.fromJson(theReader, BBChart.class);
+                                final Week theWeek = getOrCreateWeek(theDate);
+                                ChartList theChartList = getOrCreateChartList(theChart, theWeek, theLastChartList);
+                                fillChartList(theChartList, theBBChart.getTracks());
+                                theLastChartList = theChartList;
+                            } finally {
+                                theReader.close();
+                            }
+                        } else {
+                            if (skipMissingFiles) {
+                                System.out.println("!!! SKIPPED " + theDate);
+                            } else {
+                                throw new MissingResourceException(
+                                        "The file " + chartListFile.getName() + " with required chart list is missing!",
+                                        "UpdateController",
+                                        chartListFile.getName()
+                                );
+                            }
                         }
                         theCalendar.add(Calendar.DATE, 7);
                     }
