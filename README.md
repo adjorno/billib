@@ -1,4 +1,8 @@
-# How to launch locally
+# Production profile
+
+Set `SPRING_PROFILES_ACTIVE=h2` environment variable.
+
+# How to launch with local MySql database connection
 
 Run MySql 5.7.19 on your machine and populate data from the backup. 
 
