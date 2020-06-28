@@ -965,10 +965,10 @@
     }
   },
   "servers" : [ {
-    "description" : "Localhost",
+    "description" : "Local",
     "url" : "http://localhost:8080"
   }, {
-    "description" : "Production server deployed to DigitalOcean",
-    "url" : "http://161.35.153.108"
+    "description" : "Prod",
+    "url" : "https://api.billib.m14n.com"
   } ]
 }
