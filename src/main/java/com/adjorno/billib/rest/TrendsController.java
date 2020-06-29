@@ -3,8 +3,8 @@ package com.adjorno.billib.rest;
 import com.adjorno.billib.rest.db.*;
 import com.adjorno.billib.rest.model.TrendList;
 import com.adjorno.billib.rest.model.Trends;
-import com.m14n.ex.Ex;
 import com.m14n.billib.data.BB;
+import com.m14n.ex.Ex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -69,8 +69,8 @@ public class TrendsController implements ITrendsController {
 
     @RequestMapping(value = "/generateTrends", method = RequestMethod.POST)
     public void generateTrendsAPI(@RequestParam() String password,
-            @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String week,
-            @RequestParam(required = false, defaultValue = "0") int type) {
+                                  @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String week,
+                                  @RequestParam(required = false, defaultValue = "0") int type) {
         if (!PASSWORD.equals(password)) {
             return;
         }
@@ -102,7 +102,10 @@ public class TrendsController implements ITrendsController {
     @Transactional(propagation = Propagation.REQUIRED)
     private void generateDebuts(Week week) {
         System.out.println("STARTED GENERATE DEBUTS");
-        final List<Object[]> theBestDebuts = mChartTrackRepository.findDebuts(week.getId());
+        final List<Object[]> theBestDebuts = filterDebutsByCharts(
+                mChartTrackRepository.findDebuts(week.getId()),
+                blacklistedCharts()
+        );
 //there is an issue in Spring JPQL language, sort object can not recognize alias
 //new Sort(Sort.Direction.DESC, "rating"));
         Collections.sort(theBestDebuts, new Comparator<Object[]>() {
@@ -125,7 +128,10 @@ public class TrendsController implements ITrendsController {
     @Transactional(propagation = Propagation.REQUIRED)
     private void generateFutures(Week week) {
         System.out.println("STARTED GENERATE FUTURES");
-        List<ChartTrack> theChartTracks = mChartTrackRepository.findByWeek(week);
+        List<ChartTrack> theChartTracks = filterByCharts(
+                mChartTrackRepository.findByWeek(week),
+                blacklistedCharts()
+        );
         Collections.sort(theChartTracks, new Comparator<ChartTrack>() {
             @Override
             public int compare(ChartTrack o1, ChartTrack o2) {
@@ -161,7 +167,10 @@ public class TrendsController implements ITrendsController {
     @Transactional(propagation = Propagation.REQUIRED)
     private void generateSeniors(Week week) {
         System.out.println("STARTED GENERATE SENIORS");
-        List<ChartTrack> theChartTracks = mChartTrackRepository.findByWeek(week);
+        List<ChartTrack> theChartTracks = filterByCharts(
+                mChartTrackRepository.findByWeek(week),
+                blacklistedCharts()
+        );
         List<Track> theTracks = mTrackRepository
                 .sortByGlobalRank(TrackUtils.asTrackIds(TrackUtils.asTracks(theChartTracks)), DB_LIST_SIZE_PER_TYPE);
         final TrendType theSeniorsType = mTrendTypeRepository.findOne(TrendType.TYPE_SENIORS);
@@ -176,7 +185,10 @@ public class TrendsController implements ITrendsController {
         System.out.println("STARTED GENERATE GAINERS");
         final TrendType theGainersType = mTrendTypeRepository.findOne(TrendType.TYPE_GAINERS);
         //mTrendTrackRepository.deleteByWeekAndType(week, theGainersType);
-        List<ChartTrack> theChartTracks = mChartTrackRepository.findByWeek(week);
+        List<ChartTrack> theChartTracks = filterByCharts(
+                mChartTrackRepository.findByWeek(week),
+                blacklistedCharts()
+        );
         List<Track> theTracks = TrackUtils.asTracks(theChartTracks);
         List<Long> theTrackIds = new ArrayList<>(new HashSet<>(TrackUtils.asTrackIds(theTracks)));
         System.out.println("UNIQUE TRACKS " + theTrackIds.size());
@@ -197,7 +209,7 @@ public class TrendsController implements ITrendsController {
     }
 
     private static Long getOrCreateGainerCache(Long trackId, Map<Long, Long> cache, TrackController trackController,
-            Week week) {
+                                               Week week) {
         if (cache.containsKey(trackId)) {
             return cache.get(trackId);
         } else {
@@ -227,5 +239,29 @@ public class TrendsController implements ITrendsController {
             System.out.println(String.format("CACHE %d: %d %d", cache.size(), trackId, gainerValue));
             return gainerValue;
         }
+    }
+
+    private static List<ChartTrack> filterByCharts(List<ChartTrack> original, List<Long> blacklisted) {
+        final List<ChartTrack> result = new ArrayList<>();
+        for (ChartTrack chartTrack : original) {
+            if (!blacklisted.contains(chartTrack.getChartList().getChart().getId())) {
+                result.add(chartTrack);
+            }
+        }
+        return result;
+    }
+
+    private static List<Object[]> filterDebutsByCharts(List<Object[]> original, List<Long> blacklisted) {
+        final List<Object[]> result = new ArrayList<>();
+        for (Object[] chartTrack : original) {
+            if (!blacklisted.contains(((ChartTrack) chartTrack[0]).getChartList().getChart().getId())) {
+                result.add(chartTrack);
+            }
+        }
+        return result;
+    }
+
+    private static List<Long> blacklistedCharts() {
+        return Arrays.asList(13L /*Japan*/, 17L /*Gospel*/, 18L /*Christian*/);
     }
 }
