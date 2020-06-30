@@ -249,7 +249,7 @@ public class UpdateController implements IUpdateController {
     )
     public void addChartFromLocal(
             @RequestParam(name = "password") String password,
-            String chart,
+            @RequestParam(required = false) String chart,
             @RequestParam(required = false) String start,
             @RequestParam(required = false, defaultValue = "false") boolean skipMissingFiles) {
         if (!PASSWORD.equals(password)) {
@@ -264,10 +264,9 @@ public class UpdateController implements IUpdateController {
             if (theJournalMetadata == null) {
                 return;
             }
-            Date TODAY = BB.CHART_DATE_FORMAT.parse(today);
             Journal theJournal = getOrCreateJournal(theJournalMetadata.getName());
             for (BBChartMetadata theBBChartMetadata : theJournalMetadata.getCharts()) {
-                if (chart.equals(theBBChartMetadata.getName())) {
+                if (chart == null || chart.equals(theBBChartMetadata.getName())) {
                     Chart theChart = getOrCreateChart(theJournal, theBBChartMetadata);
                     ChartList theLastChartList = null;
                     Calendar theCalendar = Calendar.getInstance();
@@ -278,7 +277,10 @@ public class UpdateController implements IUpdateController {
                         theLastChartList = mChartListRepository.findLast(
                                 theChart, new PageRequest(0, 1)).getContent().get(0);
                     }
-                    while (theCalendar.getTime().compareTo(TODAY) <= 0) {
+                    final Date lastWeek = BB.CHART_DATE_FORMAT.parse(
+                            theChart.getEndDate() != null ? theChart.getEndDate() : today
+                    );
+                    while (theCalendar.getTime().compareTo(lastWeek) <= 0) {
                         String theDate = BB.CHART_DATE_FORMAT.format(theCalendar.getTime());
                         String theFileName = theBBChartMetadata.getPrefix() + "-" + theDate + ".json";
                         File chartListFile = new File(rawJsonDataPath + theBBChartMetadata.getFolder() + "/" + theFileName);
