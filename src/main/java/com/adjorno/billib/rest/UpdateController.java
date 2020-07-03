@@ -297,7 +297,7 @@ public class UpdateController implements IUpdateController {
                             }
                         } else {
                             if (skipMissingFiles) {
-                                System.out.println("!!! SKIPPED " + theDate);
+                                System.out.println("!!! SKIPPED " + theBBChartMetadata.getName() + " " + theDate);
                             } else {
                                 throw new MissingResourceException(
                                         "The file " + chartListFile.getName() + " with required chart list is missing!",
