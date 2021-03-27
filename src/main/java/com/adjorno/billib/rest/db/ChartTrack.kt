@@ -22,7 +22,7 @@ data class ChartTrack(
     @JsonIgnore
     var chartList: ChartList? = null,
 
-    @Column(name = "RANK")
+    @Column(name = "_RANK")
     var rank: Int = 0,
 
     @Column(name = "LAST_WEEK_RANK")
