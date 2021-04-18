@@ -145,7 +145,7 @@ public class ArtistUtils {
         }
         theQueryBuilder.append(" ORDER BY ").append(alphabetical
                 ? "ARTIST.NAME ASC"
-                : "GLOBAL_RANK_ARTIST.RANK ASC");
+                : "GLOBAL_RANK_ARTIST._RANK ASC");
         if (limit != 0) {
             theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit);
         }

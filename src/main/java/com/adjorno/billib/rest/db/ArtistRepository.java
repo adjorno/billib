@@ -16,13 +16,13 @@ public interface ArtistRepository extends CrudRepository<Artist, Long> {
     @Query(value = "SELECT ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_ARTIST\n" +
             "INNER JOIN ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID\n" +
             "WHERE ARTIST_ID IN (?1)\n" +
-            "ORDER BY GLOBAL_RANK_ARTIST.RANK\n" + "LIMIT ?2", nativeQuery = true)
+            "ORDER BY GLOBAL_RANK_ARTIST._RANK\n" + "LIMIT ?2", nativeQuery = true)
     List<Artist> sortByGlobalRank(List<Long> ids, int size);
 
     @Query(value = "SELECT ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_ARTIST\n" +
             "INNER JOIN ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID\n" +
-            "WHERE GLOBAL_RANK_ARTIST.RANK >= ?1 AND GLOBAL_RANK_ARTIST.RANK < ?2\n" +
-            "ORDER BY GLOBAL_RANK_ARTIST.RANK", nativeQuery = true)
+            "WHERE GLOBAL_RANK_ARTIST._RANK >= ?1 AND GLOBAL_RANK_ARTIST._RANK < ?2\n" +
+            "ORDER BY GLOBAL_RANK_ARTIST._RANK", nativeQuery = true)
     List<Artist> findGlobalList(Long from, Long to);
 
     List<Artist> findByNameLike(String name);

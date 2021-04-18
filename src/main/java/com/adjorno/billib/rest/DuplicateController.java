@@ -439,7 +439,7 @@ public class DuplicateController implements IDuplicateController {
         System.out.println("****************");
         System.out.println("--- ORIGINAL TRACK FROM CHART LIST " + chartList.getId());
         System.out.println(theChartTrack.toString() + " TRACK_ID = " + theChartTrack.getTrack().getId());
-        System.out.println("--- POSSIBLE TRACKS FROM PREVIOUS CHART_LIST " + previousChartList.getId() + " AND RANK " +
+        System.out.println("--- POSSIBLE TRACKS FROM PREVIOUS CHART_LIST " + previousChartList.getId() + " AND _RANK " +
                 theChartTrack.getLastWeekRank());
         for (ChartTrack thePrevious : sameRankTracks) {
             System.out.println(thePrevious + " " + thePrevious.getTrack().getId());

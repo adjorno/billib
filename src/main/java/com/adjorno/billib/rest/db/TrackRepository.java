@@ -22,7 +22,7 @@ public interface TrackRepository extends CrudRepository<Track, Long> {
     @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_TRACK\n" +
             "INNER JOIN TRACK ON TRACK._ID = GLOBAL_RANK_TRACK.TRACK_ID\n" +
             "INNER JOIN ARTIST ON ARTIST._id = TRACK.ARTIST_ID\n" + "WHERE TRACK_ID IN (?1)\n" +
-            "ORDER BY GLOBAL_RANK_TRACK.RANK\n" + "LIMIT ?2", nativeQuery = true)
+            "ORDER BY GLOBAL_RANK_TRACK._RANK\n" + "LIMIT ?2", nativeQuery = true)
     List<Track> sortByGlobalRank(List<Long> ids, int size);
 
     Track findByTitleAndArtist(String trackTitle, Artist artist);
@@ -40,7 +40,7 @@ public interface TrackRepository extends CrudRepository<Track, Long> {
     @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_TRACK\n" +
             "INNER JOIN TRACK ON TRACK._ID = GLOBAL_RANK_TRACK.TRACK_ID\n" +
             "INNER JOIN ARTIST ON ARTIST._id = TRACK.ARTIST_ID\n" +
-            "WHERE GLOBAL_RANK_TRACK.RANK >= ?1 AND GLOBAL_RANK_TRACK.RANK < ?2\n" +
-            "ORDER BY GLOBAL_RANK_TRACK.RANK", nativeQuery = true)
+            "WHERE GLOBAL_RANK_TRACK._RANK >= ?1 AND GLOBAL_RANK_TRACK._RANK < ?2\n" +
+            "ORDER BY GLOBAL_RANK_TRACK._RANK", nativeQuery = true)
     List<Track> findGlobalList(Long from, Long to);
 }

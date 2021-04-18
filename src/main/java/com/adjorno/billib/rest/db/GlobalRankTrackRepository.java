@@ -12,7 +12,7 @@ public interface GlobalRankTrackRepository extends CrudRepository<GlobalRankTrac
                    "JOIN CHART ON CHART._ID = CHART_LIST.CHART_ID\n" +
                    "JOIN TRACK ON TRACK._ID = CHART_TRACK.TRACK_ID\n" +
                    "JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID\n" + "GROUP BY TRACK_ID\n" +
-                   "ORDER BY SUM((LIST_SIZE + 1 - RANK) * (LIST_SIZE + 1 - RANK)) DESC,\n" + "ARTIST.NAME, TRACK.TITLE",
+                   "ORDER BY SUM((LIST_SIZE + 1 - _RANK) * (LIST_SIZE + 1 - _RANK)) DESC,\n" + "ARTIST.NAME, TRACK.TITLE",
             nativeQuery = true)
     void refreshAll();
 

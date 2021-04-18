@@ -65,7 +65,7 @@ public class TrackUtils {
         if (!Ex.isEmpty(to)) {
             theQueryBuilder.append("AND WEEK.DATE < '").append(to).append("' ");
         }
-        theQueryBuilder.append("GROUP BY CHART_TRACK.TRACK_ID ORDER BY SUM((CHART.LIST_SIZE + 1 - CHART_TRACK.RANK) * (CHART.LIST_SIZE + 1 - CHART_TRACK.RANK)) DESC ");
+        theQueryBuilder.append("GROUP BY CHART_TRACK.TRACK_ID ORDER BY SUM((CHART.LIST_SIZE + 1 - CHART_TRACK._RANK) * (CHART.LIST_SIZE + 1 - CHART_TRACK._RANK)) DESC ");
         theQueryBuilder.append("LIMIT ").append(limit);
 
         return theQueryBuilder.toString();
@@ -92,7 +92,7 @@ public class TrackUtils {
         }
         theQueryBuilder.append(" ORDER BY ").append(alphabetical
                 ? "ARTIST.NAME ASC, TRACK.TITLE ASC"
-                : "GLOBAL_RANK_TRACK.RANK ASC");
+                : "GLOBAL_RANK_TRACK._RANK ASC");
         if (limit != 0) {
             theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit);
         }

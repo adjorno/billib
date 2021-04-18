@@ -14,7 +14,7 @@ public interface ChartTrackRepository extends CrudRepository<ChartTrack, Long> {
 
     ChartTrack findByTrackAndChartList(Track track, ChartList chartList);
 
-    @Query(value = "SELECT RANK FROM CHART_TRACK\n" +
+    @Query(value = "SELECT _RANK FROM CHART_TRACK\n" +
                    "                INNER JOIN TRACK ON TRACK._ID = CHART_TRACK.TRACK_ID\n" +
                    "                INNER JOIN CHART_LIST ON  CHART_TRACK.CHART_LIST_ID = CHART_LIST._ID\n" +
                    "                WHERE CHART_TRACK.CHART_LIST_ID IN (\n" +
