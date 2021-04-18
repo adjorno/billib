@@ -15,6 +15,7 @@ import com.m14n.billib.data.track.fullTrackTitle
 import com.mysql.cj.jdbc.MysqlDataSource
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.lang.Integer.min
@@ -29,6 +30,7 @@ class SqlDataSourceReaderTest {
 
     private lateinit var dao: BilliBDao
 
+    @Ignore
     @Test
     fun `in memory db charts are the same as original Json`() {
         val properties = Properties().apply {
