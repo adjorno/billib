@@ -14,6 +14,15 @@ Run `:application:bootRun` with `-Dspring.profiles.active=local` argument
 Run `:application:bootRun` with `-Dspring.profiles.active=local` argument or
 set `SPRING_PROFILES_ACTIVE=local` environment variable.
 
+# BilliB in-memory
+
+This is in-memory implementation of the BilliB DAO (artists, tracks, charts etc). Original implementation was SQL based, but there is no need to access the data via SQL because the DB size is less then 1GB.
+
+## Usage
+
+[MySqlReader.kt](inmemory-rest/src/main/kotlin/com/m14n/billib/reader/MySqlReader.kt) is an example of how to load DAO.
+
 # Setup in-memory database
 
 See [tutorial](docs/in-memory-db-setup.md).
+

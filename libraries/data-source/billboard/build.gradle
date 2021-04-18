@@ -1,0 +1,78 @@
+apply plugin: 'kotlin'
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.bmuschko.nexus'
+
+group 'com.m14n.billib'
+version '0.0.6'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:${kotlinVersion}"
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "rome:rome:1.0"
+    implementation "org.jsoup:jsoup:${jsoupVersion}"
+    implementation "org.apache.httpcomponents:httpclient:4.3.4"
+    implementation "com.m14n:ex:0.0.2"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinSerializationJson}"
+
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:${mockitoKotlinVersion}"
+}
+
+modifyPom {
+    project {
+        name 'BilliB Date'
+        description 'Billboard music charts parser'
+        url 'https://github.com/adjorno/billibdata'
+        inceptionYear '2018'
+
+        scm {
+            url 'https://github.com/adjorno/billibdata'
+            connection 'scm:https://adjorno@github.com/adjorno/billibdata.git'
+            developerConnection 'scm:git://github.com/adjorno/billibdata.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'adjorno'
+                name 'Mykhailo Dorokhin'
+                email 'adjorno@gmail.com'
+            }
+        }
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}

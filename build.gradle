@@ -4,6 +4,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm" version "${kotlinVersion}"
     id "org.springframework.boot" version "${springBootVersion}"
     id "io.spring.dependency-management" version "${springDependencyVersion}"
+    id "jacoco"
 }
 
 group "com.adjorno.billib.rest"
@@ -13,6 +14,8 @@ jar {
     archiveBaseName = "billib-rest-service"
     archiveVersion = "0.0.1"
 }
+
+apply from: "gradle/jacoco.gradle"
 
 repositories {
     mavenCentral()

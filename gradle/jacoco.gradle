@@ -1,0 +1,23 @@
+jacoco.toolVersion = "$jacocoVersion"
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.06
+            }
+        }
+    }
+}
+
+test.finalizedBy jacocoTestReport
+
+check.dependsOn jacocoTestCoverageVerification
