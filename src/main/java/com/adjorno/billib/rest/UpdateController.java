@@ -265,6 +265,7 @@ public class UpdateController implements IUpdateController {
                 return;
             }
             Journal theJournal = getOrCreateJournal(theJournalMetadata.getName());
+            final File localRoot = new File(rawJsonDataPath);
             for (BBChartMetadata theBBChartMetadata : theJournalMetadata.getCharts()) {
                 if (chart == null || chart.equals(theBBChartMetadata.getName())) {
                     Chart theChart = getOrCreateChart(theJournal, theBBChartMetadata);
@@ -280,10 +281,10 @@ public class UpdateController implements IUpdateController {
                     final Date lastWeek = BB.CHART_DATE_FORMAT.parse(
                             theChart.getEndDate() != null ? theChart.getEndDate() : today
                     );
+                    final File localChart = new File(localRoot, theBBChartMetadata.getFolder());
                     while (theCalendar.getTime().compareTo(lastWeek) <= 0) {
                         String theDate = BB.CHART_DATE_FORMAT.format(theCalendar.getTime());
-                        String theFileName = theBBChartMetadata.getPrefix() + "-" + theDate + ".json";
-                        File chartListFile = new File(rawJsonDataPath + theBBChartMetadata.getFolder() + "/" + theFileName);
+                        File chartListFile = new File(localChart, theBBChartMetadata.getPrefix() + "-" + theDate + ".json");
                         if (chartListFile.exists()) {
                             theReader = new InputStreamReader(new FileInputStream(chartListFile));
                             try {
