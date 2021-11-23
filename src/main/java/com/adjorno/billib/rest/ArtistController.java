@@ -33,7 +33,7 @@ public class ArtistController {
     @Transactional
     @RequestMapping(value = "/artist/getById", method = RequestMethod.GET)
     public Artist getById(@RequestParam() Long id) {
-        Artist theArtist = mArtistRepository.findOne(id);
+        Artist theArtist = mArtistRepository.findById(id).orElse(null);
         if (theArtist == null) {
             throw new ArtistNotFoundException();
         }
@@ -45,7 +45,7 @@ public class ArtistController {
     public ArtistInfo getInfo(@RequestParam() Long id,
             @RequestParam(name = "relations_size", required = false, defaultValue = "5") int relationsSize,
             @RequestParam(name = "tracks_size", required = false, defaultValue = "5") int tracksSize) {
-        Artist theArtist = mArtistRepository.findOne(id);
+        Artist theArtist = mArtistRepository.findById(id).orElse(null);
         if (theArtist == null) {
             throw new ArtistNotFoundException();
         }
@@ -67,7 +67,7 @@ public class ArtistController {
     @RequestMapping(value = "/artist/relations", method = RequestMethod.GET)
     public List<Artist> getRelations(@RequestParam() Long id,
             @RequestParam(required = false, defaultValue = "0") int size) {
-        Artist theArtist = mArtistRepository.findOne(id);
+        Artist theArtist = mArtistRepository.findById(id).orElse(null);
         if (theArtist == null) {
             throw new ArtistNotFoundException();
         }
@@ -94,7 +94,7 @@ public class ArtistController {
     @Transactional
     @RequestMapping(value = "/artist/rename", method = RequestMethod.POST)
     public void rename(@RequestParam() Long id, @RequestParam(name = "name") String newName) {
-        Artist theArtist = mArtistRepository.findOne(id);
+        Artist theArtist = mArtistRepository.findById(id).orElse(null);
         if (theArtist == null) {
             throw new ArtistNotFoundException();
         }

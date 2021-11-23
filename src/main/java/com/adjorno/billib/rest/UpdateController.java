@@ -171,7 +171,7 @@ public class UpdateController implements IUpdateController {
         if (!PASSWORD.equals(password)) {
             return null;
         }
-        ChartList theChartList = mChartListRepository.findOne(chartListId);
+        ChartList theChartList = mChartListRepository.findById(chartListId).orElse(null);
         if (theChartList == null) {
             throw new ChartListNotFoundException();
         }
@@ -187,7 +187,7 @@ public class UpdateController implements IUpdateController {
                     if (theTracks.size() == theChartList.getChart().getListSize()) {
                         List<ChartTrack> theOldTracks = mChartTrackRepository.findByChartList(theChartList);
                         System.out.println("CLEAR OLD " + theOldTracks.size() + " TRACKS");
-                        mChartTrackRepository.delete(theOldTracks);
+                        mChartTrackRepository.deleteAll(theOldTracks);
                         fillChartList(theChartList, theTracks);
                         mDuplicateController.checkLastWeek(theChartList.getId(), 1);
                         return mChartTrackRepository.findByChartList(theChartList);
@@ -207,7 +207,7 @@ public class UpdateController implements IUpdateController {
         if (!PASSWORD.equals(password)) {
             return null;
         }
-        Chart theChart = mChartRepository.findOne(chartId);
+        Chart theChart = mChartRepository.findById(chartId).orElse(null);
         if (theChart == null) {
             return null;
         }
@@ -220,9 +220,9 @@ public class UpdateController implements IUpdateController {
             return null;
         }
         List<ChartList> theAfter = mChartListRepository.findAfter(theChart, theWeek.getDate());
-        ChartList theLastBefore =
-                Ex.isNotEmpty(theAfter) ? mChartListRepository.findOne(theAfter.get(0).getPreviousChartListId())
-                        : null;
+        ChartList theLastBefore = Ex.isNotEmpty(theAfter)
+                ? mChartListRepository.findById(theAfter.get(0).getPreviousChartListId()).orElse(null)
+                : null;
         ChartList theMissingChartList = getOrCreateChartList(theChart, theWeek, theLastBefore);
         for (int i = 0; i < theAfter.size(); i++) {
             final ChartList theAfterChartList = theAfter.get(i);
@@ -276,7 +276,7 @@ public class UpdateController implements IUpdateController {
                     } else {
                         theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(start));
                         theLastChartList = mChartListRepository.findLast(
-                                theChart, new PageRequest(0, 1)).getContent().get(0);
+                                theChart, PageRequest.of(0, 1)).getContent().get(0);
                     }
                     final Date lastWeek = BB.CHART_DATE_FORMAT.parse(
                             theChart.getEndDate() != null ? theChart.getEndDate() : today
@@ -345,7 +345,7 @@ public class UpdateController implements IUpdateController {
                 Date theLastWeekDate = BBHtmlParser.getChartDate(theLastChartDocument);
                 String theLastWeek = BB.CHART_DATE_FORMAT.format(theLastWeekDate);
                 ChartList theLastChartList =
-                        mChartListRepository.findLast(theChart, new PageRequest(0, 1)).getContent().get(0);
+                        mChartListRepository.findLast(theChart, PageRequest.of(0, 1)).getContent().get(0);
 
                 Calendar theCalendar = Calendar.getInstance();
                 theCalendar.setTime(BB.CHART_DATE_FORMAT.parse(theLastChartList.getWeek().getDate()));
@@ -426,7 +426,7 @@ public class UpdateController implements IUpdateController {
             theChartTrack.setChartList(to);
             theNewChartTracks.add(theNewChartTrack);
         }
-        mChartTrackRepository.save(theNewChartTracks);
+        mChartTrackRepository.saveAll(theNewChartTracks);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -500,7 +500,7 @@ public class UpdateController implements IUpdateController {
             if (previousChartList != null) {
                 theLastChartList = previousChartList;
             } else {
-                List<ChartList> theLast = mChartListRepository.findLast(chart, new PageRequest(0, 1)).getContent();
+                List<ChartList> theLast = mChartListRepository.findLast(chart, PageRequest.of(0, 1)).getContent();
                 theLastChartList = Ex.isNotEmpty(theLast) ? theLast.get(0) : null;
             }
             theNewChartList = new ChartList();
@@ -554,7 +554,7 @@ public class UpdateController implements IUpdateController {
                 theArtistRelations.add(new ArtistRelation(artist, theLikeArtist));
             }
         }
-        mArtistRelationRepository.save(theArtistRelations);
+        mArtistRelationRepository.saveAll(theArtistRelations);
         for (ArtistRelation theArtistRelation : theArtistRelations) {
             System.out.println(
                     String.format("Created ArtistRelation: %d => %d, %s => %s", theArtistRelation.getSingle().getId(),

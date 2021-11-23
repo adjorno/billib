@@ -249,7 +249,7 @@ public class DuplicateController implements IDuplicateController {
         final long start = from;
         System.out.println("CHECK STARTED");
         while (from <= theSize) {
-            final ChartList theChartList = mChartListRepository.findOne(from);
+            final ChartList theChartList = mChartListRepository.findById(from).orElse(null);
             final List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(theChartList);
 
             if (thePreviousChartList != null &&
@@ -259,7 +259,7 @@ public class DuplicateController implements IDuplicateController {
             }
 
             if (thePreviousChartList == null) {
-                thePreviousChartList = mChartListRepository.findOne(theChartList.getPreviousChartListId());
+                thePreviousChartList = mChartListRepository.findById(theChartList.getPreviousChartListId()).orElse(null);
             }
             if (Ex.isEmpty(thePreviousChartTracks) && thePreviousChartList != null) {
                 thePreviousChartTracks = mChartTrackRepository.findByChartList(thePreviousChartList);
@@ -374,8 +374,8 @@ public class DuplicateController implements IDuplicateController {
     }
 
     private List<MergeOperation> removeDuplicateArtist(Long originalId, Long duplicateId) {
-        final Artist theOriginalArtist = mArtistRepository.findOne(originalId);
-        final Artist theDuplicateArtist = mArtistRepository.findOne(duplicateId);
+        final Artist theOriginalArtist = mArtistRepository.findById(originalId).orElse(null);
+        final Artist theDuplicateArtist = mArtistRepository.findById(duplicateId).orElse(null);
         if (theOriginalArtist != null && theDuplicateArtist != null) {
             List<MergeOperation> theMerges = new ArrayList<>();
             List<String> theRepeatTitles =
@@ -417,8 +417,8 @@ public class DuplicateController implements IDuplicateController {
     }
 
     private MergeOperation<Track> removeDuplicateTrack(Long originalId, Long duplicateId) {
-        Track duplicateTrack = mTrackRepository.findOne(duplicateId);
-        Track originalTrack = mTrackRepository.findOne(originalId);
+        Track duplicateTrack = mTrackRepository.findById(duplicateId).orElse(null);
+        Track originalTrack = mTrackRepository.findById(originalId).orElse(null);
         if (originalTrack != null && duplicateTrack != null) {
             mChartTrackRepository.updateTracks(duplicateTrack, originalTrack);
             mDayTrackRepository.updateTracks(duplicateTrack, originalTrack);

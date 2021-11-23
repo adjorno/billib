@@ -37,7 +37,7 @@ public class ChartListController {
 
     @RequestMapping(value = "/chartList/getById", method = RequestMethod.GET)
     public ChartList getChartListById(@RequestParam(name = "id") Long chartListId) {
-        final ChartList theChartList = mChartListRepository.findOne(chartListId);
+        final ChartList theChartList = mChartListRepository.findById(chartListId).orElse(null);
         if (theChartList == null) {
             throw new ChartListNotFoundException();
         }
@@ -47,13 +47,13 @@ public class ChartListController {
     @RequestMapping(value = "/chartList/getByDate", method = RequestMethod.GET)
     public ChartList getChartListByDate(@RequestParam(name = "chart_id") Long chartId,
             @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String date) {
-        Chart theChart = mChartRepository.findOne(chartId);
+        Chart theChart = mChartRepository.findById(chartId).orElse(null);
         if (theChart == null) {
             throw new ChartListNotFoundException();
         }
         ChartList theChartList = null;
         if (Ex.isEmpty(date)) {
-             theChartList = mChartListRepository.findLast(theChart, new PageRequest(0, 1)).getContent().get(0);
+             theChartList = mChartListRepository.findLast(theChart, PageRequest.of(0, 1)).getContent().get(0);
         } else {
             List<Week> theWeeks = mWeekRepository.findClosest(date);
             if (Ex.isNotEmpty(theWeeks)) {
@@ -68,7 +68,7 @@ public class ChartListController {
 
     @RequestMapping(value = "/chartList/getFirstAppearance", method = RequestMethod.GET)
     public ChartList getFirstAppearance(@RequestParam(name = "track_id") Long trackId) {
-        Track theTrack = mTrackRepository.findOne(trackId);
+        Track theTrack = mTrackRepository.findById(trackId).orElse(null);
         if (theTrack == null) {
             throw new TrackNotFoundException();
         }

@@ -49,7 +49,7 @@ public class TrendsController implements ITrendsController {
     public Trends getTrendsAPI(
             @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String date) {
         final Week theWeek =
-                date == null ? mChartListRepository.findLast(1L, new PageRequest(0, 1)).getContent().get(0).getWeek()
+                date == null ? mChartListRepository.findLast(1L, PageRequest.of(0, 1)).getContent().get(0).getWeek()
                         : mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date));
         final List<TrendTrack> theTrendTracks = mTrendTrackRepository.findTrendsOfTheWeek(theWeek);
         final Map<Long, TrendList> theTrendLists = new HashMap<>();
@@ -114,7 +114,7 @@ public class TrendsController implements ITrendsController {
                 return Integer.compare((Integer) o2[1], (Integer) o1[1]);
             }
         });
-        final TrendType theDebutsType = mTrendTypeRepository.findOne(TrendType.TYPE_DEBUTS);
+        final TrendType theDebutsType = mTrendTypeRepository.findById(TrendType.TYPE_DEBUTS).orElse(null);
         Set<Long> theDebuts = new HashSet<>();
         for (ChartTrack theChartTrack : Ex.asListOfObjects(theBestDebuts, ChartTrack.class)) {
             if (!theDebuts.contains(theChartTrack.getTrack().getId())) {
@@ -157,7 +157,7 @@ public class TrendsController implements ITrendsController {
                         o2.getChartList().getChart().getListSize());
             }
         });
-        final TrendType theFuturesType = mTrendTypeRepository.findOne(TrendType.TYPE_FUTURES);
+        final TrendType theFuturesType = mTrendTypeRepository.findById(TrendType.TYPE_FUTURES).orElse(null);
         for (int i = 0; i < theChartTracks.size() && i < DB_LIST_SIZE_PER_TYPE; i++) {
             mTrendTrackRepository.save(new TrendTrack(null, week, theChartTracks.get(i).getTrack(), theFuturesType));
         }
@@ -173,7 +173,7 @@ public class TrendsController implements ITrendsController {
         );
         List<Track> theTracks = mTrackRepository
                 .sortByGlobalRank(TrackUtils.asTrackIds(TrackUtils.asTracks(theChartTracks)), DB_LIST_SIZE_PER_TYPE);
-        final TrendType theSeniorsType = mTrendTypeRepository.findOne(TrendType.TYPE_SENIORS);
+        final TrendType theSeniorsType = mTrendTypeRepository.findById(TrendType.TYPE_SENIORS).orElse(null);
         for (Track theTrack : theTracks) {
             mTrendTrackRepository.save(new TrendTrack(null, week, theTrack, theSeniorsType));
         }
@@ -183,7 +183,7 @@ public class TrendsController implements ITrendsController {
     @Transactional(propagation = Propagation.REQUIRED)
     private void generateGainers(Week week) {
         System.out.println("STARTED GENERATE GAINERS");
-        final TrendType theGainersType = mTrendTypeRepository.findOne(TrendType.TYPE_GAINERS);
+        final TrendType theGainersType = mTrendTypeRepository.findById(TrendType.TYPE_GAINERS).orElse(null);
         //mTrendTrackRepository.deleteByWeekAndType(week, theGainersType);
         List<ChartTrack> theChartTracks = filterByCharts(
                 mChartTrackRepository.findByWeek(week),

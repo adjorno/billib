@@ -44,7 +44,7 @@ public class TrackController implements ITrackController {
 
     @RequestMapping(value = "/track/getById", method = RequestMethod.GET)
     public Track track(@RequestParam(value = "id") Long id) {
-        Track theOne = mTrackRepository.findOne(id);
+        Track theOne = mTrackRepository.findById(id).orElse(null);
         if (theOne == null) {
             throw new TrackNotFoundException();
         }
@@ -54,7 +54,7 @@ public class TrackController implements ITrackController {
     @RequestMapping(value = "/track/getByArtist", method = RequestMethod.GET)
     public List<Track> getTracksAPI(@RequestParam(name = "artist_id") Long artistId,
             @RequestParam(required = false, defaultValue = "0") int size) {
-        Artist theArtist = mArtistRepository.findOne(artistId);
+        Artist theArtist = mArtistRepository.findById(artistId).orElse(null);
         if (theArtist == null) {
             throw new ArtistNotFoundException();
         }
@@ -84,8 +84,8 @@ public class TrackController implements ITrackController {
     @RequestMapping(value = "/track/day", method = RequestMethod.GET)
     public DayTrack dayTrack(
             @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String date) {
-        final DayTrack theOne = Ex.isNotEmpty(date) ? mDayTrackRepository.findOne(java.sql.Date.valueOf(date))
-                : mDayTrackRepository.findLast(new PageRequest(0, 1)).getContent().get(0);
+        final DayTrack theOne = Ex.isNotEmpty(date) ? mDayTrackRepository.findById(java.sql.Date.valueOf(date)).orElse(null)
+                : mDayTrackRepository.findLast(PageRequest.of(0, 1)).getContent().get(0);
         if (theOne == null) {
             throw new TrackNotFoundException();
         }
@@ -110,11 +110,11 @@ public class TrackController implements ITrackController {
 
     @Override
     public Map<String, Map<String, Integer>> getTrackHistory(Long id, Long chartId) {
-        Track theTrack = mTrackRepository.findOne(id);
+        Track theTrack = mTrackRepository.findById(id).orElse(null);
         if (theTrack == null) {
             throw new TrackNotFoundException();
         }
-        Chart theRequestedChart = Ex.isPositive(chartId) ? mChartRepository.findOne(chartId) : null;
+        Chart theRequestedChart = Ex.isPositive(chartId) ? mChartRepository.findById(chartId).orElse(null) : null;
         Iterable<Chart> theCharts =
                 theRequestedChart == null ? mChartRepository.findAll() : Arrays.asList(theRequestedChart);
         Map<String, Map<String, Integer>> theFullHistory = new HashMap<>();
@@ -133,7 +133,7 @@ public class TrackController implements ITrackController {
 
     @RequestMapping(value = "/track/info", method = RequestMethod.GET)
     public TrackInfo getTrackInfo(@RequestParam() Long id) {
-        Track theTrack = mTrackRepository.findOne(id);
+        Track theTrack = mTrackRepository.findById(id).orElse(null);
         if (theTrack == null) {
             throw new TrackNotFoundException();
         }

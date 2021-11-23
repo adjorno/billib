@@ -33,8 +33,8 @@ public class ChartTrackController {
         if (!PASSWORD.equals(password)) {
             return;
         }
-        Track theNewTrack = mTrackRepository.findOne(trackId);
-        ChartTrack theChartTrack = mChartTrackRepository.findOne(chartTrackId);
+        Track theNewTrack = mTrackRepository.findById(trackId).orElse(null);
+        ChartTrack theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null);
         if (theChartTrack == null && theNewTrack == null) {
             throw new TrackNotFoundException();
         }
@@ -48,7 +48,7 @@ public class ChartTrackController {
         if (!PASSWORD.equals(password)) {
             return;
         }
-        ChartTrack theChartTrack = mChartTrackRepository.findOne(chartTrackId);
+        ChartTrack theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null);
         if (theChartTrack == null) {
             throw new TrackNotFoundException();
         }
@@ -63,7 +63,7 @@ public class ChartTrackController {
             return;
         }
         List<ChartTrack> theChartListTracks =
-                mChartTrackRepository.findByChartList(mChartListRepository.findOne(chartListId));
+                mChartTrackRepository.findByChartList(mChartListRepository.findById(chartListId).orElse(null));
         for (ChartTrack ct : theChartListTracks) {
             List<Integer> thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(ct.getId());
             final int theLast = Ex.isEmpty(thePreviousWeekRanks) ? 0 : thePreviousWeekRanks.get(0);
@@ -80,23 +80,23 @@ public class ChartTrackController {
         if (!PASSWORD.equals(password)) {
             return;
         }
-        final Track theTrack = mTrackRepository.findOne(trackId);
+        final Track theTrack = mTrackRepository.findById(trackId).orElse(null);
         if (theTrack == null) {
             throw new TrackNotFoundException();
         }
-        final ChartList theChartList = mChartListRepository.findOne(chartListId);
+        final ChartList theChartList = mChartListRepository.findById(chartListId).orElse(null);
         if (theChartList == null) {
             throw new ChartListNotFoundException();
         }
     }
 
     ChartTrack getDebut(Track track) {
-        return mChartTrackRepository.findByTrackAndSort(track, new Sort("w.date")).get(0);
+        return mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date")).get(0);
     }
 
     ChartTrack addMissingTrackInternal(ChartList chartList, Track track, int rank) {
         int theLastWeekRank = 0;
-        final ChartList thePreviousChartList = mChartListRepository.findOne(chartList.getPreviousChartListId());
+        final ChartList thePreviousChartList = mChartListRepository.findById(chartList.getPreviousChartListId()).orElse(null);
         if (thePreviousChartList != null) {
             final ChartTrack thePrevious = mChartTrackRepository.findByTrackAndChartList(track, thePreviousChartList);
             if (thePrevious != null) {
