@@ -20,6 +20,11 @@ import java.util.*
 import java.util.logging.FileHandler
 import java.util.logging.Logger
 
+private val jsonDecoder = Json {
+    prettyPrint = true
+    prettyPrintIndent = "  "
+}
+
 object AllBBReader {
     private const val POSSIBLE_SKIPPED_WEEKS_IN_ROW = 5
 
@@ -75,7 +80,7 @@ object AllBBReader {
                 theChartMetadata.prefix + "-" + theFormatDate + ".json"
             )
             if (!theChartFile.exists()) {
-                Thread.sleep(2000)
+                Thread.sleep(3000)
                 try {
                     val theChartDocument = BBHtmlParser.getChartDocument(
                         metadata, theChartMetadata,
@@ -109,10 +114,7 @@ object AllBBReader {
                     )
 
                     FileWriter(theChartFile).use {
-                        it.write(Json {
-                            prettyPrint = true
-                            prettyPrintIndent = "  "
-                        }.encodeToString(theChart))
+                        it.write(jsonDecoder.encodeToString(theChart))
                     }
                     println("${theChartMetadata.name} $theFormatDate SUCCESS!")
                     theSkip = 0

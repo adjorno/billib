@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.jsoup.nodes.Document
+import org.jsoup.select.Evaluator
 
 /**
  * As of June 2020 Billboard has different types of html structures for charts.
@@ -37,23 +38,24 @@ class Hot100ChartListParser : HtmlChartListParser {
     }
 
     override fun parse(document: Document): List<BBTrack> {
-        val json = document.body()
-            .requestElementById("main")
-            .requestElementById("charts")
-            .requestAttr("data-charts")
-
-        return jsonDecoder.decodeFromString(
-            ListSerializer(Hot100Track.serializer()),
-            json
-        ).map { hot100Track ->
+        val chartListElements = document.body()
+            .select(Evaluator.Class("o-chart-results-list-row-container"))
+        return chartListElements.map { element ->
+            val rankElement = element.selectFirst(Evaluator.Class("o-chart-results-list__item")).selectFirst(Evaluator.Class("c-label"))
+            val titleElement = element.selectFirst(Evaluator.Id("title-of-a-story"))
+            val artistElement = titleElement.parent().selectFirst(Evaluator.Class("c-label"))
+            val chartTrackDetails = titleElement.parent().parent().select(Evaluator.Class("o-chart-results-list__item"))
+            val lastWeekElement = chartTrackDetails[3].selectFirst(Evaluator.Class("c-label"))
+            val peakPositionElement = chartTrackDetails[4].selectFirst(Evaluator.Class("c-label"))
+            val wksOnChartElement = chartTrackDetails[5].selectFirst(Evaluator.Class("c-label"))
             BBTrack(
-                title = hot100Track.title,
-                artist = hot100Track.artist,
-                rank = hot100Track.rank.toInt(),
+                title = titleElement.text().trim(),
+                artist = artistElement.text().trim(),
+                rank = rankElement.text().trim().toInt(),
                 positionInfo = BBPositionInfo(
-                    lastWeek = hot100Track.history.lastWeak,
-                    peekPosition = hot100Track.history.peakRank.toInt(),
-                    wksOnChart = hot100Track.history.weeksOnChart.toInt()
+                    lastWeek = lastWeekElement.text().trim(),
+                    peekPosition = peakPositionElement.text().trim().toInt(),
+                    wksOnChart = wksOnChartElement.text().trim().toInt()
                 )
             )
         }

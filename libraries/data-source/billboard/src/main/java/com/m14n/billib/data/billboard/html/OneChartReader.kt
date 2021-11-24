@@ -11,8 +11,13 @@ import java.io.File
 import java.io.FileWriter
 import java.util.*
 
-var DATE = "2018-04-28"
-var CHART = "Electronic"
+var DATE = "2021-11-27"
+var CHART = "Hot 100"
+
+private val jsonDecoder = Json {
+    prettyPrint = true
+    prettyPrintIndent = "  "
+}
 
 fun main() {
     val properties = Properties().apply {
@@ -44,10 +49,7 @@ fun main() {
             chartMeta.prefix + "-" + DATE + ".json"
         )
         FileWriter(theChartFile).use {
-            it.write(Json {
-                prettyPrint = true
-                prettyPrintIndent = "  "
-            }.encodeToString(theChart))
+            it.write(jsonDecoder.encodeToString(theChart))
         }
         println("OLOLO ${chartMeta.name} FINISHED")
     }
