@@ -26,22 +26,23 @@ fun hot100DateParser() =
 
 class Hot100TextDateParser : HtmlChartTextDateParser {
     override fun parse(document: Document): String = document.body()
-        .requestElementById("main")
-        .requestElementById("charts")
-        .requestAttr("data-chart-date")
+        .selectFirst("div#chart-date-picker")
+        .requestAttr("data-date")
 }
 
 class Hot100ChartListParser : HtmlChartListParser {
+    private val jsonDecoder = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
+
     override fun parse(document: Document): List<BBTrack> {
         val json = document.body()
             .requestElementById("main")
             .requestElementById("charts")
             .requestAttr("data-charts")
 
-        return Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        }.decodeFromString(
+        return jsonDecoder.decodeFromString(
             ListSerializer(Hot100Track.serializer()),
             json
         ).map { hot100Track ->
