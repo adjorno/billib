@@ -6,10 +6,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object BB {
-    const val CHART_DATE_HTML_FORMAT_STRING = "MMMM dd, yyyy"
     const val CHART_DATE_FORMAT_STRING = "yyyy-MM-dd"
 
-    val CHART_DATE_HTML_FORMAT: DateFormat = SimpleDateFormat(CHART_DATE_HTML_FORMAT_STRING)
     val CHART_DATE_FORMAT: DateFormat = SimpleDateFormat(CHART_DATE_FORMAT_STRING)
     const val OLD_LAST_WEEK_NEWBIE = "--"
     const val LAST_WEEK_NEWBIE = "-"

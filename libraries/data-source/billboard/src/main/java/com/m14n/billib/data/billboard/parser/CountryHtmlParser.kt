@@ -12,6 +12,8 @@ import com.m14n.billib.data.billboard.model.BBPositionInfo
 import com.m14n.billib.data.billboard.model.BBTrack
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
+import org.jsoup.select.Evaluator
 
 /**
  * As of June 2020 Billboard has different types of html structures for charts.
@@ -21,7 +23,7 @@ import org.jsoup.nodes.Element
 fun countryDateParser(): HtmlChartDateParser =
     DelegateHtmlChartDateParser(
         CountryHtmlTextDateParser(),
-        DateFormatParser(BB.CHART_DATE_HTML_FORMAT)
+        DateFormatParser(BB.CHART_DATE_FORMAT)
     )
 
 fun countryChartListParser(): HtmlChartListParser =
@@ -32,20 +34,12 @@ fun countryChartListParser(): HtmlChartListParser =
 
 class CountryHtmlTextDateParser : HtmlChartTextDateParser {
     override fun parse(document: Document): String = document
-        .requestElementById("main")
-        .requestElementsByClass("print-chart").first()
-        .requestElementsByClass("print-chart__week").first()
-        .nodeText()
-        .substring("This week of ".length - 1)
+        .select(Evaluator.Id("chart-date-picker")).attr("data-date")
 }
 
 class CountryTrackElementsParser : HtmlTrackElementsParser {
-    override fun parse(document: Document): Sequence<Element> = document
-        .requestElementById("main")
-        .requestElementsByClass("print-chart").first()
-        .requestElementsByTag("table").first()
-        .requestElementsByTag("tbody").first()
-        .children().asSequence()
+    override fun parse(document: Document): Elements = document
+        .select(Evaluator.Class("o-chart-results-list-row"))
 }
 
 class CountryTrackParser : TrackElementParser {

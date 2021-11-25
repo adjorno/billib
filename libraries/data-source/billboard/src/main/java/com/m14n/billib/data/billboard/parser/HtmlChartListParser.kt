@@ -3,6 +3,7 @@ package com.m14n.billib.data.billboard.parser
 import com.m14n.billib.data.billboard.model.BBTrack
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import java.text.ParseException
 
 fun defaultChartListParser() = countryChartListParser()
@@ -17,7 +18,7 @@ interface HtmlChartListParser {
  */
 interface HtmlTrackElementsParser {
     @Throws(ParseException::class)
-    fun parse(document: Document): Sequence<Element>
+    fun parse(document: Document): Elements
 }
 
 /**

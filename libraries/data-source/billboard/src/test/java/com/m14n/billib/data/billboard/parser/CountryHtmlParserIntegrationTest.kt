@@ -10,18 +10,25 @@ class CountryHtmlParserIntegrationTest {
 
     @Test
     fun `should parse the date correctly`() {
+        val expectedDate = Calendar.getInstance().apply {
+            // 2021 November, 27
+            set(2021, Calendar.NOVEMBER, 27)
+        }
+        val chartFileName = "country_${expectedDate.get(Calendar.YEAR)}_${expectedDate.get(Calendar.MONTH) + 1}_${expectedDate.get(Calendar.DAY_OF_MONTH)}.html"
         val doc = Jsoup.parse(
-            javaClass.classLoader.getResourceAsStream("samples/2020-06-13/country_2018_12_29.html"),
+            javaClass.classLoader.getResourceAsStream(
+                "samples/2021-11-25/${chartFileName}"
+            ),
             "UTF-8",
             "test"
         )
         val date = sut.parse(doc)
-        val calendar = Calendar.getInstance().apply {
+        val actualCalendar = Calendar.getInstance().apply {
             time = date
         }
-        // 2018 December, 29
-        assertEquals(2018, calendar.get(Calendar.YEAR))
-        assertEquals(11, calendar.get(Calendar.MONTH))
-        assertEquals(29, calendar.get(Calendar.DAY_OF_MONTH))
+
+        assertEquals(expectedDate.get(Calendar.YEAR), actualCalendar.get(Calendar.YEAR))
+        assertEquals(expectedDate.get(Calendar.MONTH), actualCalendar.get(Calendar.MONTH))
+        assertEquals(expectedDate.get(Calendar.DAY_OF_MONTH), actualCalendar.get(Calendar.DAY_OF_MONTH))
     }
 }
