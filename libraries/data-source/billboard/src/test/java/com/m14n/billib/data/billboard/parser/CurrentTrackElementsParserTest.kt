@@ -4,14 +4,14 @@ import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class CountryTrackElementsParserTest {
+class CurrentTrackElementsParserTest {
 
-    private val sut = CountryTrackElementsParser()
+    private val sut = CurrentChartListParser()
 
     @Test
     fun `should parse correctly`() {
         val doc = Jsoup.parse(
-            javaClass.classLoader.getResourceAsStream("samples/2020-06-13/country_2018_12_29.html"),
+            javaClass.classLoader.getResourceAsStream("samples/2021-11-25/country_2021_11_27.html"),
             "UTF-8",
             "test"
         )

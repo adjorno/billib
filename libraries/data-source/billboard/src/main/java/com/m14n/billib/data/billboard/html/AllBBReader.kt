@@ -5,11 +5,9 @@ import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBChartMetadata
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
 import com.m14n.billib.data.billboard.model.BBTrack
-import com.m14n.billib.data.billboard.parser.Hot100ChartListParser
-import com.m14n.billib.data.billboard.parser.defaultChartListParser
-import com.m14n.billib.data.billboard.parser.hot100DateParser
+import com.m14n.billib.data.billboard.parser.CurrentChartListParser
+import com.m14n.billib.data.billboard.parser.dateParser
 import com.m14n.billib.data.billboard.toChartDate
-import defaultDateParser
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -17,8 +15,6 @@ import java.io.FileWriter
 import java.io.IOException
 import java.text.ParseException
 import java.util.*
-import java.util.logging.FileHandler
-import java.util.logging.Logger
 
 private val jsonDecoder = Json {
     prettyPrint = true
@@ -58,13 +54,9 @@ object AllBBReader {
             time = date
             add(Calendar.DATE, Calendar.DAY_OF_WEEK)
         }
-        val (dateParser, tracksParser) = if (theChartMetadata.name == "Hot 100") {
-            hot100DateParser() to Hot100ChartListParser()
-        } else {
-            defaultDateParser(Logger.getLogger("ChartUpdate").apply {
-                addHandler(FileHandler("charts_update.log"))
-            }) to defaultChartListParser()
-        }
+        val dateParser = dateParser()
+        val tracksParser = CurrentChartListParser()
+
         while (theSkip <= POSSIBLE_SKIPPED_WEEKS_IN_ROW) {
             val theCurrent = BB.CHART_DATE_FORMAT.format(theCalendar.time)
             theCalendar.add(
@@ -80,7 +72,7 @@ object AllBBReader {
                 theChartMetadata.prefix + "-" + theFormatDate + ".json"
             )
             if (!theChartFile.exists()) {
-                Thread.sleep(3000)
+                Thread.sleep(6000)
                 try {
                     val theChartDocument = BBHtmlParser.getChartDocument(
                         metadata, theChartMetadata,

@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.text.ParseException
 
-fun defaultChartListParser() = countryChartListParser()
+fun defaultChartListParser() = CurrentChartListParser()
 
 interface HtmlChartListParser {
     @Throws(ParseException::class)

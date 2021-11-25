@@ -7,19 +7,19 @@ import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class Hot100ChartListParserTest {
+class CurrentChartListParserTest {
 
-    private val sut = Hot100ChartListParser()
+    private val sut = CurrentChartListParser()
 
     @Test
     fun `should parse correctly`() {
         val document = Jsoup.parse(
-            javaClass.classLoader.getResourceAsStream("samples/2020-06-13/hot_100.html"),
+            javaClass.classLoader.getResourceAsStream("samples/2021-11-25/country_2021_11_27.html"),
             "UTF-8",
             "test"
         )
         val expectedTracks =
-            javaClass.classLoader.getResourceAsStream("samples/2020-06-13/hot_100_tracks.json")?.bufferedReader()?.use {
+            javaClass.classLoader.getResourceAsStream("samples/2021-11-25/country_tracks.json")?.bufferedReader()?.use {
                 Json.decodeFromString<List<BBTrack>>(it.readText())
             }
         assertEquals(expectedTracks, sut.parse(document))

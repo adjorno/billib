@@ -1,5 +1,5 @@
 import com.m14n.billib.data.billboard.parser.TextDateParser
-import com.m14n.billib.data.billboard.parser.countryDateParser
+import com.m14n.billib.data.billboard.parser.dateParser
 import org.jsoup.nodes.Document
 import java.text.ParseException
 import java.util.*
@@ -10,7 +10,7 @@ import java.util.logging.Logger
  * Default [HtmlChartDateParser] implementation.
  */
 fun defaultDateParser(logger: Logger? = null): HtmlChartDateParser =
-    countryDateParser().let { parser ->
+    dateParser().let { parser ->
         if (logger != null) {
             LogOnErrorChartDateParser(parser, logger)
         } else {

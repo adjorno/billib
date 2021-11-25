@@ -2,7 +2,7 @@ package com.m14n.billib.data.billboard.html
 
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
-import com.m14n.billib.data.billboard.parser.Hot100ChartListParser
+import com.m14n.billib.data.billboard.parser.CurrentChartListParser
 import com.m14n.billib.data.billboard.parser.defaultChartListParser
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -33,11 +33,7 @@ fun main() {
         println("OLOLO ${chartMeta.name} STARTED")
 
         val document = BBHtmlParser.getChartDocument(theMetadata, chartMeta, DATE)
-        val tracksParser = if (chartMeta.name == "Hot 100") {
-            Hot100ChartListParser()
-        } else {
-            defaultChartListParser()
-        }
+        val tracksParser = defaultChartListParser()
         val theChart = BBChart(
             name = chartMeta.name,
             date = DATE,

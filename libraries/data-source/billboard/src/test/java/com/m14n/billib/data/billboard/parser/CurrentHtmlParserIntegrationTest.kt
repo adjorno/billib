@@ -1,12 +1,13 @@
 package com.m14n.billib.data.billboard.parser
 
+import defaultDateParser
 import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
 
-class CountryHtmlParserIntegrationTest {
-    private val sut = countryDateParser()
+class CurrentHtmlParserIntegrationTest {
+    private val sut = defaultDateParser()
 
     @Test
     fun `should parse the date correctly`() {
