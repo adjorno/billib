@@ -4,8 +4,11 @@ import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.FileReader
 import java.util.*
+
+private val json: Json by lazy {
+    Json { ignoreUnknownKeys = true }
+}
 
 fun main() {
     val properties = Properties().apply {
@@ -30,22 +33,16 @@ fun main() {
             val theFile = File(theChartFolder, theFileName)
             var theChart: BBChart? = null
             if (theFile.exists()) {
-                val theReader = FileReader(theFile)
-                try {
-                    theChart = Json { ignoreUnknownKeys = true }
-                        .decodeFromString(BBChart.serializer(), theFile.readText())
-                    if (thePreviousChart != null) {
-                        if (!checkConsistency(thePreviousChart, theChart)) {
-                            println(
-                                String.format(
-                                    "=========== ERROR ========== %s %s ",
-                                    theChartMetadata.name, theDate
-                                )
+                theChart = json.decodeFromString(BBChart.serializer(), theFile.readText())
+                if (thePreviousChart != null) {
+                    if (!checkConsistency(thePreviousChart, theChart)) {
+                        println(
+                            String.format(
+                                "=========== ERROR ========== %s %s ",
+                                theChartMetadata.name, theDate
                             )
-                        }
+                        )
                     }
-                } finally {
-                    theReader.close()
                 }
             } else {
                 println(String.format("%s DOES NOT EXIST!", theFileName))
