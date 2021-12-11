@@ -13,6 +13,8 @@ fun main(args: Array<String>) {
                 .fixBackslashQuotes()
                 .removeTableUnLock()
                 .removeTableLock())
+    //TODO int(11) to int
+    // Remove UNIQUE for TREND_TRACK
 }
 
 /**

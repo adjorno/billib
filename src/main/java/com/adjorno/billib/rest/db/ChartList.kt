@@ -8,7 +8,7 @@ import javax.persistence.*
 data class ChartList(
     @Id
     @Column(name = "_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
     @OneToOne

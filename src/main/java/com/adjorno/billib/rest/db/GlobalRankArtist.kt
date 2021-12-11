@@ -7,7 +7,7 @@ import javax.persistence.*
 data class GlobalRankArtist(
     @Id
     @Column(name = "_RANK")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var rank: Long? = null,
 
     @Column(name = "ARTIST_ID")

@@ -21,10 +21,6 @@ repositories {
     mavenCentral()
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     implementation "org.springframework.boot:spring-boot-starter"

@@ -7,7 +7,7 @@ import javax.persistence.*
 data class TrendType(
         @Id
         @Column(name = "_id")
-        @GeneratedValue(strategy = GenerationType.AUTO)
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long? = null,
 
         @Column(name = "DESCRIPTION")

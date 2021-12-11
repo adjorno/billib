@@ -9,7 +9,7 @@ import javax.persistence.*
 data class Chart(
     @Id
     @Column(name = "_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
     @Column(name = "NAME")

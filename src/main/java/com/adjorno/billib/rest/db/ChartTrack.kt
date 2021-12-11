@@ -9,7 +9,7 @@ import javax.persistence.*
 data class ChartTrack(
     @Id
     @Column(name = "_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     var id: Long? = null,
 
