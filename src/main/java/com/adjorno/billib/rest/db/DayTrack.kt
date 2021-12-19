@@ -7,7 +7,7 @@ import javax.persistence.*
 @Table(name = "DAY_TRACK")
 data class DayTrack(
         @Id
-        @Column(name = "DAY")
+        @Column(name = "_DAY")
         var day: Date? = null,
 
         @OneToOne
