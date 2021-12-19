@@ -8,19 +8,21 @@ fun main(args: Array<String>) {
 
     File(outputSqlPath).writeText(
             File(inputSqlPath).readText()
-                .insertDropDbCommand()
                 .fixCreateTableCommand()
                 .fixBackslashQuotes()
+                .fixIntType()
                 .removeTableUnLock()
                 .removeTableLock())
-    //TODO int(11) to int
-    // Remove UNIQUE for TREND_TRACK
 }
 
 /**
- * Appends DB drop command to the beginning of the SQL script.
+ * Converts `int(11)` type into `int`
  */
-private fun String.insertDropDbCommand() = "drop all objects delete files;\n$this"
+private fun String.fixIntType() =
+    foreach("int(11)") { builder: StringBuilder, index: Int ->
+        val bracketIndex = builder.indexOf("(", index)
+        builder.delete(bracketIndex, bracketIndex + 4)
+    }
 
 /**
  * Removes post-creation range from `CREATE TABLE` SQL command. For example, the following command:
