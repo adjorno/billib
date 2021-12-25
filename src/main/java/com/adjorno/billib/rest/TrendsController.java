@@ -58,12 +58,14 @@ public class TrendsController implements ITrendsController {
             final TrendList theTrendList =
                     theTrendLists.getOrDefault(trendType, new TrendList(theTrendTrack.getType().getDescription()));
             if (theTrendList.getTracks().size() < LIST_SIZE_PER_TYPE) {
-                theTrendList.addTrack(theTrendTrack.getTrack());
+                theTrendList.getTracks().add(theTrendTrack.getTrack());
             }
             theTrendLists.put(trendType, theTrendList);
         }
-        final Trends theTrends = new Trends(theWeek.getDate());
-        theTrends.setTrendLists(theTrendLists.values().toArray(new TrendList[0]));
+        final Trends theTrends = new Trends(
+                theWeek.getDate(),
+                theTrendLists.values().toArray(new TrendList[0])
+        );
         return theTrends;
     }
 
