@@ -964,11 +964,14 @@
       }
     }
   },
-  "servers" : [ {
+  "servers" : [
+    {
+      "description" : "Prod",
+      "url" : "https://api.billib.m14n.com"
+    },
+    {
     "description" : "Local",
     "url" : "http://localhost:8080"
-  }, {
-    "description" : "Prod",
-    "url" : "https://api.billib.m14n.com"
-  } ]
+    }
+  ]
 }
