@@ -1,86 +1,77 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.*;
-import com.m14n.ex.Ex;
-import com.m14n.billib.data.BB;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.format.annotation.DateTimeFormat
+import com.m14n.ex.Ex
+import org.springframework.data.domain.PageRequest
+import com.adjorno.billib.rest.db.*
+import com.m14n.billib.data.BB
+import org.springframework.data.repository.findByIdOrNull
 
 @RestController
-public class ChartListController {
+class ChartListController {
+    @Autowired
+    private lateinit var chartListRepository: ChartListRepository
 
     @Autowired
-    private ChartListRepository mChartListRepository;
+    private lateinit var chartTrackRepository: ChartTrackRepository
 
     @Autowired
-    private ChartTrackRepository mChartTrackRepository;
+    private lateinit var weekRepository: WeekRepository
 
     @Autowired
-    private WeekRepository mWeekRepository;
+    private lateinit var chartRepository: ChartRepository
 
     @Autowired
-    private ChartRepository mChartRepository;
+    private lateinit var trackRepository: TrackRepository
 
     @Autowired
-    private TrackRepository mTrackRepository;
+    private lateinit var chartTrackController: ChartTrackController
 
-    @Autowired
-    private ChartTrackController mChartTrackController;
-
-    @RequestMapping(value = "/chartList/getById", method = RequestMethod.GET)
-    public ChartList getChartListById(@RequestParam(name = "id") Long chartListId) {
-        final ChartList theChartList = mChartListRepository.findById(chartListId).orElse(null);
-        if (theChartList == null) {
-            throw new ChartListNotFoundException();
-        }
-        return getPrintableChartList(theChartList);
+    @RequestMapping(value = ["/chartList/getById"], method = [RequestMethod.GET])
+    fun getChartListById(@RequestParam(name = "id") chartListId: Long): ChartList {
+        val theChartList =
+            chartListRepository.findByIdOrNull(chartListId) ?: throw ChartListNotFoundException()
+        return getPrintableChartList(theChartList)
     }
 
-    @RequestMapping(value = "/chartList/getByDate", method = RequestMethod.GET)
-    public ChartList getChartListByDate(@RequestParam(name = "chart_id") Long chartId,
-            @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) String date) {
-        Chart theChart = mChartRepository.findById(chartId).orElse(null);
-        if (theChart == null) {
-            throw new ChartListNotFoundException();
-        }
-        ChartList theChartList = null;
+    @RequestMapping(value = ["/chartList/getByDate"], method = [RequestMethod.GET])
+    fun getChartListByDate(
+        @RequestParam(name = "chart_id") chartId: Long,
+        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?
+    ): ChartList {
+        val theChart = chartRepository.findByIdOrNull(chartId) ?: throw ChartListNotFoundException()
+        var theChartList: ChartList? = null
         if (Ex.isEmpty(date)) {
-             theChartList = mChartListRepository.findLast(theChart, PageRequest.of(0, 1)).getContent().get(0);
+            theChartList = chartListRepository.findLast(theChart, PageRequest.of(0, 1)).content[0]
         } else {
-            List<Week> theWeeks = mWeekRepository.findClosest(date);
+            val theWeeks = weekRepository.findClosest(date)
             if (Ex.isNotEmpty(theWeeks)) {
-                theChartList = mChartListRepository.findByChartAndWeek(theChart, theWeeks.get(0));
+                theChartList = chartListRepository.findByChartAndWeek(theChart, theWeeks[0])
             }
         }
         if (theChartList == null) {
-            throw new ChartListNotFoundException();
+            throw ChartListNotFoundException()
         }
-        return getPrintableChartList(theChartList);
+        return getPrintableChartList(theChartList)
     }
 
-    @RequestMapping(value = "/chartList/getFirstAppearance", method = RequestMethod.GET)
-    public ChartList getFirstAppearance(@RequestParam(name = "track_id") Long trackId) {
-        Track theTrack = mTrackRepository.findById(trackId).orElse(null);
-        if (theTrack == null) {
-            throw new TrackNotFoundException();
-        }
-        ChartTrack theDebut = mChartTrackController.getDebut(theTrack);
-        ChartList theChartList = theDebut.getChartList();
-        theChartList.setChartTracks(Arrays.asList(theDebut));
-        return theChartList;
+    @RequestMapping(value = ["/chartList/getFirstAppearance"], method = [RequestMethod.GET])
+    fun getFirstAppearance(@RequestParam(name = "track_id") trackId: Long): ChartList? {
+        val theTrack = trackRepository.findByIdOrNull(trackId) ?: throw TrackNotFoundException()
+        val theDebut = chartTrackController.getDebut(theTrack)
+        val theChartList = theDebut.chartList
+        theChartList?.chartTracks = listOf(theDebut)
+        return theChartList
     }
 
-    private ChartList getPrintableChartList(ChartList chartList) {
-        List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(chartList);
-        chartList.setChartTracks(theChartTracks);
-        return chartList;
+    private fun getPrintableChartList(chartList: ChartList): ChartList {
+        val theChartTracks = chartTrackRepository.findByChartList(chartList)
+        chartList.chartTracks = theChartTracks
+        return chartList
     }
 }

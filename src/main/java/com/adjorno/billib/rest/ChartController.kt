@@ -1,20 +1,18 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.Chart;
-import com.adjorno.billib.rest.db.ChartRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import com.adjorno.billib.rest.db.Chart
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.beans.factory.annotation.Autowired
+import com.adjorno.billib.rest.db.ChartRepository
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 
 @RestController
-public class ChartController {
+class ChartController {
     @Autowired
-    private ChartRepository mChartRepository;
+    private lateinit var chartRepository: ChartRepository
 
-    @RequestMapping(value = "/chart/all", method = RequestMethod.GET)
-    public Iterable<Chart> getAllCharts() {
-        return mChartRepository.findAll();
-    }
-
+    @get:RequestMapping(value = ["/chart/all"], method = [RequestMethod.GET])
+    val allCharts: Iterable<Chart>
+        get() = chartRepository.findAll()
 }

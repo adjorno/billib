@@ -1,8 +1,8 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.ResponseStatus
+import java.lang.RuntimeException
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Artist not found")
-public class ArtistNotFoundException extends RuntimeException {
-}
+class ArtistNotFoundException : RuntimeException()
