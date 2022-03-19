@@ -1,128 +1,125 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.*;
-import com.adjorno.billib.rest.model.ArtistInfo;
-import com.m14n.ex.Ex;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import com.adjorno.billib.rest.db.*
+import com.adjorno.billib.rest.model.ArtistInfo
+import com.m14n.ex.Ex
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.transaction.annotation.Transactional
+import java.util.ArrayList
 
 @RestController
-public class ArtistController {
-    @Autowired
-    private ArtistRepository mArtistRepository;
+open class ArtistController {
 
     @Autowired
-    private DuplicateArtistRepository mDuplicateArtistRepository;
+    private lateinit var artistRepository: ArtistRepository
 
     @Autowired
-    private ArtistRelationRepository mArtistRelationRepository;
+    private lateinit var duplicateArtistRepository: DuplicateArtistRepository
 
     @Autowired
-    private GlobalRankArtistRepository mGlobalRankArtistRepository;
+    private lateinit var artistRelationRepository: ArtistRelationRepository
 
     @Autowired
-    private TrackController mTrackController;
+    private lateinit var globalRankArtistRepository: GlobalRankArtistRepository
 
-    @Transactional
-    @RequestMapping(value = "/artist/getById", method = RequestMethod.GET)
-    public Artist getById(@RequestParam() Long id) {
-        Artist theArtist = mArtistRepository.findById(id).orElse(null);
-        if (theArtist == null) {
-            throw new ArtistNotFoundException();
-        }
-        return theArtist;
+    @Autowired
+    private lateinit var trackController: TrackController
+
+    @RequestMapping(value = ["/artist/getById"], method = [RequestMethod.GET])
+    fun getById(@RequestParam id: Long): Artist {
+        return artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
     }
 
-    @Transactional
-    @RequestMapping(value = "/artist/info", method = RequestMethod.GET)
-    public ArtistInfo getInfo(@RequestParam() Long id,
-            @RequestParam(name = "relations_size", required = false, defaultValue = "5") int relationsSize,
-            @RequestParam(name = "tracks_size", required = false, defaultValue = "5") int tracksSize) {
-        Artist theArtist = mArtistRepository.findById(id).orElse(null);
-        if (theArtist == null) {
-            throw new ArtistNotFoundException();
-        }
-        ArtistInfo theInfo = new ArtistInfo();
-        theInfo.setArtist(theArtist);
-        theInfo.setGlobalRank(mGlobalRankArtistRepository.findByArtistId(theArtist.getId()).getRank());
-        theInfo.setArtistRelations(getRelations(id, relationsSize));
-        theInfo.setTracks(mTrackController.getTracks(theArtist, tracksSize));
-        return theInfo;
+    @RequestMapping(value = ["/artist/info"], method = [RequestMethod.GET])
+    fun getInfo(
+        @RequestParam id: Long,
+        @RequestParam(name = "relations_size", required = false, defaultValue = "5") relationsSize: Int,
+        @RequestParam(name = "tracks_size", required = false, defaultValue = "5") tracksSize: Int
+    ): ArtistInfo {
+        val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
+        val theInfo = ArtistInfo()
+        theInfo.artist = theArtist
+        theInfo.globalRank = globalRankArtistRepository.findByArtistId(theArtist.id).rank ?: 0
+        theInfo.artistRelations = getRelations(id, relationsSize)
+        theInfo.tracks = trackController.getTracks(theArtist, tracksSize)
+        return theInfo
     }
 
-    @RequestMapping(value = "/artist/global", method = RequestMethod.GET)
-    public List<Artist> getGlobalArtists(@RequestParam() Long rank,
-                                         @RequestParam(required = false, defaultValue = "1") Long size) {
-        return mArtistRepository.findGlobalList(rank, rank + size);
+    @RequestMapping(value = ["/artist/global"], method = [RequestMethod.GET])
+    fun getGlobalArtists(
+        @RequestParam rank: Long,
+        @RequestParam(required = false, defaultValue = "1") size: Long
+    ): List<Artist> {
+        return artistRepository.findGlobalList(rank, rank + size)
     }
 
-    @Transactional
-    @RequestMapping(value = "/artist/relations", method = RequestMethod.GET)
-    public List<Artist> getRelations(@RequestParam() Long id,
-            @RequestParam(required = false, defaultValue = "0") int size) {
-        Artist theArtist = mArtistRepository.findById(id).orElse(null);
-        if (theArtist == null) {
-            throw new ArtistNotFoundException();
-        }
-        List<Artist> theResult = new ArrayList<>();
-        List<Artist> theSingleArtists = ArtistUtils.asSingleArtists(mArtistRelationRepository.findByBand(theArtist));
-        int theSinglesSize = 0;
+    @RequestMapping(value = ["/artist/relations"], method = [RequestMethod.GET])
+    fun getRelations(
+        @RequestParam id: Long,
+        @RequestParam(required = false, defaultValue = "0") size: Int
+    ): List<Artist> {
+        val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
+        val theResult: MutableList<Artist> = ArrayList()
+        val theSingleArtists = ArtistUtils.asSingleArtists(
+            artistRelationRepository.findByBand(theArtist)
+        )
+        var theSinglesSize = 0
         if (Ex.isNotEmpty(theSingleArtists)) {
-            theSinglesSize = size == 0 || size >= theSingleArtists.size() ? theSingleArtists.size() : size;
-            theResult.addAll(mArtistRepository
-                    .sortByGlobalRank(ArtistUtils.asArtistIds(theSingleArtists), theSinglesSize));
+            theSinglesSize = if (size == 0 || size >= theSingleArtists.size) theSingleArtists.size else size
+            theResult.addAll(
+                artistRepository
+                    .sortByGlobalRank(ArtistUtils.asArtistIds(theSingleArtists), theSinglesSize)
+            )
         }
         if (size == 0 || size > theSinglesSize) {
-            List<Artist> theBandArtists = ArtistUtils.asBandArtists(mArtistRelationRepository.findBySingle(theArtist));
+            val theBandArtists = ArtistUtils.asBandArtists(
+                artistRelationRepository.findBySingle(theArtist)
+            )
             if (Ex.isNotEmpty(theBandArtists)) {
-                int theBandsSize = size == 0 || size - theSinglesSize >= theBandArtists.size() ? theBandArtists.size()
-                        : size - theSinglesSize;
-                theResult.addAll(mArtistRepository
-                        .sortByGlobalRank(ArtistUtils.asArtistIds(theBandArtists), theBandsSize));
+                val theBandsSize =
+                    if (size == 0 || size - theSinglesSize >= theBandArtists.size) theBandArtists.size else size - theSinglesSize
+                theResult.addAll(
+                    artistRepository
+                        .sortByGlobalRank(ArtistUtils.asArtistIds(theBandArtists), theBandsSize)
+                )
             }
         }
-        return theResult;
+        return theResult
     }
 
     @Transactional
-    @RequestMapping(value = "/artist/rename", method = RequestMethod.POST)
-    public void rename(@RequestParam() Long id, @RequestParam(name = "name") String newName) {
-        Artist theArtist = mArtistRepository.findById(id).orElse(null);
-        if (theArtist == null) {
-            throw new ArtistNotFoundException();
-        }
-        DuplicateArtist theDuplicate = mDuplicateArtistRepository.findByDuplicateName(newName);
-        String theOldName = theArtist.getName();
+    @RequestMapping(value = ["/artist/rename"], method = [RequestMethod.POST])
+    open fun rename(@RequestParam id: Long, @RequestParam(name = "name") newName: String) {
+        val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
+        val theDuplicate = duplicateArtistRepository.findByDuplicateName(newName)
+        val theOldName = theArtist.name
         if (theDuplicate != null) {
-            if (!theDuplicate.getArtist().getId().equals(id)) {
-                System.out.println("WARNING! Did not rename (" + theOldName + ") => (" + newName + ")");
-                return;
+            if (theDuplicate.artist?.id != id) {
+                println("WARNING! Did not rename ($theOldName) => ($newName)")
+                return
             }
-            mDuplicateArtistRepository.delete(theDuplicate);
-            System.out.println("DUPLICATE REMOVED!");
+            duplicateArtistRepository.delete(theDuplicate)
+            println("DUPLICATE REMOVED!")
         }
-        mArtistRepository.rename(theArtist, newName);
-        mDuplicateArtistRepository.save(new DuplicateArtist(theOldName, theArtist));
-        System.out.println("RENAMED! " + theOldName + " => " + newName);
+        artistRepository.rename(theArtist, newName)
+        duplicateArtistRepository.save(DuplicateArtist(theOldName, theArtist))
+        println("RENAMED! $theOldName => $newName")
     }
 
-    Artist findArtist(String artistName) {
-        Artist theArtist = mArtistRepository.findByName(artistName);
+    fun findArtist(artistName: String): Artist? {
+        var theArtist = artistRepository.findByName(artistName)
         if (theArtist == null) {
-            final DuplicateArtist theDuplicate = mDuplicateArtistRepository.findByDuplicateName(artistName);
+            val theDuplicate = duplicateArtistRepository.findByDuplicateName(artistName)
             if (theDuplicate != null) {
-                System.out
-                        .println("FOUND DUPLICATE Artist: " + artistName + " => " + theDuplicate.getArtist().getName());
-                theArtist = theDuplicate.getArtist();
+                println("FOUND DUPLICATE Artist: " + artistName + " => " + theDuplicate.artist?.name)
+                theArtist = theDuplicate.artist
             }
         }
-        return theArtist;
+        return theArtist
     }
 }
