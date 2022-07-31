@@ -111,7 +111,7 @@ open class ArtistController {
         println("RENAMED! $theOldName => $newName")
     }
 
-    fun findArtist(artistName: String): Artist? {
+    open fun findArtist(artistName: String): Artist? {
         var theArtist = artistRepository.findByName(artistName)
         if (theArtist == null) {
             val theDuplicate = duplicateArtistRepository.findByDuplicateName(artistName)
