@@ -1,18 +1,16 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-import java.util.List;
-
-public interface WeekRepository extends CrudRepository<Week, Long> {
+interface WeekRepository : CrudRepository<Week, Long> {
     @Query(value = "select w from Week w order by w.date desc")
-    Page<Week> findLastWeek(Pageable pageable);
+    fun findLastWeek(pageable: Pageable): Page<Week>?
 
-    Week findByDate(String chartDate);
+    fun findByDate(chartDate: String): Week?
 
     @Query(value = "select w from Week w where w.date >= ?1 order by w.date asc")
-    List<Week> findClosest(String chartDate);
+    fun findClosest(chartDate: String): List<Week>?
 }

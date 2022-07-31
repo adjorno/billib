@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.format.annotation.DateTimeFormat
-import com.m14n.ex.Ex
 import org.springframework.data.domain.PageRequest
 import com.adjorno.billib.rest.db.*
 import com.m14n.billib.data.BB
@@ -46,11 +45,11 @@ class ChartListController {
     ): ChartList {
         val theChart = chartRepository.findByIdOrNull(chartId) ?: throw ChartListNotFoundException()
         var theChartList: ChartList? = null
-        if (Ex.isEmpty(date)) {
+        if (date.isNullOrBlank()) {
             theChartList = chartListRepository.findLast(theChart, PageRequest.of(0, 1)).content[0]
         } else {
             val theWeeks = weekRepository.findClosest(date)
-            if (Ex.isNotEmpty(theWeeks)) {
+            if (!theWeeks.isNullOrEmpty()) {
                 theChartList = chartListRepository.findByChartAndWeek(theChart, theWeeks[0])
             }
         }
