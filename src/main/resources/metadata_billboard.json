@@ -104,13 +104,6 @@
       "prefix": "rock"
     },
     {
-      "name": "UK",
-      "folder": "official-uk-albums",
-      "size": 20,
-      "start_date": "2011-01-29",
-      "prefix": "uk"
-    },
-    {
       "name": "Japan",
       "folder": "japan-hot-100",
       "size": 100,
@@ -146,13 +139,6 @@
       "size": 50,
       "start_date": "2013-01-26",
       "prefix": "electro"
-    },
-    {
-      "name": "Soundtracks",
-      "folder": "soundtracks",
-      "size": 25,
-      "start_date": "2001-06-30",
-      "prefix": "soundtracks"
     },
     {
       "name": "Euro",
