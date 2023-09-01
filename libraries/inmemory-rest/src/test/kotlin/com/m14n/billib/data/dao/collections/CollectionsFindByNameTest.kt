@@ -31,17 +31,17 @@ class CollectionsFindByNameTest {
         val findById = measureTimedValue {
             FindByNameCollectionStrategy(artists)
         }.let {
-            println("FindByNameCollectionStrategy create $n - ${it.duration.inMilliseconds} ms.")
+            println("FindByNameCollectionStrategy create $n - ${it.duration.inWholeMilliseconds} ms.")
             it.value
         }
         val findByIdWithMap = measureTimedValue {
             FindByNameMapStrategy(artists)
         }.let {
-            println("FindByNameMapStrategy create $n - ${it.duration.inMilliseconds} ms.")
+            println("FindByNameMapStrategy create $n - ${it.duration.inWholeMilliseconds} ms.")
             it.value
         }
-        println("FindByNameCollectionStrategy access $n - ${measureFindByName(findById, 0..n).inMilliseconds} ms.")
-        println("FindByNameMapStrategy access $n - ${measureFindByName(findByIdWithMap, 0..n).inMilliseconds} ms.")
+        println("FindByNameCollectionStrategy access $n - ${measureFindByName(findById, 0..n).inWholeMilliseconds} ms.")
+        println("FindByNameMapStrategy access $n - ${measureFindByName(findByIdWithMap, 0..n).inWholeMilliseconds} ms.")
     }
 
     private fun <T : HasId> measureFindByName(

@@ -36,17 +36,17 @@ class CollectionsFindByDateTest {
         val findById = measureTimedValue {
             FindByDateCollectionStrategy(weeks)
         }.let {
-            println("FindByDateCollectionStrategy create $n - ${it.duration.inMilliseconds} ms.")
+            println("FindByDateCollectionStrategy create $n - ${it.duration.inWholeMilliseconds} ms.")
             it.value
         }
         val findByIdWithMap = measureTimedValue {
             FindByDateMapStrategy(weeks)
         }.let {
-            println("FindByDateMapStrategy create $n - ${it.duration.inMilliseconds} ms.")
+            println("FindByDateMapStrategy create $n - ${it.duration.inWholeMilliseconds} ms.")
             it.value
         }
-        println("FindByDateCollectionStrategy access $n - ${measureFindByDate(findById, 0..n).inMilliseconds} ms.")
-        println("FindByDateMapStrategy access $n - ${measureFindByDate(findByIdWithMap, 0..n).inMilliseconds} ms.")
+        println("FindByDateCollectionStrategy access $n - ${measureFindByDate(findById, 0..n).inWholeMilliseconds} ms.")
+        println("FindByDateMapStrategy access $n - ${measureFindByDate(findByIdWithMap, 0..n).inWholeMilliseconds} ms.")
     }
 
     private fun <T : HasId> measureFindByDate(
