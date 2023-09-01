@@ -44,7 +44,7 @@ class SqlDataSourceReaderTest {
             setURL(properties.getProperty("mysql.url"))
         }
         println("Dao loading...")
-        println("Dao loaded in ${measureTime { dao = SqlDataSourceReader().read(dataSource) }.inMilliseconds} ms.")
+        println("Dao loaded in ${measureTime { dao = SqlDataSourceReader().read(dataSource) }.inWholeMilliseconds} ms.")
 
         val today = properties.getProperty("data.today")
         val root = File(properties.getProperty("data.json.root"))
