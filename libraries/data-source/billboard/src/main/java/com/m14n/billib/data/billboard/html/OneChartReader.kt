@@ -9,7 +9,7 @@ import java.io.File
 import java.io.FileWriter
 import java.util.*
 
-var DATE = "1998-01-10"
+var DATE = "1994-06-25"
 var CHART = "Hot 100"
 
 private val jsonDecoder = Json {

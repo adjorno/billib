@@ -63,7 +63,6 @@ data class Title(
         fun fromRawValue(rawValue: String) = Title(
             raw = rawValue,
             parts = rawValue
-                .cleanFromSpecialCharacters()
                 .split(
                     " ", "'", "’", "-", "?",
                     ignoreCase = true,
@@ -80,7 +79,6 @@ data class CleanTitlePart(
     companion object {
         fun fromRawValue(rawValue: String): CleanTitlePart {
             var cleanedValue = rawValue.trim().lowercase()
-            cleanedValue = cleanedValue.cleanFromSpecialWordEndings()
             cleanedValue = cleanedValue.filter { it.isLetterOrDigit() }
             cleanedValue = cleanedValue.trim().replace("  ", " ").lowercase()
             return CleanTitlePart(cleanedValue)
@@ -104,7 +102,8 @@ data class Artist(
     companion object {
         fun fromRawValue(rawValue: String) = Artist(
             raw = rawValue,
-            parts = rawValue.cleanFromSpecialCharacters()
+            parts = rawValue
+                .cleanFromSpecialCharacters()
                 .split(
                     ",", "/", " duet with ", " with ", " and ", " or ", " & ",
                     " ft ", " feat ", " featuring ", " + ", " Conducted By ",
@@ -125,76 +124,17 @@ data class CleanArtistPart(
     val value: String
 ) {
     companion object {
-        val specialCharsToIgnore = setOf('\"', '.')
-
-        val optionalPrefixes = listOf(
-            "chorus of ",
-            "the ",
-            "dj ",
-        )
-
-        val sameArtistNames = listOf(
-            "chris deburgh" to "chris de burgh",
-            "dennis de young" to "dennis deyoung",
-            "kanye west" to "ye",
-            "kaliii" to "kali",
-            "snoop doggy dogg" to "snoop dogg",
-            "product g&b" to "product g",
-            "p!nk" to "pink",
-            "shawnna" to "shawna",
-            "KeKe Wyatt" to "Ketara Wyatt",
-            "Musiq Soulchild" to "Musiq",
-            "QB s Finest" to "QB Finest",
-            "Braveheart s" to "Bravehearts",
-            "D 12" to "D12",
-            "Ayana Of Aaries" to "Ayana",
-            "Tammy Ruggieri" to "Tammy Ruggeri",
-            "Bonecrusher" to "Bone Crusher",
-            "Mason Betha" to "Mase",
-            "Maroon 5" to "Maroon5",
-            "Pretty Ricky" to "Pretty Rickie",
-            "Panic! At The Disco" to "Panic At The Disco",
-            "Plies" to "Pli",
-            "Bobby Valentino" to "Bobby V"
-        )
-
         fun fromRawValue(rawValue: String): CleanArtistPart {
             var cleanedValue = rawValue.trim().lowercase()
-            cleanedValue = cleanedValue.filterNot { specialCharsToIgnore.contains(it) }
-            optionalPrefixes.forEach { optionalPrefix ->
-                if (cleanedValue.startsWith(optionalPrefix, ignoreCase = true)) {
-                    cleanedValue = cleanedValue.substring(optionalPrefix.length)
-                }
-            }
-            sameArtistNames.forEach {
-                cleanedValue = cleanedValue.replace(it.first, it.second, ignoreCase = true)
-            }
             cleanedValue = cleanedValue.trim().replace("  ", " ").lowercase()
             return CleanArtistPart(cleanedValue)
         }
     }
 }
 
-
-fun String.cleanFromSpecialWordEndings() = specialWordEndingsReplacements.fold(this) { text, wordEndingReplacement ->
-    if (text.endsWith(wordEndingReplacement.first, ignoreCase = true)) {
-        text.substring(0, text.length - wordEndingReplacement.first.length) + wordEndingReplacement.second
-    } else {
-        text
-    }
-
-}
-
 fun String.cleanFromSpecialCharacters() = specialCharsReplacements.fold(this) { text, charReplacement ->
     text.replace(charReplacement.first, charReplacement.second)
 }
-
-val specialWordEndingsReplacements = listOf(
-    "ing" to "in",
-    "&" to "and",
-    "oooh" to "ooh",
-    "a**" to "ass",
-)
 
 val specialCharsReplacements = listOf(
     '(' to ' ',
