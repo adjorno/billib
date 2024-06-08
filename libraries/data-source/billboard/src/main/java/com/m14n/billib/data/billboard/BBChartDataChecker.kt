@@ -1,6 +1,8 @@
 package com.m14n.billib.data.billboard
 
+import com.m14n.billib.data.billboard.model.consistency.legacyChartConsistencyChecker
 import com.m14n.billib.data.billboard.model.BBChart
+import com.m14n.billib.data.billboard.model.BBChartMetadata
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -20,51 +22,42 @@ fun main() {
     val root = File(properties.getProperty("data.json.root"))
     val theMetadataFile = File(root, "metadata_billboard.json")
     val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
-    val theCalendar = Calendar.getInstance()
 
-    theMetadata.charts.forEach { theChartMetadata ->
-        val theChartFolder = File(root, theChartMetadata.folder)
-        theCalendar.time = BB.CHART_DATE_FORMAT.parse("2018-06-23")
-        var thePreviousChart: BBChart? = null
-        val endDate = theChartMetadata.endDate?.toChartDate() ?: today
-        while (theCalendar.time <= endDate) {
-            val theDate = BB.CHART_DATE_FORMAT.format(theCalendar.time)
-            val theFileName = theChartMetadata.prefix + "-" + theDate + ".json"
-            val theFile = File(theChartFolder, theFileName)
-            var theChart: BBChart? = null
-            if (theFile.exists()) {
-                theChart = json.decodeFromString<BBChart>(theFile.readText())
-                if (thePreviousChart != null) {
-                    if (!checkConsistency(thePreviousChart, theChart)) {
-                        println(
-                            String.format(
-                                "=========== ERROR ========== %s %s ",
-                                theChartMetadata.name, theDate
-                            )
-                        )
-                    }
-                }
-            } else {
-                println(String.format("%s DOES NOT EXIST!", theFileName))
-            }
-            thePreviousChart = theChart
-            theCalendar.add(Calendar.DATE, 7)
-        }
-    }
+    checkTheWholeChart(theMetadata.charts[0], root, today, "1965-01-02")
+//    theMetadata.charts.forEach { theChartMetadata ->
+//        checkChart(theChartMetadata, root, theCalendar, today)
+//    }
 }
 
-private fun checkConsistency(previousChart: BBChart, chart: BBChart): Boolean {
-    var theResult = true
-    for (track in chart.tracks) {
-        val theLastWeek = BB.extractLastWeekRank(track.positionInfo?.lastWeek ?: "--")
-        if (theLastWeek > 0 && theLastWeek <= previousChart.tracks.size) {
-            val previousTrack = previousChart.tracks[theLastWeek - 1]
-            if (!(track.title.equals(previousTrack.title, ignoreCase = true) && track.artist.equals(previousTrack.artist, ignoreCase = true))) {
-                println("CHECK $track")
-                println("PREVIOUS $previousTrack")
-                theResult = false
+private fun checkTheWholeChart(
+    theChartMetadata: BBChartMetadata,
+    root: File,
+    today: Date,
+    checkUntilDate: String? = theChartMetadata.endDate,
+) {
+    val theChartFolder = File(root, theChartMetadata.folder)
+    var thePreviousChart: BBChart? = null
+    generateBillboardDateSequence(
+        startDate = BB.CHART_DATE_FORMAT.parse(theChartMetadata.startDate),
+        endDate = checkUntilDate?.toChartDate() ?: today,
+    ).forEach { weekDate ->
+        val theDate = BB.CHART_DATE_FORMAT.format(weekDate)
+        val theFileName = theChartMetadata.prefix + "-" + theDate + ".json"
+        val theFile = File(theChartFolder, theFileName)
+        var theChart: BBChart? = null
+        if (theFile.exists()) {
+            theChart = json.decodeFromString<BBChart>(theFile.readText())
+            if (thePreviousChart != null) {
+                val chartConsistencyResult = legacyChartConsistencyChecker.check(
+                    previousChart = thePreviousChart!!, chart = theChart
+                )
+                if (chartConsistencyResult.unacceptable) {
+                    println("${theChart.name} - ${theChart.date} : $chartConsistencyResult")
+                }
             }
+        } else {
+            println(String.format("%s DOES NOT EXIST!", theFileName))
         }
+        thePreviousChart = theChart
     }
-    return theResult
 }
