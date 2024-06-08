@@ -23,7 +23,7 @@ fun main() {
     val theMetadataFile = File(root, "metadata_billboard.json")
     val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
 
-    checkTheWholeChart(theMetadata.charts[0], root, today, "1965-01-02")
+    checkTheWholeChart(theMetadata.charts[0], root, today)
 //    theMetadata.charts.forEach { theChartMetadata ->
 //        checkChart(theChartMetadata, root, theCalendar, today)
 //    }
@@ -51,7 +51,7 @@ private fun checkTheWholeChart(
                 val chartConsistencyResult = legacyChartConsistencyChecker.check(
                     previousChart = thePreviousChart!!, chart = theChart
                 )
-                if (chartConsistencyResult.inconsistencies.isNotEmpty()) {
+                if (chartConsistencyResult.unacceptable) {
                     println("${theChart.name} - ${theChart.date} : $chartConsistencyResult")
                 }
             }

@@ -62,7 +62,8 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
         val theCurrent = BB.CHART_DATE_FORMAT.format(theCalendar.time)
         theCalendar.add(
             Calendar.DATE,
-            if ("2018-01-06" == theCurrent) -3 else if ("2018-01-03" == theCurrent) -4 else -7
+            if ("2018-01-06" == theCurrent) -3 else if ("2018-01-03" == theCurrent) -4 else
+                if ("1962-01-06" == theCurrent) -12 else -7
         )
         if (theCalendar.time.before(theChartMetadata.startDate.toChartDate())) {
             break

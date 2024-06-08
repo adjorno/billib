@@ -2,16 +2,14 @@ package com.m14n.billib.data.billboard.html
 
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
-import com.m14n.billib.data.billboard.parser.CurrentChartListParser
 import com.m14n.billib.data.billboard.parser.defaultChartListParser
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
 import java.util.*
 
-var DATE = "2021-11-27"
+var DATE = "1998-01-10"
 var CHART = "Hot 100"
 
 private val jsonDecoder = Json {
