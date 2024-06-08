@@ -13,8 +13,6 @@ jar {
     archiveVersion = "0.0.1"
 }
 
-apply from: "gradle/jacoco.gradle"
-
 repositories {
     mavenCentral()
 }

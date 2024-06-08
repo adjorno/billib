@@ -25,7 +25,7 @@ object BBHtmlReader {
 
         val root = File(properties.getProperty("data.json.root"))
         val theMetadataFile = File(root, "metadata_billboard.json")
-        val theMetadata = Json.decodeFromString(BBJournalMetadata.serializer(), theMetadataFile.readText())
+        val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
 
         var theWeekFolder: File? = null
         var theWeekDate: Date? = null

@@ -19,7 +19,7 @@ fun main() {
     val today = properties.getProperty("data.today").toChartDate()
     val root = File(properties.getProperty("data.json.root"))
     val theMetadataFile = File(root, "metadata_billboard.json")
-    val theMetadata = Json.decodeFromString(BBJournalMetadata.serializer(), theMetadataFile.readText())
+    val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
     val theCalendar = Calendar.getInstance()
 
     theMetadata.charts.forEach { theChartMetadata ->
@@ -33,7 +33,7 @@ fun main() {
             val theFile = File(theChartFolder, theFileName)
             var theChart: BBChart? = null
             if (theFile.exists()) {
-                theChart = json.decodeFromString(BBChart.serializer(), theFile.readText())
+                theChart = json.decodeFromString<BBChart>(theFile.readText())
                 if (thePreviousChart != null) {
                     if (!checkConsistency(thePreviousChart, theChart)) {
                         println(

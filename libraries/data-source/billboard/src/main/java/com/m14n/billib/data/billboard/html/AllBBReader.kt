@@ -36,7 +36,7 @@ fun main() {
     val today = properties.getProperty("data.today").toChartDate()
     val root = File(properties.getProperty("data.json.root"))
     val theMetadataFile = File(root, "metadata_billboard.json")
-    val theMetadata = Json.decodeFromString(BBJournalMetadata.serializer(), theMetadataFile.readText())
+    val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
 
     theMetadata.charts.filter { it.endDate == null }.forEach {
         fetchChart(root, theMetadata, it, today)

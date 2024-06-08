@@ -1,0 +1,28 @@
+[versions]
+
+kotlin="2.0.0"
+springBoot="2.6.1"
+springDependencyManagement="1.0.11.RELEASE"
+
+jsoup = "1.13.1"
+kotlinSerializationJson = "1.6.3"
+junit = "4.13.2"
+mockitoKotlin = "2.2.0"
+
+[libraries]
+rome = { module = "rome:rome", version = "1.0" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.3.4" }
+ex = { module = "com.m14n:ex", version = "0.0.2" }
+kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJson" }
+
+# [test-libraries]
+junit = { module = "junit:junit", version.ref = "junit" }
+mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version.ref = "mockitoKotlin" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
+springDependencyManagement = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
