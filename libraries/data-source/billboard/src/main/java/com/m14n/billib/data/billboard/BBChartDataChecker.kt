@@ -51,7 +51,7 @@ private fun checkTheWholeChart(
                 val chartConsistencyResult = legacyChartConsistencyChecker.check(
                     previousChart = thePreviousChart!!, chart = theChart
                 )
-                if (chartConsistencyResult.unacceptable) {
+                if (chartConsistencyResult.inconsistencies.isNotEmpty()) {
                     println("${theChart.name} - ${theChart.date} : $chartConsistencyResult")
                 }
             }

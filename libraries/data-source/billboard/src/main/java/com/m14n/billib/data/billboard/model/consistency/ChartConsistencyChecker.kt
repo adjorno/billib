@@ -30,9 +30,6 @@ val legacyChartConsistencyChecker = ChartConsistencyChecker { chart, previousCha
                 if (theLastWeek > 0 && theLastWeek <= previousChart.tracks.size) {
                     val potentialPreviousTracks = previousChart.tracks.filter { it.rank == theLastWeek }
                     val potentialInconsistencies = potentialPreviousTracks.map { legacyTrackConsistencyChecker.check(track, it) }
-                    if (potentialInconsistencies.size > 1) {
-                        println("OLOLO")
-                    }
                     if (potentialInconsistencies.any { it.inconsistencies.isEmpty() }) {
                         null
                     } else {
