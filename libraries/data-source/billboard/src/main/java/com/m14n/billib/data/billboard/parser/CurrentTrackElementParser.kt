@@ -21,7 +21,11 @@ class CurrentTrackElementParser: TrackElementParser {
             positionInfo = BBPositionInfo(
                 lastWeek = lastWeekElement.text().trim(),
                 peekPosition = peakPositionElement.text().trim().toInt(),
-                wksOnChart = wksOnChartElement.text().trim().toInt()
+                wksOnChart = try {
+                    wksOnChartElement.text().trim().toInt()
+                } catch (e: Exception) {
+                    0
+                }
             )
         )
     }
