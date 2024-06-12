@@ -20,6 +20,7 @@ fun generateBillboardDateSequence(startDate: Date, endDate: Date) =
 
 private fun weekIncrement(currentDate: Date) = CHART_DATE_FORMAT.format(currentDate).let { strDate ->
     when (strDate) {
+        "1961-12-25" -> 12
         "2018-01-03" -> 3
         "2017-12-30" -> 4
         else -> 7
