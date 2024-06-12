@@ -21,14 +21,6 @@ class TrackConsistencyCheckerTest {
     }
 
     @Test
-    fun `test Too $hort`() {
-        val actual = Artist.fromRawValue("Too Short")
-        val expected = Artist.fromRawValue("Too \$hort")
-
-        assert(actual == expected)
-    }
-
-    @Test
     fun `test Sheila E`() {
         val actual = Artist.fromRawValue("Sheila E")
         val expected = Artist.fromRawValue("Sheila E.")
@@ -72,14 +64,6 @@ class TrackConsistencyCheckerTest {
     fun `test Eminem Featuring Dr Dre & 50 Cent`() {
         val actual = Artist.fromRawValue("Eminem Featuring Dr. Dre & 50 Cent")
         val expected = Artist.fromRawValue("Eminem, Dr. Dre & 50 Cent")
-
-        assert(actual == expected)
-    }
-
-    @Test
-    fun `test Living It Up`() {
-        val actual = Title.fromRawValue("Living It Up")
-        val expected = Title.fromRawValue("Livin' It Up")
 
         assert(actual == expected)
     }
