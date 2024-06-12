@@ -22,14 +22,14 @@ ${inconsistencies.toList().joinToString(separator = "\n") }
 
 
 
-val legacyChartConsistencyChecker = ChartConsistencyChecker { chart, previousChart ->
+val defaultChartConsistencyChecker = ChartConsistencyChecker { chart, previousChart ->
     return@ChartConsistencyChecker ChartConsistencyChecker.Result(
         inconsistencies = chart.tracks
             .mapNotNull { track ->
                 val theLastWeek = BB.extractLastWeekRank(track.positionInfo?.lastWeek ?: "--")
                 if (theLastWeek > 0 && theLastWeek <= previousChart.tracks.size) {
                     val potentialPreviousTracks = previousChart.tracks.filter { it.rank == theLastWeek }
-                    val potentialInconsistencies = potentialPreviousTracks.map { legacyTrackConsistencyChecker.check(track, it) }
+                    val potentialInconsistencies = potentialPreviousTracks.map { defaultTrackConsistencyChecker.check(track, it) }
                     if (potentialInconsistencies.any { it.inconsistencies.isEmpty() }) {
                         null
                     } else {

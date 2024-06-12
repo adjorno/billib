@@ -20,7 +20,7 @@ fun interface TrackConsistencyChecker {
     }
 }
 
-val legacyTrackConsistencyChecker = TrackConsistencyChecker { actualTrack, previousChartTrack ->
+val defaultTrackConsistencyChecker = TrackConsistencyChecker { actualTrack, previousChartTrack ->
     val actualTitle = Title.fromRawValue(actualTrack.title)
     val expectedTitle = Title.fromRawValue(previousChartTrack.title)
     val actualArtist = Artist.fromRawValue(actualTrack.artist)
@@ -105,10 +105,23 @@ data class Artist(
             parts = rawValue
                 .cleanFromSpecialCharacters()
                 .split(
-                    ",", "/", " duet with ", " with ", " and ", " or ", " & ",
-                    " ft ", " feat ", " featuring ", " + ", " Conducted By ",
+                    ",",
+                    "/",
+                    " duet with ",
+                    " with ",
+                    " and ",
+                    " or ",
+                    " & ",
+                    " ft ",
+                    " feat ",
+                    " featuring ",
+                    " + ",
                     ignoreCase = true
-                ).map {
+                )
+                /**
+                 * To cover the case when the ` X ` in the "Mia X" can be taken as a separator
+                 */
+                .map {
                     it.split(
                         " x ",
                         ignoreCase = true
@@ -139,11 +152,11 @@ fun String.cleanFromSpecialCharacters() = specialCharsReplacements.fold(this) { 
 val specialCharsReplacements = listOf(
     '(' to ' ',
     ')' to ' ',
-    '-' to ' ',
     '\'' to ' ',
     '"' to ' ',
-    '’' to ' ',
     '.' to ' ',
-    '$' to 's',
-    'é' to 'e',
+//    '’' to ' ',
+//    '-' to ' ',
+//    '$' to 's',
+//    'é' to 'e',
 )

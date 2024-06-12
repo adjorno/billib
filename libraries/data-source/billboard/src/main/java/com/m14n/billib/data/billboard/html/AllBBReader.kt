@@ -38,9 +38,11 @@ fun main() {
     val theMetadataFile = File(root, "metadata_billboard.json")
     val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
 
-    theMetadata.charts.filter { it.endDate == null }.forEach {
-        fetchChart(root, theMetadata, it, today)
-    }
+    theMetadata.charts
+        .filter { it.endDate == null }
+        .forEach {
+            fetchChart(root, theMetadata, it, today)
+        }
 }
 
 @Throws(ParseException::class)

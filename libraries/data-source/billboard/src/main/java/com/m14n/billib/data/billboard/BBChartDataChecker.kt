@@ -1,6 +1,6 @@
 package com.m14n.billib.data.billboard
 
-import com.m14n.billib.data.billboard.model.consistency.legacyChartConsistencyChecker
+import com.m14n.billib.data.billboard.model.consistency.defaultChartConsistencyChecker
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBChartMetadata
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
@@ -23,10 +23,10 @@ fun main() {
     val theMetadataFile = File(root, "metadata_billboard.json")
     val theMetadata = Json.decodeFromString<BBJournalMetadata>(theMetadataFile.readText())
 
-    checkTheWholeChart(theMetadata.charts[0], root, today)
-//    theMetadata.charts.forEach { theChartMetadata ->
-//        checkChart(theChartMetadata, root, theCalendar, today)
-//    }
+    theMetadata.charts
+        .forEach { theChartMetadata ->
+            checkTheWholeChart(theChartMetadata, root, today)
+        }
 }
 
 private fun checkTheWholeChart(
@@ -48,10 +48,10 @@ private fun checkTheWholeChart(
         if (theFile.exists()) {
             theChart = json.decodeFromString<BBChart>(theFile.readText())
             if (thePreviousChart != null) {
-                val chartConsistencyResult = legacyChartConsistencyChecker.check(
+                val chartConsistencyResult = defaultChartConsistencyChecker.check(
                     previousChart = thePreviousChart!!, chart = theChart
                 )
-                if (chartConsistencyResult.unacceptable) {
+                if (chartConsistencyResult.inconsistencies.isNotEmpty()) {
                     println("${theChart.name} - ${theChart.date} : $chartConsistencyResult")
                 }
             }

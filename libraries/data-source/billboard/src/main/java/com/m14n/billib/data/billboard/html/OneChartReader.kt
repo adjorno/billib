@@ -9,8 +9,8 @@ import java.io.File
 import java.io.FileWriter
 import java.util.*
 
-var DATE = "1994-06-25"
-var CHART = "Hot 100"
+var DATE = "1998-10-17"
+var CHART = "Latin"
 
 private val jsonDecoder = Json {
     prettyPrint = true
