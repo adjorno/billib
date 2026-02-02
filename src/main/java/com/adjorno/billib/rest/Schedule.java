@@ -25,7 +25,7 @@ public class Schedule {
         PACIFIC_DATE_FORMAT.setTimeZone(Ex.TIME_ZONE_PACIFIC_AUCKLAND);
     }
 
-    @Autowired
+    @Autowired(required = false)
     private UpdateController mUpdateController;
 
     @Autowired

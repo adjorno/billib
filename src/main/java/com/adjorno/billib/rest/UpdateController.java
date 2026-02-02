@@ -10,6 +10,7 @@ import com.m14n.ex.Ex;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,6 +27,12 @@ import java.util.*;
 
 
 @RestController
+@ConditionalOnProperty(
+    prefix = "update",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = false
+)
 public class UpdateController implements IUpdateController {
 
     private static final String PASSWORD = "vtldtlm";

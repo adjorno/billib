@@ -1,0 +1,2 @@
+- Never commit to or push the trunk branch (master or main)
+- The new feature must always be implemented in the feature branch created out of the trunk branch latest. 
