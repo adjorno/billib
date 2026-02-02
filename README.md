@@ -2,13 +2,15 @@
 
 A Spring Boot REST API for accessing historical Billboard chart data (1958-present). Built with Kotlin, PostgreSQL, and optimized for read-heavy workloads.
 
+**🌐 Production API**: https://billib-production.up.railway.app/
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - JDK 21
 - PostgreSQL 15+
-- Gradle 8.8
+- Gradle 9.2.1
 
 ### Local Development
 
@@ -88,14 +90,22 @@ Kotlin Multiplatform Frontend
 
 ## 📡 API Endpoints
 
+Base URL: `https://billib-production.up.railway.app`
+
 ### Charts
 
 - `GET /chart/all` - List all chart types
+  ```bash
+  curl https://billib-production.up.railway.app/chart/all
+  ```
 - `GET /chart/{id}` - Get chart by ID
 
 ### Chart Lists
 
 - `GET /chartList/getByDate?chart={name}&date={YYYY-MM-DD}` - Get chart for specific date
+  ```bash
+  curl "https://billib-production.up.railway.app/chartList/getByDate?chart=hot-100&date=2024-01-06"
+  ```
 - `GET /chartList/{id}` - Get chart list by ID
 
 ### Tracks
@@ -111,15 +121,18 @@ Kotlin Multiplatform Frontend
 ### Search
 
 - `GET /search?q={query}` - Search artists and tracks
+  ```bash
+  curl "https://billib-production.up.railway.app/search?q=Drake"
+  ```
 
 ## 🛠️ Technology Stack
 
-- **Language**: Kotlin 2.0
-- **Framework**: Spring Boot 2.6.1
+- **Language**: Kotlin 2.3.0
+- **Framework**: Spring Boot 3.5.0
 - **Database**: PostgreSQL 15
-- **Build**: Gradle 8.8
-- **ORM**: JPA/Hibernate
-- **Migration**: Flyway (optional)
+- **Build**: Gradle 9.2.1
+- **Runtime**: Java 21
+- **ORM**: JPA/Hibernate 6.6
 - **Testing**: JUnit 5
 
 ## 📦 Project Structure
@@ -157,13 +170,24 @@ spring.datasource.password=
 
 ### Production (Railway)
 
-Set environment variables:
+**Live API**: https://billib-production.up.railway.app/
+
+Set environment variables in Railway Dashboard:
 ```bash
-SPRING_PROFILES_ACTIVE=production
-DATABASE_URL=jdbc:postgresql://[supabase-host]:5432/postgres
-DATABASE_USERNAME=postgres.[project-ref]
+# Build configuration
+RAILPACK_GRADLE_VERSION=9.2.1
+RAILPACK_JDK_VERSION=21
+
+# Database (Supabase Session Mode Pooler - IPv4 compatible)
+DATABASE_URL=jdbc:postgresql://aws-1-eu-north-1.pooler.supabase.com:5432/postgres
+DATABASE_USERNAME=postgres.[project-ref]  # e.g., postgres.ptegywuuusdhqzwueezv
 DATABASE_PASSWORD=[your-password]
+SPRING_PROFILES_ACTIVE=production
 ```
+
+**Important**: Use Supabase's **Session Mode pooler** connection (not direct connection).
+Railway does not support outbound IPv6, so the direct connection (`db.*.supabase.co`) will fail.
+Get the Session Mode connection string from Supabase Dashboard → Project Settings → Database.
 
 ## 🧪 Testing
 
