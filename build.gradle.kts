@@ -40,3 +40,7 @@ dependencies {
     implementation(libs.jakarta.xml.bind.api)
     implementation(libs.glassfish.jaxb.runtime)
 }
+
+tasks.named<Jar>("jar") {
+    enabled = false
+}
