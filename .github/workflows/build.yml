@@ -24,7 +24,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew build -x test
+      run: ./gradlew bootJar -x test
 
     - name: Run tests
       run: ./gradlew test
@@ -37,5 +37,5 @@ jobs:
       if: success()
       with:
         name: build-artifacts
-        path: build/libs/*.jar
+        path: build/libs/BilliBRESTJava-*.jar
         retention-days: 7
