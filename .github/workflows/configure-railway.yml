@@ -1,0 +1,23 @@
+name: Configure Railway Variables
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Set Railway variables
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          railway variables set DATABASE_URL="$DATABASE_URL" --environment production
+          railway variables set DATABASE_USERNAME="$DATABASE_USERNAME" --environment production
+          railway variables set DATABASE_PASSWORD="$DATABASE_PASSWORD" --environment production
+          railway variables set SPRING_PROFILES_ACTIVE="production" --environment production
