@@ -5,4 +5,4 @@ nixPkgs = ["jdk21"]
 cmds = ["./gradlew build -x test"]
 
 [phases.start]
-cmd = "java -Dserver.port=$PORT -jar build/libs/billib-rest-1.0.0-SNAPSHOT.jar"
+cmd = "java -Dserver.port=$PORT -Dspring.profiles.active=production -jar build/libs/BilliBRESTJava-0.0.1.jar"
