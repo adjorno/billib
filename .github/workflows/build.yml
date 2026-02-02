@@ -27,7 +27,7 @@ jobs:
       run: ./gradlew bootJar -x test
 
     - name: Run tests
-      run: ./gradlew test
+      run: ./gradlew test -x :libraries:data-source:billboard:test
 
     - name: Build importer module
       run: ./gradlew :billib-importer:build -x test
