@@ -165,3 +165,18 @@ gradle-app.setting
 **/build/
 
 # End of https://www.toptal.com/developers/gitignore/api/kotlin,osx,gradle,jetbrains+all
+/local.properties
+
+# Environment files with secrets (never commit)
+.env
+.env.local
+.env.production
+*.env
+
+# Local application properties with passwords
+application-local.properties
+*-local.properties
+
+# Import logs
+import.log
+/tmp/import.log

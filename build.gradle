@@ -3,6 +3,11 @@ plugins {
     id "org.springframework.boot" version "${springBootVersion}"
     id "io.spring.dependency-management" version "${springDependencyVersion}"
     id "jacoco"
+    id "application"
+}
+
+application {
+    mainClass = "com.adjorno.billib.rest.BBRestApplicationKt"
 }
 
 group "com.adjorno.billib.rest"
@@ -15,6 +20,15 @@ jar {
 
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    jvmToolchain 17
 }
 
 dependencies {
@@ -34,4 +48,5 @@ dependencies {
     implementation "com.h2database:h2:${h2Version}"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
     implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+    implementation "org.flywaydb:flyway-core:8.2.0"
 }

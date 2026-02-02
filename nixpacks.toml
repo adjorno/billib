@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["jdk21"]
+
+[phases.build]
+cmds = ["./gradlew build -x test"]
+
+[phases.start]
+cmd = "java -Dserver.port=$PORT -jar build/libs/billib-rest-1.0.0-SNAPSHOT.jar"

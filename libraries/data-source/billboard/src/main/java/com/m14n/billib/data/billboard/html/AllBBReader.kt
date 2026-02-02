@@ -82,7 +82,12 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
                     metadata, theChartMetadata,
                     theFormatDate
                 )
-                val theHtmlDate = BB.CHART_DATE_FORMAT.format(dateParser.parse(theChartDocument))
+                val theHtmlDate = try {
+                    BB.CHART_DATE_FORMAT.format(dateParser.parse(theChartDocument))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    "COULD_NOT_FETCH_DATE"
+                }
                 if (theFormatDate != theHtmlDate
                     // Billboard mistake as always :-)
                     && !("2018-11-10" == theHtmlDate && "2018-11-03" == theFormatDate &&
