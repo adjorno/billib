@@ -39,6 +39,4 @@ dependencies {
     implementation(libs.m14n.billib.data)
     implementation(libs.jakarta.xml.bind.api)
     implementation(libs.glassfish.jaxb.runtime)
-    implementation(libs.flyway.core)
-    implementation(libs.flyway.database.postgresql)
 }
