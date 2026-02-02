@@ -24,7 +24,7 @@ fun dateParser() =
 
 class CurrentTextDateParser : HtmlChartTextDateParser {
     override fun parse(document: Document): String = document.body()
-        .selectFirst("div#chart-date-picker")
+        .selectFirst("div#chart-date-picker")!!
         .requestAttr("data-date")
 }
 

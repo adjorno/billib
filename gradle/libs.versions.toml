@@ -1,28 +1,64 @@
 [versions]
-
-kotlin="2.0.0"
-springBoot="2.6.1"
-springDependencyManagement="1.0.11.RELEASE"
-
-jsoup = "1.13.1"
-kotlinSerializationJson = "1.6.3"
+kotlin = "2.3.0"
+springBoot = "3.5.0"
+springDependencyManagement = "1.1.7"
+mysqlConnector = "9.1.0"
+h2 = "2.3.232"
+fcmJava = "2.5.0"
+gson = "2.11.0"
+postgreSQL = "42.7.5"
+jsoup = "1.18.3"
+m14nEx = "0.0.2"
+m14nBillibData = "0.0.5"
+flyway = "10.15.2"
+flywayPostgres = "10.15.2"
+jakartaXmlBind = "4.0.2"
+glassfishJaxb = "4.0.5"
+rome = "1.18.0"
+httpclient = "4.5.14"
+kotlinxSerializationJson = "1.6.3"
 junit = "4.13.2"
-mockitoKotlin = "2.2.0"
+mockitoKotlin = "5.3.1"
+kotlinxCoroutines = "1.8.1"
+retrofit2KotlinxSerializationConverter = "1.0.0"
+retrofit = "2.11.0"
+okhttp = "4.12.0"
+kluent = "1.72"
+kotlinTestJunit = "2.3.0"
 
 [libraries]
-rome = { module = "rome:rome", version = "1.0" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springBoot" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "springBoot" }
+mysql-connector-j = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlConnector" }
+h2-database = { module = "com.h2database:h2", version.ref = "h2" }
+fcmjava-core = { module = "de.bytefish.fcmjava:fcmjava-core", version.ref = "fcmJava" }
+fcmjava-client = { module = "de.bytefish.fcmjava:fcmjava-client", version.ref = "fcmJava" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgreSQL" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
-httpclient = { module = "org.apache.httpcomponents:httpclient", version = "4.3.4" }
-ex = { module = "com.m14n:ex", version = "0.0.2" }
-kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
-kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJson" }
-
-# [test-libraries]
+m14n-ex = { module = "com.m14n:ex", version.ref = "m14nEx" }
+m14n-billib-data = { module = "com.m14n.billib:data", version.ref = "m14nBillibData" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywayPostgres" }
+jakarta-xml-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakartaXmlBind" }
+glassfish-jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "glassfishJaxb" }
+rome = { module = "com.rometools:rome", version.ref = "rome" }
+httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 junit = { module = "junit:junit", version.ref = "junit" }
-mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+kluent = { module = "org.amshove.kluent:kluent", version.ref = "kluent" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinTestJunit" }
 
 [plugins]
-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
-springDependencyManagement = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }

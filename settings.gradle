@@ -1,8 +1,0 @@
-rootProject.name = 'BilliBRESTJava'
-include 'libraries:data-source:billboard'
-findProject(':libraries:data-source:billboard')?.name = 'billboard'
-include 'libraries:inmemory-rest'
-include 'libraries:mysql-h2-converter'
-include 'billib-importer'
-
-

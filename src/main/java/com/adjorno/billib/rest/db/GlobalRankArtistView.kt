@@ -1,7 +1,10 @@
 package com.adjorno.billib.rest.db
 
 import org.hibernate.annotations.Immutable
-import javax.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
 @Immutable

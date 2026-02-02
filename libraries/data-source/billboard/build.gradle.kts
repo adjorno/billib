@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.springBoot)
-    alias(libs.plugins.springDependencyManagement)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
     application
 }
 
@@ -11,19 +11,27 @@ version = "0.0.6"
 
 repositories {
     mavenCentral()
-    maven(url = "https://kotlin.bintray.com/kotlinx")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
     implementation(libs.rome)
     implementation(libs.jsoup)
     implementation(libs.httpclient)
-    implementation(libs.ex)
-    implementation(libs.kotlinStdlib)
-    implementation(libs.kotlinSerializationJson)
+    implementation(libs.m14n.ex)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockito.kotlin)
 }
 
 application {
