@@ -2,16 +2,11 @@
 kotlin = "2.3.0"
 springBoot = "3.5.0"
 springDependencyManagement = "1.1.7"
-mysqlConnector = "9.1.0"
-h2 = "2.3.232"
-fcmJava = "2.5.0"
 gson = "2.11.0"
 postgreSQL = "42.7.5"
 jsoup = "1.18.3"
 m14nEx = "0.0.2"
 m14nBillibData = "0.0.5"
-flyway = "10.15.2"
-flywayPostgres = "10.15.2"
 jakartaXmlBind = "4.0.2"
 glassfishJaxb = "4.0.5"
 rome = "1.18.0"
@@ -32,17 +27,11 @@ spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter",
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
 spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "springBoot" }
-mysql-connector-j = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlConnector" }
-h2-database = { module = "com.h2database:h2", version.ref = "h2" }
-fcmjava-core = { module = "de.bytefish.fcmjava:fcmjava-core", version.ref = "fcmJava" }
-fcmjava-client = { module = "de.bytefish.fcmjava:fcmjava-client", version.ref = "fcmJava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgreSQL" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 m14n-ex = { module = "com.m14n:ex", version.ref = "m14nEx" }
 m14n-billib-data = { module = "com.m14n.billib:data", version.ref = "m14nBillibData" }
-flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
-flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywayPostgres" }
 jakarta-xml-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakartaXmlBind" }
 glassfish-jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "glassfishJaxb" }
 rome = { module = "com.rometools:rome", version.ref = "rome" }
