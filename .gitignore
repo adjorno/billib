@@ -180,3 +180,4 @@ application-local.properties
 # Import logs
 import.log
 /tmp/import.log
+/.claude/settings.local.json
