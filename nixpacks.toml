@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["jdk21"]
-
-[phases.build]
-cmds = ["./gradlew bootJar -x test"]
-
-[phases.start]
-cmd = "java -Dserver.port=$PORT -Dspring.profiles.active=production -jar build/libs/BilliBRESTJava-0.0.1.jar"
