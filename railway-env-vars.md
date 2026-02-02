@@ -9,4 +9,4 @@ Set these in Railway Dashboard → Variables:
 ## Database Configuration  
 - `DATABASE_URL=jdbc:postgresql://db.ptegywuuusdhqzwueezv.supabase.co:5432/postgres`
 - `DATABASE_USERNAME=postgres`
-- `DATABASE_PASSWORD=Vtldtlm61188billib`
+- `DATABASE_PASSWORD=<your-password>`
