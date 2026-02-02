@@ -967,7 +967,7 @@
   "servers" : [
     {
       "description" : "Prod",
-      "url" : "https://api.billib.m14n.com"
+      "url" : "https://billib-production.up.railway.app"
     },
     {
     "description" : "Local",
