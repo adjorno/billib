@@ -65,8 +65,24 @@ open class ArtistController {
     ): List<Artist> {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
 
-        // Find all collaborating artists (regardless of artist1/artist2 position)
-        val allRelations = artistRelationRepository.findByArtist(theArtist)
+        // Find all relations involving this artist (as collaboration or as member)
+        val directRelations = artistRelationRepository.findByArtist(theArtist)
+
+        // If artist is a member, we need to fetch ALL relations for those collaborations
+        val collaborationArtists = directRelations
+            .filter { it.memberArtist?.id == theArtist.id }
+            .mapNotNull { it.collaborationArtist }
+
+        val allRelations = if (collaborationArtists.isNotEmpty()) {
+            // Fetch all relations for these collaborations to get all members
+            val allCollabRelations = collaborationArtists.flatMap {
+                artistRelationRepository.findByCollaborationArtist(it)
+            }
+            (directRelations + allCollabRelations).distinct()
+        } else {
+            directRelations
+        }
+
         val collaborators = ArtistUtils.extractCollaborators(allRelations, theArtist)
 
         if (collaborators.isEmpty()) {

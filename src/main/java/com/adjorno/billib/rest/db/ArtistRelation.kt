@@ -18,16 +18,17 @@ data class ArtistRelation(
     var id: Long? = null,
 
     @OneToOne
-    @JoinColumn(name = "artist_id_1")
-    var artist1: Artist? = null,
+    @JoinColumn(name = "collaboration_artist_id")
+    var collaborationArtist: Artist? = null,
 
     @OneToOne
-    @JoinColumn(name = "artist_id_2")
-    var artist2: Artist? = null,
+    @JoinColumn(name = "member_artist_id")
+    var memberArtist: Artist? = null,
 
     @OneToOne
     @JoinColumn(name = "track_id")
     var track: Track? = null
 ) {
-    constructor(artist1: Artist?, artist2: Artist?, track: Track?) : this(null, artist1, artist2, track)
+    constructor(collaborationArtist: Artist?, memberArtist: Artist?, track: Track?) :
+        this(null, collaborationArtist, memberArtist, track)
 }
