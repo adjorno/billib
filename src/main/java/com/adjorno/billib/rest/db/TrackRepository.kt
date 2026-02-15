@@ -1,12 +1,10 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-import java.util.List;
-
-public interface TrackRepository extends CrudRepository<Track, Long> {
+interface TrackRepository : CrudRepository<Track, Long> {
 
     @Query(value = "SELECT CT1.TRACK_ID FROM CHART_TRACK CT1\n" +
             "INNER JOIN CHART_LIST ON CHART_LIST._ID = CT1.CHART_LIST_ID\n" +
@@ -17,30 +15,30 @@ public interface TrackRepository extends CrudRepository<Track, Long> {
             "    INNER JOIN WEEK ON WEEK.WEEK_ID = CHART_LIST.WEEK_ID\n" + "    GROUP BY TRACK_ID\n" +
             "  ) T ON CT1.TRACK_ID = T.TRACK_ID AND DATE = T.MINWEEK\n" + "WHERE DATE LIKE CONCAT(\"%-\", ?1)",
             nativeQuery = true)
-    List<Long> findDebutsOfTheDay(String day);
+    fun findDebutsOfTheDay(day: String): List<Long>
 
     @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_TRACK\n" +
             "INNER JOIN TRACK ON TRACK._ID = GLOBAL_RANK_TRACK.TRACK_ID\n" +
             "INNER JOIN ARTIST ON ARTIST._id = TRACK.ARTIST_ID\n" + "WHERE TRACK_ID IN (?1)\n" +
             "ORDER BY GLOBAL_RANK_TRACK._RANK\n" + "LIMIT ?2", nativeQuery = true)
-    List<Track> sortByGlobalRank(List<Long> ids, int size);
+    fun sortByGlobalRank(ids: List<Long>, size: Int): List<Track>
 
-    Track findByTitleAndArtist(String trackTitle, Artist artist);
+    fun findByTitleAndArtist(trackTitle: String, artist: Artist): Track?
 
     @Query(value = "SELECT TRACK.TITLE FROM TRACK\n" + "WHERE ARTIST_ID IN (?1, ?2)\n" + "GROUP BY TRACK.TITLE\n" +
             "HAVING COUNT(*) > 1\n", nativeQuery = true)
-    List<String> findRepeatTitles(Long artistId1, Long artistId2);
+    fun findRepeatTitles(artistId1: Long, artistId2: Long): List<String>
 
     @Modifying
     @Query(value = "update Track t set t.artist = ?2 where t.artist = ?1")
-    void updateArtists(Artist from, Artist to);
+    fun updateArtists(from: Artist, to: Artist)
 
-    List<Track> findByArtist(Artist artist);
+    fun findByArtist(artist: Artist): List<Track>
 
     @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_TRACK\n" +
             "INNER JOIN TRACK ON TRACK._ID = GLOBAL_RANK_TRACK.TRACK_ID\n" +
             "INNER JOIN ARTIST ON ARTIST._id = TRACK.ARTIST_ID\n" +
             "WHERE GLOBAL_RANK_TRACK._RANK >= ?1 AND GLOBAL_RANK_TRACK._RANK < ?2\n" +
             "ORDER BY GLOBAL_RANK_TRACK._RANK", nativeQuery = true)
-    List<Track> findGlobalList(Long from, Long to);
+    fun findGlobalList(from: Long, to: Long): List<Track>
 }

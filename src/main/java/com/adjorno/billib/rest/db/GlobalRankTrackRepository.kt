@@ -1,10 +1,10 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-public interface GlobalRankTrackRepository extends CrudRepository<GlobalRankTrack, Long> {
+interface GlobalRankTrackRepository : CrudRepository<GlobalRankTrack, Long> {
 
     @Modifying
     @Query(value = "INSERT INTO GLOBAL_RANK_TRACK (TRACK_ID)\n" +
@@ -15,7 +15,7 @@ public interface GlobalRankTrackRepository extends CrudRepository<GlobalRankTrac
                    "JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID\n" + "GROUP BY TRACK_ID\n" +
                    "ORDER BY SUM((LIST_SIZE + 1 - _RANK) * (LIST_SIZE + 1 - _RANK)) DESC,\n" + "ARTIST.NAME, TRACK.TITLE",
             nativeQuery = true)
-    void refreshAll();
+    fun refreshAll()
 
-    GlobalRankTrack findByTrackId(Long trackId);
+    fun findByTrackId(trackId: Long): GlobalRankTrack?
 }

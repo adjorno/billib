@@ -44,7 +44,7 @@ open class ArtistController {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
         val theInfo = ArtistInfo()
         theInfo.artist = theArtist
-        theInfo.globalRank = globalRankArtistRepository.findByArtistId(theArtist.id).rank ?: 0
+        theInfo.globalRank = theArtist.id?.let { globalRankArtistRepository.findByArtistId(it)?.rank } ?: 0
         theInfo.artistRelations = getRelations(id, relationsSize)
         theInfo.tracks = trackController.getTracks(theArtist, tracksSize)
         return theInfo

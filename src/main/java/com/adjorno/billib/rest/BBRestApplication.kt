@@ -22,7 +22,6 @@ open class BBRestApplication {
     }
 }
 
-const val PASSWORD = "vtldtlm"
 fun main(args: Array<String>) {
     SpringApplication.run(BBRestApplication::class.java, *args)
 }
