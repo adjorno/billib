@@ -58,9 +58,26 @@ class TrackController(
         @RequestParam(value = "size", required = false, defaultValue = "100") size: Int
     ): Iterable<Track> {
         @Suppress("UNCHECKED_CAST")
-        val theBestTracks = mEntityManager.createNativeQuery(TrackUtils.getBestTracksQuery(chartId, size, from, to), Track::class.java)
-            .resultList as List<Track>
-        return theBestTracks
+        val results = mEntityManager.createNativeQuery(TrackUtils.getBestTracksQuery(chartId, size, from, to))
+            .resultList as List<Array<Any>>
+
+        // Manually map Object[] results to Track entities
+        return results.map { row ->
+            val artist = Artist(
+                id = (row[7] as? Number)?.toLong(),
+                name = row[8] as String,
+                nameNormalized = row[9] as? String
+            )
+            Track(
+                id = (row[0] as? Number)?.toLong(),
+                title = row[1] as String,
+                artist = artist,
+                artistName = row[3] as? String,
+                firstChartDate = (row[4] as? java.sql.Date)?.toLocalDate(),
+                peakGlobalRank = (row[5] as? Number)?.toInt(),
+                totalWeeksOnChart = (row[6] as? Number)?.toInt() ?: 0
+            )
+        }
     }
 
     @RequestMapping(value = ["/track/day"], method = [RequestMethod.GET])
