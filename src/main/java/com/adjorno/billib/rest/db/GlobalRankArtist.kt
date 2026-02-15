@@ -11,10 +11,10 @@ import jakarta.persistence.Table
 @Table(name = "GLOBAL_RANK_ARTIST")
 data class GlobalRankArtist(
     @Id
-    @Column(name = "_RANK")
+    @Column(name = "rank")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var rank: Long? = null,
 
-    @Column(name = "ARTIST_ID")
+    @Column(name = "artist_id")
     var artistId: Long? = null
 )

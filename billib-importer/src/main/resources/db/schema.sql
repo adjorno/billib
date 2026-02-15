@@ -143,18 +143,20 @@ CREATE INDEX idx_chart_track_rank ON CHART_TRACK(_RANK);
 -- Supporting Tables
 -- ============================================================================
 
--- ARTIST_RELATION: Tracks artist collaborations
+-- ARTIST_RELATION: Links collaboration artists to their individual members
+-- For track "A, B, C - Title": artist "A, B, C" exists in ARTIST table
+-- ARTIST_RELATION stores: (collab="A, B, C", member=A), (collab="A, B, C", member=B), (collab="A, B, C", member=C)
+-- Efficiency: O(n) rows for n-artist collaboration
 CREATE TABLE ARTIST_RELATION (
     _id BIGSERIAL PRIMARY KEY,
-    ARTIST_ID_1 BIGINT NOT NULL REFERENCES ARTIST(_id),
-    ARTIST_ID_2 BIGINT NOT NULL REFERENCES ARTIST(_id),
+    COLLABORATION_ARTIST_ID BIGINT NOT NULL REFERENCES ARTIST(_id),
+    MEMBER_ARTIST_ID BIGINT NOT NULL REFERENCES ARTIST(_id),
     TRACK_ID BIGINT NOT NULL REFERENCES TRACK(_id),
-    UNIQUE(ARTIST_ID_1, ARTIST_ID_2, TRACK_ID),
-    CHECK (ARTIST_ID_1 < ARTIST_ID_2)
+    UNIQUE(COLLABORATION_ARTIST_ID, MEMBER_ARTIST_ID, TRACK_ID)
 );
 
-CREATE INDEX idx_artist_rel_artist1 ON ARTIST_RELATION(ARTIST_ID_1);
-CREATE INDEX idx_artist_rel_artist2 ON ARTIST_RELATION(ARTIST_ID_2);
+CREATE INDEX idx_artist_rel_collaboration ON ARTIST_RELATION(COLLABORATION_ARTIST_ID);
+CREATE INDEX idx_artist_rel_member ON ARTIST_RELATION(MEMBER_ARTIST_ID);
 CREATE INDEX idx_artist_rel_track ON ARTIST_RELATION(TRACK_ID);
 
 -- DAY_TRACK: Daily track selections
@@ -170,7 +172,8 @@ CREATE INDEX idx_day_track_date ON DAY_TRACK(DATE);
 -- TREND_TYPE: Types of trending categories
 CREATE TABLE TREND_TYPE (
     _id BIGSERIAL PRIMARY KEY,
-    NAME VARCHAR(255) NOT NULL UNIQUE
+    NAME VARCHAR(255) NOT NULL UNIQUE,
+    DESCRIPTION VARCHAR(500)
 );
 
 -- TREND_TRACK: Trending tracks
@@ -178,11 +181,11 @@ CREATE TABLE TREND_TRACK (
     _id BIGSERIAL PRIMARY KEY,
     TRACK_ID BIGINT NOT NULL REFERENCES TRACK(_id),
     TREND_TYPE_ID BIGINT NOT NULL REFERENCES TREND_TYPE(_id),
-    DATE DATE NOT NULL,
-    UNIQUE(TRACK_ID, TREND_TYPE_ID, DATE)
+    WEEK_ID BIGINT NOT NULL REFERENCES WEEK(WEEK_ID),
+    UNIQUE(TRACK_ID, TREND_TYPE_ID, WEEK_ID)
 );
 
-CREATE INDEX idx_trend_track_date ON TREND_TRACK(DATE);
+CREATE INDEX idx_trend_track_week ON TREND_TRACK(WEEK_ID);
 CREATE INDEX idx_trend_track_type ON TREND_TRACK(TREND_TYPE_ID);
 
 -- DUPLICATE_TRACK and DUPLICATE_ARTIST: Track potential duplicates

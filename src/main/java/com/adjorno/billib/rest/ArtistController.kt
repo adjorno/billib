@@ -64,32 +64,37 @@ open class ArtistController {
         @RequestParam(required = false, defaultValue = "0") size: Int
     ): List<Artist> {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
-        val theResult: MutableList<Artist> = ArrayList()
-        val theSingleArtists = ArtistUtils.asSingleArtists(
-            artistRelationRepository.findByBand(theArtist)
-        )
-        var theSinglesSize = 0
-        if (Ex.isNotEmpty(theSingleArtists)) {
-            theSinglesSize = if (size == 0 || size >= theSingleArtists.size) theSingleArtists.size else size
-            theResult.addAll(
-                artistRepository
-                    .sortByGlobalRank(ArtistUtils.asArtistIds(theSingleArtists), theSinglesSize)
-            )
-        }
-        if (size == 0 || size > theSinglesSize) {
-            val theBandArtists = ArtistUtils.asBandArtists(
-                artistRelationRepository.findBySingle(theArtist)
-            )
-            if (Ex.isNotEmpty(theBandArtists)) {
-                val theBandsSize =
-                    if (size == 0 || size - theSinglesSize >= theBandArtists.size) theBandArtists.size else size - theSinglesSize
-                theResult.addAll(
-                    artistRepository
-                        .sortByGlobalRank(ArtistUtils.asArtistIds(theBandArtists), theBandsSize)
-                )
+
+        // Find all relations involving this artist (as collaboration or as member)
+        val directRelations = artistRelationRepository.findByArtist(theArtist)
+
+        // If artist is a member, we need to fetch ALL relations for those collaborations
+        val collaborationArtists = directRelations
+            .filter { it.memberArtist?.id == theArtist.id }
+            .mapNotNull { it.collaborationArtist }
+
+        val allRelations = if (collaborationArtists.isNotEmpty()) {
+            // Fetch all relations for these collaborations to get all members
+            val allCollabRelations = collaborationArtists.flatMap {
+                artistRelationRepository.findByCollaborationArtist(it)
             }
+            (directRelations + allCollabRelations).distinct()
+        } else {
+            directRelations
         }
-        return theResult
+
+        val collaborators = ArtistUtils.extractCollaborators(allRelations, theArtist)
+
+        if (collaborators.isEmpty()) {
+            return emptyList()
+        }
+
+        // Sort by global rank and limit if requested
+        val requestedSize = if (size == 0) collaborators.size else size
+        return artistRepository.sortByGlobalRank(
+            ArtistUtils.asArtistIds(collaborators),
+            requestedSize
+        )
     }
 
     @Transactional

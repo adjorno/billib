@@ -358,21 +358,23 @@ class DuplicateController(
                 }
             }
             mTrackRepository.updateArtists(theDuplicateArtist, theOriginalArtist)
-            val mergingSingleIds = mArtistRelationRepository
-                .findMergingSingleIds(theDuplicateArtist.id!!, theOriginalArtist.id!!)
-            for (mergeSingleId in mergingSingleIds) {
-                mArtistRelationRepository
-                    .deleteBySingleIdAndBandId(mergeSingleId, theDuplicateArtist.id!!)
-            }
-            mArtistRelationRepository.updateSingleArtists(theDuplicateArtist, theOriginalArtist)
 
-            val mergingBandIds =
-                mArtistRelationRepository.findMergingBandIds(theDuplicateArtist.id!!, theOriginalArtist.id!!)
-            for (mergingBandId in mergingBandIds) {
+            // Find and delete relations that would become duplicates after merging
+            val mergingCollaborationIds = mArtistRelationRepository
+                .findMergingCollaborationIds(theDuplicateArtist.id!!, theOriginalArtist.id!!)
+            for (mergeCollaborationId in mergingCollaborationIds) {
                 mArtistRelationRepository
-                    .deleteBySingleIdAndBandId(theDuplicateArtist.id!!, mergingBandId)
+                    .deleteByCollaborationIdAndMemberId(mergeCollaborationId, theDuplicateArtist.id!!)
             }
-            mArtistRelationRepository.updateBandArtists(theDuplicateArtist, theOriginalArtist)
+            mArtistRelationRepository.updateMemberArtist(theDuplicateArtist, theOriginalArtist)
+
+            val mergingMemberIds =
+                mArtistRelationRepository.findMergingMemberIds(theDuplicateArtist.id!!, theOriginalArtist.id!!)
+            for (mergingMemberId in mergingMemberIds) {
+                mArtistRelationRepository
+                    .deleteByCollaborationIdAndMemberId(theDuplicateArtist.id!!, mergingMemberId)
+            }
+            mArtistRelationRepository.updateCollaborationArtist(theDuplicateArtist, theOriginalArtist)
             mDuplicateArtistRepository.updateArtists(theDuplicateArtist, theOriginalArtist)
             mDuplicateArtistRepository.save(DuplicateArtist(theDuplicateArtist.name!!, theOriginalArtist))
 

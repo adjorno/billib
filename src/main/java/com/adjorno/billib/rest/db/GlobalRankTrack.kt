@@ -11,10 +11,10 @@ import jakarta.persistence.Table
 @Table(name = "GLOBAL_RANK_TRACK")
 data class GlobalRankTrack(
     @Id
-    @Column(name = "_RANK")
+    @Column(name = "rank")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var rank: Long? = null,
 
-    @Column(name = "TRACK_ID")
+    @Column(name = "track_id")
     var trackId: Long? = null
 )

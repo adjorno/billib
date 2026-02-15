@@ -65,7 +65,7 @@ class SearchController(
                 }
                 theSearchQuery = ArtistUtils.getCountSearchQuery(theKeywords)
                 val theTotal =
-                    (mEntityManager.createNativeQuery(theSearchQuery).singleResult as BigInteger).toInt()
+                    (mEntityManager.createNativeQuery(theSearchQuery).singleResult as Long).toInt()
                 var theArtists = emptyList<Artist>()
                 if (artistsOffset < theTotal) {
                     theSearchQuery = ArtistUtils.getSearchQuery(theKeywords, artistsOffset, adjustedArtistsSize, alphabetical)
@@ -86,7 +86,7 @@ class SearchController(
                 if (adjustedTracksSize > MAX_RESULT_SIZE || adjustedTracksSize == ALL_RESULTS) {
                     adjustedTracksSize = MAX_RESULT_SIZE
                 }
-                val theTotal = (mEntityManager.createNativeQuery(theSearchQuery).singleResult as BigInteger)
+                val theTotal = (mEntityManager.createNativeQuery(theSearchQuery).singleResult as Long)
                     .toInt()
                 var theTracks = emptyList<Track>()
                 if (artistsOffset < theTotal) {

@@ -17,10 +17,10 @@ interface TrackRepository : CrudRepository<Track, Long> {
             nativeQuery = true)
     fun findDebutsOfTheDay(day: String): List<Long>
 
-    @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_TRACK\n" +
+    @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, TRACK.ARTIST_NAME, TRACK.FIRST_CHART_DATE, TRACK.PEAK_GLOBAL_RANK, TRACK.TOTAL_WEEKS_ON_CHART FROM GLOBAL_RANK_TRACK\n" +
             "INNER JOIN TRACK ON TRACK._ID = GLOBAL_RANK_TRACK.TRACK_ID\n" +
             "INNER JOIN ARTIST ON ARTIST._id = TRACK.ARTIST_ID\n" + "WHERE TRACK_ID IN (?1)\n" +
-            "ORDER BY GLOBAL_RANK_TRACK._RANK\n" + "LIMIT ?2", nativeQuery = true)
+            "ORDER BY GLOBAL_RANK_TRACK.RANK\n" + "LIMIT ?2", nativeQuery = true)
     fun sortByGlobalRank(ids: List<Long>, size: Int): List<Track>
 
     fun findByTitleAndArtist(trackTitle: String, artist: Artist): Track?
@@ -35,10 +35,10 @@ interface TrackRepository : CrudRepository<Track, Long> {
 
     fun findByArtist(artist: Artist): List<Track>
 
-    @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_TRACK\n" +
+    @Query(value = "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, TRACK.ARTIST_NAME, TRACK.FIRST_CHART_DATE, TRACK.PEAK_GLOBAL_RANK, TRACK.TOTAL_WEEKS_ON_CHART FROM GLOBAL_RANK_TRACK\n" +
             "INNER JOIN TRACK ON TRACK._ID = GLOBAL_RANK_TRACK.TRACK_ID\n" +
             "INNER JOIN ARTIST ON ARTIST._id = TRACK.ARTIST_ID\n" +
-            "WHERE GLOBAL_RANK_TRACK._RANK >= ?1 AND GLOBAL_RANK_TRACK._RANK < ?2\n" +
-            "ORDER BY GLOBAL_RANK_TRACK._RANK", nativeQuery = true)
+            "WHERE GLOBAL_RANK_TRACK.RANK >= ?1 AND GLOBAL_RANK_TRACK.RANK < ?2\n" +
+            "ORDER BY GLOBAL_RANK_TRACK.RANK", nativeQuery = true)
     fun findGlobalList(from: Long, to: Long): List<Track>
 }

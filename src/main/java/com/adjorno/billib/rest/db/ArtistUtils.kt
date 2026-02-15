@@ -119,14 +119,51 @@ object ArtistUtils {
             ).toTypedArray()
     }
 
+    /**
+     * Returns all collaboration artists (e.g., "A, B, C") from the relations.
+     */
     @JvmStatic
-    fun asSingleArtists(artistRelations: List<ArtistRelation>): List<Artist> {
-        return artistRelations.mapNotNull { it.single }
+    fun asCollaborationArtists(artistRelations: List<ArtistRelation>): List<Artist> {
+        return artistRelations.mapNotNull { it.collaborationArtist }
     }
 
+    /**
+     * Returns all member artists (individual artists who are part of collaborations).
+     */
     @JvmStatic
-    fun asBandArtists(artistRelations: List<ArtistRelation>): List<Artist> {
-        return artistRelations.mapNotNull { it.band }
+    fun asMemberArtists(artistRelations: List<ArtistRelation>): List<Artist> {
+        return artistRelations.mapNotNull { it.memberArtist }
+    }
+
+    /**
+     * For a given artist, extracts all collaborating artists from the relations.
+     * - If artist is a collaboration (e.g., "A, B, C"), returns all its members: [A, B, C]
+     * - If artist is a member, returns all OTHER members from the same collaborations
+     *
+     * Note: For the second case, this only works if artistRelations includes ALL relations
+     * for the collaborations, not just relations involving excludeArtist.
+     */
+    @JvmStatic
+    fun extractCollaborators(artistRelations: List<ArtistRelation>, excludeArtist: Artist): List<Artist> {
+        val collaborators = mutableSetOf<Artist>()
+
+        // Case 1: Artist is a collaboration - return all its members
+        artistRelations.filter { it.collaborationArtist?.id == excludeArtist.id }
+            .forEach { it.memberArtist?.let { member -> collaborators.add(member) } }
+
+        // Case 2: Artist is a member - find all other members from same collaborations
+        val collaborationsAsMember = artistRelations
+            .filter { it.memberArtist?.id == excludeArtist.id }
+            .mapNotNull { it.collaborationArtist }
+            .toSet()
+
+        // For each collaboration this artist is a member of, add all other members
+        collaborationsAsMember.forEach { collab ->
+            artistRelations.filter { it.collaborationArtist?.id == collab.id && it.memberArtist?.id != excludeArtist.id }
+                .forEach { it.memberArtist?.let { member -> collaborators.add(member) } }
+        }
+
+        return collaborators.toList()
     }
 
     @JvmStatic
@@ -136,7 +173,7 @@ object ArtistUtils {
 
     @JvmStatic
     fun getSearchQuery(keywords: Array<String>, offset: Int, limit: Int, alphabetical: Boolean): String {
-        val theQueryBuilder = StringBuilder("SELECT ARTIST._ID, ARTIST.NAME FROM ARTIST")
+        val theQueryBuilder = StringBuilder("SELECT ARTIST._ID, ARTIST.NAME, ARTIST.NAME_NORMALIZED FROM ARTIST")
         if (!alphabetical) {
             theQueryBuilder.append(" JOIN GLOBAL_RANK_ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID")
         }
@@ -154,10 +191,10 @@ object ArtistUtils {
             if (alphabetical)
                 "ARTIST.NAME ASC"
             else
-                "GLOBAL_RANK_ARTIST._RANK ASC"
+                "GLOBAL_RANK_ARTIST.RANK ASC"
         )
         if (limit != 0) {
-            theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit)
+            theQueryBuilder.append(" LIMIT ").append(limit).append(" OFFSET ").append(offset)
         }
         return theQueryBuilder.toString()
     }

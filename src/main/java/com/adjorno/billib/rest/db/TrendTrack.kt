@@ -18,14 +18,14 @@ data class TrendTrack(
         var id: Long? = null,
 
         @OneToOne
-        @JoinColumn(name = "WEEK_ID")
+        @JoinColumn(name = "week_id")
         var week: Week? = null,
 
         @OneToOne
-        @JoinColumn(name = "TRACK_ID")
+        @JoinColumn(name = "track_id")
         var track: Track? = null,
 
         @OneToOne
-        @JoinColumn(name = "TYPE_ID")
+        @JoinColumn(name = "trend_type_id")
         var type: TrendType? = null
 )
