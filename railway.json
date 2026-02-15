@@ -1,12 +1,17 @@
 {
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://railpack.com/config/file/schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "./gradlew bootJar -x test"
+    "builder": "RAILPACK"
+  },
+  "steps": {
+    "build": {
+      "commands": [
+        "chmod +x gradlew",
+        "./gradlew bootJar -x test"
+      ]
+    }
   },
   "deploy": {
-    "startCommand": "java -Dspring.profiles.active=production -Dserver.port=$PORT -jar build/libs/BilliBRESTJava-0.0.1.jar",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "startCommand": "java -Dspring.profiles.active=production -Dserver.port=$PORT -jar build/libs/BilliBRESTJava-*.jar"
   }
 }
