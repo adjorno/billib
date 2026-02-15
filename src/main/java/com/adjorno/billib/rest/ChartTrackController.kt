@@ -16,10 +16,6 @@ class ChartTrackController(
     private val mTrackRepository: TrackRepository
 ) {
 
-    companion object {
-        private const val PASSWORD = "vtldtlm"
-    }
-
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateTrack"], method = [RequestMethod.POST])
     fun updateTrack(
@@ -27,9 +23,6 @@ class ChartTrackController(
         @RequestParam(name = "chartTrackId") chartTrackId: Long,
         @RequestParam(name = "trackId") trackId: Long
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theNewTrack = mTrackRepository.findById(trackId).orElse(null)
         val theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null)
         if (theChartTrack == null && theNewTrack == null) {
@@ -41,13 +34,9 @@ class ChartTrackController(
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateRank"], method = [RequestMethod.POST])
     fun updateRank(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "chartTrackId") chartTrackId: Long,
         @RequestParam(name = "rank") rank: Int
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null)
             ?: throw TrackNotFoundException()
         mChartTrackRepository.updateRank(theChartTrack, rank)
@@ -56,12 +45,8 @@ class ChartTrackController(
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateLastWeekRanks"], method = [RequestMethod.POST])
     fun updateLastWeekRanks(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "chartListId") chartListId: Long
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theChartListTracks =
             mChartTrackRepository.findByChartList(mChartListRepository.findById(chartListId).orElse(null))
         for (ct in theChartListTracks) {
@@ -80,9 +65,6 @@ class ChartTrackController(
         @RequestParam(name = "tId") trackId: Long,
         @RequestParam(name = "rank") rank: Int
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theTrack = mTrackRepository.findById(trackId).orElse(null)
             ?: throw TrackNotFoundException()
         val theChartList = mChartListRepository.findById(chartListId).orElse(null)

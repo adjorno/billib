@@ -26,7 +26,6 @@ class TrendsController(
 ) : ITrendsController {
 
     companion object {
-        private const val PASSWORD = "vtldtlm"
         private const val LIST_SIZE_PER_TYPE = 10
         private const val DB_LIST_SIZE_PER_TYPE = 5 * LIST_SIZE_PER_TYPE
 
@@ -114,13 +113,9 @@ class TrendsController(
 
     @RequestMapping(value = ["/generateTrends"], method = [RequestMethod.POST])
     fun generateTrendsAPI(
-        @RequestParam() password: String,
         @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) week: String,
         @RequestParam(required = false, defaultValue = "0") type: Int
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         generateTrends(week, type.toLong())
     }
 

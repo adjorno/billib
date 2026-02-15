@@ -24,10 +24,6 @@ class TrackController(
     private val mGlobalRankTrackRepository: GlobalRankTrackRepository
 ) : ITrackController {
 
-    companion object {
-        private const val PASSWORD = "vtldtlm"
-    }
-
     @RequestMapping(value = ["/track/getById"], method = [RequestMethod.GET])
     fun track(@RequestParam(value = "id") id: Long): Track {
         val theOne = mTrackRepository.findById(id).orElse(null)
@@ -82,12 +78,8 @@ class TrackController(
     @Transactional
     @RequestMapping(value = ["/track/day"], method = [RequestMethod.POST])
     fun dayTrack(
-        @RequestParam(name = "password") password: String,
         @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         updateDayTrack(date)
     }
 

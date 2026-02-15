@@ -23,10 +23,6 @@ class DuplicateController(
     private val mArtistRelationRepository: ArtistRelationRepository
 ) : IDuplicateController {
 
-    companion object {
-        const val PASSWORD = "vtldtlm"
-    }
-
     @Transactional
     @RequestMapping(value = ["/duplicate/checkTracks"], method = [RequestMethod.POST])
     fun checkTracksAPI(
@@ -34,9 +30,6 @@ class DuplicateController(
         @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
         @RequestParam(name = "checkSize", defaultValue = "100") size: Int
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theArtists = mArtistRepository.findAll().toList()
         val theLeftDuplicates = mutableMapOf<Track, Track>()
         for (a in from until theArtists.size) {
@@ -84,9 +77,6 @@ class DuplicateController(
         @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
         @RequestParam(name = "checkSize", defaultValue = "100") size: Int
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theArtists = mArtistRepository.findAll().toList()
         val theLeftDuplicates = mutableMapOf<Artist, Artist>()
         for (i in from until theArtists.size) {
@@ -129,9 +119,6 @@ class DuplicateController(
         @RequestParam(name = "from", defaultValue = "1") from: Long,
         @RequestParam(name = "size", defaultValue = "500") size: Long
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         checkLastWeek(from, size)
     }
 
@@ -142,9 +129,6 @@ class DuplicateController(
         @RequestParam(name = "originalArtistId") originalId: Long,
         @RequestParam(name = "duplicateArtistId") duplicateId: Long
     ): List<MergeOperation<*>>? {
-        if (PASSWORD != password) {
-            return null
-        }
         val theMergeOperations = removeDuplicateArtist(originalId, duplicateId)
         if (Ex.isNotEmpty(theMergeOperations)) {
             return theMergeOperations
@@ -160,9 +144,6 @@ class DuplicateController(
         @RequestParam(name = "originalTrackId") originalId: Long,
         @RequestParam(name = "duplicateTrackId") duplicateId: Long
     ): MergeOperation<Track>? {
-        if (PASSWORD != password) {
-            return null
-        }
         val theTrackMergeOperation = removeDuplicateTrack(originalId, duplicateId)
         return theTrackMergeOperation ?: throw TrackNotFoundException()
     }
@@ -175,9 +156,6 @@ class DuplicateController(
         @RequestParam(required = false, defaultValue = "100") size: Int,
         @RequestParam() dryRun: Boolean
     ) {
-        if (PASSWORD != password) {
-            return
-        }
         val theArtists = mArtistRepository.findAll().toList()
         println("STARTED")
         val fs = mutableSetOf<String>()
