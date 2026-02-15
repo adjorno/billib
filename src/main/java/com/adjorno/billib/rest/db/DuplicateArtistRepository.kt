@@ -1,21 +1,19 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-import java.util.List;
-
-public interface DuplicateArtistRepository extends CrudRepository<DuplicateArtist, String> {
+interface DuplicateArtistRepository : CrudRepository<DuplicateArtist, String> {
     @Modifying
     @Query(value = "update DuplicateArtist da set da.artist = ?2 where da.artist = ?1")
-    void updateArtists(Artist from, Artist to);
+    fun updateArtists(from: Artist, to: Artist)
 
-    DuplicateArtist findByDuplicateName(String name);
+    fun findByDuplicateName(name: String): DuplicateArtist?
 
-    List<DuplicateArtist> findByArtist(Artist artist);
+    fun findByArtist(artist: Artist): List<DuplicateArtist>
 
     @Modifying
     @Query(value = "update DuplicateArtist da set da.duplicateName = ?2 where da = ?1")
-    void rename(DuplicateArtist duplicateArtist, String optimizedName);
+    fun rename(duplicateArtist: DuplicateArtist, optimizedName: String)
 }

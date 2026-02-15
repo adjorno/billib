@@ -1,45 +1,35 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import org.springframework.data.util.Pair;
+import org.springframework.data.util.Pair
+import java.util.*
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+class UpdateResult {
+    companion object {
+        const val RESULT_OK = 0
+        const val RESULT_DIFFERENT_SIZE = 1
+        const val RESULT_DUPLICATE = 2
+        const val RESULT_FAILED = 3
 
-public class UpdateResult {
-    public static final int RESULT_OK = 0;
-    public static final int RESULT_DIFFERENT_SIZE = 1;
-    public static final int RESULT_DUPLICATE = 2;
-    public static final int RESULT_FAILED = 3;
-
-    private final List<Pair<String, Integer>> mChartUpdates = new ArrayList<>();
-
-    private Date mUpdateWeek;
-
-    public void setUpdateWeek(Date updateWeek) {
-        mUpdateWeek = updateWeek;
-    }
-
-    public void addChartUpdate(String chart, int result) {
-        mChartUpdates.add(Pair.of(chart, result));
-    }
-
-    public List<Pair<String, Integer>> getChartUpdates() {
-        return mChartUpdates;
-    }
-
-    public Date getUpdateWeek() {
-        return mUpdateWeek;
-    }
-
-    public static String toString(int result) {
-        switch (result) {
-            case RESULT_OK: return "OK";
-            case RESULT_DIFFERENT_SIZE: return "DIFFERENT_SIZE";
-            case RESULT_DUPLICATE: return "DUPLICATE";
-            case RESULT_FAILED: return "FAILED";
-            default:
-                return "UNEXPECTED RESULT";
+        fun toString(result: Int): String {
+            return when (result) {
+                RESULT_OK -> "OK"
+                RESULT_DIFFERENT_SIZE -> "DIFFERENT_SIZE"
+                RESULT_DUPLICATE -> "DUPLICATE"
+                RESULT_FAILED -> "FAILED"
+                else -> "UNEXPECTED RESULT"
+            }
         }
+    }
+
+    private val chartUpdates: MutableList<Pair<String, Int>> = mutableListOf()
+
+    var updateWeek: Date? = null
+
+    fun addChartUpdate(chart: String, result: Int) {
+        chartUpdates.add(Pair.of(chart, result))
+    }
+
+    fun getChartUpdates(): List<Pair<String, Int>> {
+        return chartUpdates
     }
 }

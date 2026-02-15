@@ -1,5 +1,5 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-public interface IUpdateController {
-    UpdateResult updateDB();
+interface IUpdateController {
+    fun updateDB(): UpdateResult
 }

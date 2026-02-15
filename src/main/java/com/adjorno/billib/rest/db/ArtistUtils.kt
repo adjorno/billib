@@ -1,183 +1,185 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.Pattern
 
-public class ArtistUtils {
-    public static final Pattern PATTERN_DUET_WITH = Pattern.compile("\\([D|d]uet [W|w]ith (.+)\\)");
-    public static final Pattern PATTERN_WITH = Pattern.compile("\\([W|w]ith (.+)\\)");
-    public static final Pattern PATTERN_FEATURING = Pattern.compile("\\([F|f]eaturing (.+)\\)");
+object ArtistUtils {
+    val PATTERN_DUET_WITH: Pattern = Pattern.compile("\\([D|d]uet [W|w]ith (.+)\\)")
+    val PATTERN_WITH: Pattern = Pattern.compile("\\([W|w]ith (.+)\\)")
+    val PATTERN_FEATURING: Pattern = Pattern.compile("\\([F|f]eaturing (.+)\\)")
 
-    public static boolean equalsEasy(String a1, String a2, ArtistRepository artistRepository,
-            DuplicateArtistRepository duplicateArtistRepository) {
-        return a1.equalsIgnoreCase(a2);
+    @JvmStatic
+    fun equalsEasy(
+        a1: String,
+        a2: String,
+        artistRepository: ArtistRepository,
+        duplicateArtistRepository: DuplicateArtistRepository
+    ): Boolean {
+        return a1.equals(a2, ignoreCase = true)
     }
 
-    public static boolean equals(String a1, String a2, ArtistRepository artistRepository,
-            DuplicateArtistRepository duplicateArtistRepository) {
-        String[] aa1 = artistAlternatives(a1, artistRepository, duplicateArtistRepository);
-        String[] aa2 = artistAlternatives(a2, artistRepository, duplicateArtistRepository);
-        for (int i = 0; i < aa1.length; i++) {
-            for (int j = 0; j < aa2.length; j++) {
-                if (aa1[i].equalsIgnoreCase(aa2[j])) {
-                    return true;
+    @JvmStatic
+    fun equals(
+        a1: String,
+        a2: String,
+        artistRepository: ArtistRepository,
+        duplicateArtistRepository: DuplicateArtistRepository
+    ): Boolean {
+        val aa1 = artistAlternatives(a1, artistRepository, duplicateArtistRepository)
+        val aa2 = artistAlternatives(a2, artistRepository, duplicateArtistRepository)
+        for (i in aa1.indices) {
+            for (j in aa2.indices) {
+                if (aa1[i].equals(aa2[j], ignoreCase = true)) {
+                    return true
                 }
             }
         }
-        return false;
+        return false
     }
 
-    public static String[] artistAlternatives(String artistName, ArtistRepository artistRepository,
-            DuplicateArtistRepository duplicateArtistRepository) {
-        List<String> theResult = new ArrayList<>();
-        Artist theArtist = artistRepository.findByName(artistName);
-        theResult.add(artistName);
+    @JvmStatic
+    fun artistAlternatives(
+        artistName: String,
+        artistRepository: ArtistRepository,
+        duplicateArtistRepository: DuplicateArtistRepository
+    ): Array<String> {
+        val theResult = mutableListOf<String>()
+        val theArtist = artistRepository.findByName(artistName)
+        theResult.add(artistName)
         if (theArtist != null) {
-            List<DuplicateArtist> theDuplicates = duplicateArtistRepository.findByArtist(theArtist);
-            for (DuplicateArtist theDuplicateArtist : theDuplicates) {
-                theResult.add(theDuplicateArtist.getDuplicateName());
+            val theDuplicates = duplicateArtistRepository.findByArtist(theArtist)
+            for (theDuplicateArtist in theDuplicates) {
+                theDuplicateArtist.duplicateName?.let { theResult.add(it) }
             }
         }
-        return theResult.toArray(new String[0]);
+        return theResult.toTypedArray()
     }
 
-    public static String optimizeName(String original) {
-        return optimizeFeaturing(optimizeWith(optimizeDuetWith(original.replaceAll("(?i) featuring ", " feat. ").
-                replaceAll("(?i) with ", " & ").replaceAll("(?i) / ", " & "))));
+    @JvmStatic
+    fun optimizeName(original: String): String {
+        return optimizeFeaturing(
+            optimizeWith(
+                optimizeDuetWith(
+                    original.replace("(?i) featuring ".toRegex(), " feat. ")
+                        .replace("(?i) with ".toRegex(), " & ")
+                        .replace("(?i) / ".toRegex(), " & ")
+                )
+            )
+        )
     }
 
-    public static String optimizeDuetWith(String artistName) {
-        Matcher m = PATTERN_DUET_WITH.matcher(artistName);
+    @JvmStatic
+    fun optimizeDuetWith(artistName: String): String {
+        val m = PATTERN_DUET_WITH.matcher(artistName)
         if (m.find()) {
-            String duet = m.group(1);
-            String toReplace = m.group();
-            return artistName.replaceAll("\\(" + toReplace + "\\)", "& " + duet);
+            val duet = m.group(1) ?: return artistName
+            val toReplace = m.group()
+            return artistName.replace("\\($toReplace\\)".toRegex(), "& $duet")
         }
-        return artistName;
+        return artistName
     }
 
-    public static String optimizeWith(String artistName) {
-        Matcher m = PATTERN_WITH.matcher(artistName);
+    @JvmStatic
+    fun optimizeWith(artistName: String): String {
+        val m = PATTERN_WITH.matcher(artistName)
         if (m.find()) {
-            String duet = m.group(1);
-            String toReplace = m.group();
-            return artistName.replaceAll("\\(" + toReplace + "\\)", "& " + duet);
+            val duet = m.group(1)
+            val toReplace = m.group()
+            return artistName.replace("\\($toReplace\\)".toRegex(), "& $duet")
         }
-        return artistName;
+        return artistName
     }
 
-    public static String optimizeFeaturing(String artistName) {
-        Matcher m = PATTERN_FEATURING.matcher(artistName);
+    @JvmStatic
+    fun optimizeFeaturing(artistName: String): String {
+        val m = PATTERN_FEATURING.matcher(artistName)
         if (m.find()) {
-            String duet = m.group(1);
-            String toReplace = m.group();
-            return artistName.replaceAll("\\(" + toReplace + "\\)", "feat. " + duet);
+            val duet = m.group(1)
+            val toReplace = m.group()
+            return artistName.replace("\\($toReplace\\)".toRegex(), "feat. $duet")
         }
-        return artistName;
+        return artistName
     }
 
-    public static String[] splitCollaboration(String artist) {
-        return artist.toLowerCase()
-                .split("( & )" + "|(, )" + "|( and )" + "|( vs\\.? )" + "|( feat\\.? )" + "|( y )" + "|( / )" +
-                        "|( presents )" + "|( pres\\.? )" + "|( starr?ing )" + "|( introducing )" + "| ( \\+ )");
+    @JvmStatic
+    fun splitCollaboration(artist: String): Array<String> {
+        return artist.lowercase()
+            .split(
+                "( & )|" +
+                "(, )|" +
+                "( and )|" +
+                "( vs\\.? )|" +
+                "( feat\\.? )|" +
+                "( y )|" +
+                "( / )|" +
+                "( presents )|" +
+                "( pres\\.? )|" +
+                "( starr?ing )|" +
+                "( introducing )|" +
+                "| ( \\+ )".toRegex()
+            ).toTypedArray()
     }
 
-    public static List<Artist> asSingleArtists(List<ArtistRelation> artistRelations) {
-        return Collections.unmodifiableList(new AbstractList<Artist>() {
-            @Override
-            public Artist get(int index) {
-                return artistRelations.get(index).getSingle();
-            }
-
-            @Override
-            public int size() {
-                return artistRelations.size();
-            }
-        });
+    @JvmStatic
+    fun asSingleArtists(artistRelations: List<ArtistRelation>): List<Artist> {
+        return artistRelations.mapNotNull { it.single }
     }
 
-    public static List<Artist> asBandArtists(List<ArtistRelation> artistRelations) {
-        return Collections.unmodifiableList(new AbstractList<Artist>() {
-            @Override
-            public Artist get(int index) {
-                return artistRelations.get(index).getBand();
-            }
-
-            @Override
-            public int size() {
-                return artistRelations.size();
-            }
-        });
+    @JvmStatic
+    fun asBandArtists(artistRelations: List<ArtistRelation>): List<Artist> {
+        return artistRelations.mapNotNull { it.band }
     }
 
-    public static List<Long> asArtistIds(List<Artist> artists) {
-        return Collections.unmodifiableList(new AbstractList<Long>() {
-            @Override
-            public Long get(int index) {
-                return artists.get(index).getId();
-            }
-
-            @Override
-            public int size() {
-                return artists.size();
-            }
-        });
+    @JvmStatic
+    fun asArtistIds(artists: List<Artist>): List<Long> {
+        return artists.mapNotNull { it.id }
     }
 
-    public static String getSearchQuery(String[] keywords, int offset, int limit, boolean alphabetical) {
-        final StringBuilder theQueryBuilder = new StringBuilder("SELECT ARTIST._ID, ARTIST.NAME FROM ARTIST");
+    @JvmStatic
+    fun getSearchQuery(keywords: Array<String>, offset: Int, limit: Int, alphabetical: Boolean): String {
+        val theQueryBuilder = StringBuilder("SELECT ARTIST._ID, ARTIST.NAME FROM ARTIST")
         if (!alphabetical) {
-            theQueryBuilder.append(" JOIN GLOBAL_RANK_ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID");
+            theQueryBuilder.append(" JOIN GLOBAL_RANK_ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID")
         }
-        boolean where = false;
-        for (String keyWord : keywords) {
+        var where = false
+        for (keyWord in keywords) {
             if (!where) {
-                theQueryBuilder.append(" WHERE");
-                where = true;
+                theQueryBuilder.append(" WHERE")
+                where = true
             } else {
-                theQueryBuilder.append(" AND");
+                theQueryBuilder.append(" AND")
             }
-            theQueryBuilder.append(" ARTIST.NAME LIKE '%").append(keyWord.replaceAll("'", "''")).append("%'");
+            theQueryBuilder.append(" ARTIST.NAME LIKE '%").append(keyWord.replace("'", "''")).append("%'")
         }
-        theQueryBuilder.append(" ORDER BY ").append(alphabetical
-                ? "ARTIST.NAME ASC"
-                : "GLOBAL_RANK_ARTIST._RANK ASC");
+        theQueryBuilder.append(" ORDER BY ").append(
+            if (alphabetical)
+                "ARTIST.NAME ASC"
+            else
+                "GLOBAL_RANK_ARTIST._RANK ASC"
+        )
         if (limit != 0) {
-            theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit);
+            theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit)
         }
-        return theQueryBuilder.toString();
+        return theQueryBuilder.toString()
     }
 
-    public static String getCountSearchQuery(String[] keywords) {
-        final StringBuilder theQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM ARTIST");
-        boolean where = false;
-        for (String keyWord : keywords) {
+    @JvmStatic
+    fun getCountSearchQuery(keywords: Array<String>): String {
+        val theQueryBuilder = StringBuilder("SELECT COUNT(*) FROM ARTIST")
+        var where = false
+        for (keyWord in keywords) {
             if (!where) {
-                theQueryBuilder.append(" WHERE");
-                where = true;
+                theQueryBuilder.append(" WHERE")
+                where = true
             } else {
-                theQueryBuilder.append(" AND");
+                theQueryBuilder.append(" AND")
             }
-            theQueryBuilder.append(" ARTIST.NAME LIKE '%").append(keyWord.replaceAll("'", "''")).append("%'");
+            theQueryBuilder.append(" ARTIST.NAME LIKE '%").append(keyWord.replace("'", "''")).append("%'")
         }
-        return theQueryBuilder.toString();
+        return theQueryBuilder.toString()
     }
 
-    public static List<Artist> asArtists(List<Track> tracks) {
-        return Collections.unmodifiableList(new AbstractList<Artist>() {
-            @Override
-            public Artist get(int index) {
-                return tracks.get(index).getArtist();
-            }
-
-            @Override
-            public int size() {
-                return tracks.size();
-            }
-        });
+    @JvmStatic
+    fun asArtists(tracks: List<Track>): List<Artist> {
+        return tracks.mapNotNull { it.artist }
     }
 }

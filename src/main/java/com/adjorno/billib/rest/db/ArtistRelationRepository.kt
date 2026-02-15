@@ -1,34 +1,32 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-import java.util.List;
-
-public interface ArtistRelationRepository extends CrudRepository<ArtistRelation, Long> {
+interface ArtistRelationRepository : CrudRepository<ArtistRelation, Long> {
 
     @Modifying
     @Query(value = "update ArtistRelation ar set ar.single = ?2 where ar.single = ?1")
-    void updateSingleArtists(Artist duplicateArtist, Artist originalArtist);
+    fun updateSingleArtists(duplicateArtist: Artist, originalArtist: Artist)
 
     @Modifying
     @Query(value = "update ArtistRelation ar set ar.band = ?2 where ar.band = ?1")
-    void updateBandArtists(Artist duplicateArtist, Artist originalArtist);
+    fun updateBandArtists(duplicateArtist: Artist, originalArtist: Artist)
 
     @Query(value = "SELECT SINGLE_ID FROM ARTIST_RELATION WHERE BAND_ID IN (?1, ?2) GROUP BY SINGLE_ID",
             nativeQuery = true)
-    List<Long> findMergingSingleIds(Long bandId1, Long bandId2);
+    fun findMergingSingleIds(bandId1: Long, bandId2: Long): List<Long>
 
     @Query(value = "SELECT BAND_ID FROM ARTIST_RELATION WHERE SINGLE_ID IN (?1, ?2) GROUP BY BAND_ID",
             nativeQuery = true)
-    List<Long> findMergingBandIds(Long singleId1, Long singleId2);
+    fun findMergingBandIds(singleId1: Long, singleId2: Long): List<Long>
 
     @Modifying
     @Query(value = "delete from ArtistRelation ar where ar.single.id = ?1 and ar.band.id = ?2")
-    void deleteBySingleIdAndBandId(Long singleId, Long bandId);
+    fun deleteBySingleIdAndBandId(singleId: Long, bandId: Long)
 
-    List<ArtistRelation> findByBand(Artist artist);
+    fun findByBand(artist: Artist): List<ArtistRelation>
 
-    List<ArtistRelation> findBySingle(Artist artist);
+    fun findBySingle(artist: Artist): List<ArtistRelation>
 }

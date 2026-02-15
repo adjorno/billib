@@ -1,15 +1,12 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.Artist;
-import com.adjorno.billib.rest.db.Track;
+import com.adjorno.billib.rest.db.Artist
+import com.adjorno.billib.rest.db.Track
 
-import java.util.List;
-import java.util.Map;
+interface ITrackController {
+    fun getTracks(artist: Artist, size: Int): List<Track>
 
-public interface ITrackController {
-    List<Track> getTracks(Artist artist, int size);
+    fun getTrackHistory(id: Long, chartId: Long?): Map<String, Map<String, Int>>
 
-    Map<String, Map<String, Integer>> getTrackHistory(Long id, Long chartId);
-
-    Track updateDayTrack(String formattedDay);
+    fun updateDayTrack(formattedDay: String): Track
 }

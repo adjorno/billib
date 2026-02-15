@@ -1,5 +1,5 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-public interface ITrendsController {
-    void generateTrends(String week, long type);
+interface ITrendsController {
+    fun generateTrends(week: String, type: Long)
 }

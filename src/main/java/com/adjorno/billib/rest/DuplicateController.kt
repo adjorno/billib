@@ -1,449 +1,438 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.*;
-import com.adjorno.billib.rest.model.MergeOperation;
-import com.m14n.ex.Ex;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.*;
+import com.adjorno.billib.rest.db.*
+import com.adjorno.billib.rest.model.MergeOperation
+import com.m14n.ex.Ex
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-public class DuplicateController implements IDuplicateController {
+class DuplicateController(
+    private val mChartListRepository: ChartListRepository,
+    private val mArtistRepository: ArtistRepository,
+    private val mTrackRepository: TrackRepository,
+    private val mDuplicateArtistRepository: DuplicateArtistRepository,
+    private val mDuplicateTrackRepository: DuplicateTrackRepository,
+    private val mChartTrackRepository: ChartTrackRepository,
+    private val mDayTrackRepository: DayTrackRepository,
+    private val mTrendTrackRepository: TrendTrackRepository,
+    private val mChartTrackController: ChartTrackController,
+    private val mArtistRelationRepository: ArtistRelationRepository
+) : IDuplicateController {
 
-    public static final String PASSWORD = "vtldtlm";
-
-    @Autowired
-    private ChartListRepository mChartListRepository;
-
-    @Autowired
-    private ArtistRepository mArtistRepository;
-
-    @Autowired
-    private TrackRepository mTrackRepository;
-
-    @Autowired
-    private DuplicateArtistRepository mDuplicateArtistRepository;
-
-    @Autowired
-    private DuplicateTrackRepository mDuplicateTrackRepository;
-
-    @Autowired
-    private ChartTrackRepository mChartTrackRepository;
-
-    @Autowired
-    private DayTrackRepository mDayTrackRepository;
-
-    @Autowired
-    private TrendTrackRepository mTrendTrackRepository;
-
-    @Autowired
-    private ChartTrackController mChartTrackController;
-
-    @Autowired
-    private ArtistRelationRepository mArtistRelationRepository;
+    companion object {
+        const val PASSWORD = "vtldtlm"
+    }
 
     @Transactional
-    @RequestMapping(value = "/duplicate/checkTracks", method = RequestMethod.POST)
-    public void checkTracksAPI(@RequestParam(name = "password") String password,
-                               @RequestParam(name = "fromArtist", defaultValue = "1") int from,
-                               @RequestParam(name = "checkSize", defaultValue = "100") int size) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/duplicate/checkTracks"], method = [RequestMethod.POST])
+    fun checkTracksAPI(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
+        @RequestParam(name = "checkSize", defaultValue = "100") size: Int
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
-        Map<Track, Track> theLeftDuplicates = new HashMap<>();
-        for (int a = from; a < theArtists.size(); a++) {
-            List<Track> theTracks = mTrackRepository.findByArtist(theArtists.get(a));
-            for (int t1 = 0; t1 < theTracks.size(); t1++) {
-                Track theTrack1 = theTracks.get(t1);
-                for (int t2 = t1 + 1; t2 < theTracks.size(); t2++) {
-                    Track theTrack2 = theTracks.get(t2);
-                    if (!theTrack1.getId().equals(theTrack2.getId())) {
-                        if (Ex.equalsValued(theTrack1.getTitle(), theTrack2.getTitle())) {
-                            int l1 = Ex.getValuedLength(theTrack1.getTitle());
-                            int l2 = Ex.getValuedLength(theTrack2.getTitle());
-                            if (l1 > l2) {
-                                removeDuplicateTrack(theTrack1.getId(), theTrack2.getId());
-                                System.out.println(theTrack2.getTitle() + " => " + theTrack1.getTitle());
-                            } else if (l2 > l1) {
-                                removeDuplicateTrack(theTrack2.getId(), theTrack1.getId());
-                                System.out.println(theTrack1.getTitle() + " => " + theTrack2.getTitle());
-                            } else {
-                                theLeftDuplicates.put(theTrack1, theTrack2);
+        val theArtists = mArtistRepository.findAll().toList()
+        val theLeftDuplicates = mutableMapOf<Track, Track>()
+        for (a in from until theArtists.size) {
+            val theTracks = mTrackRepository.findByArtist(theArtists[a])
+            for (t1 in theTracks.indices) {
+                val theTrack1 = theTracks[t1]
+                for (t2 in (t1 + 1) until theTracks.size) {
+                    val theTrack2 = theTracks[t2]
+                    if (theTrack1.id != theTrack2.id) {
+                        if (Ex.equalsValued(theTrack1.title, theTrack2.title)) {
+                            val l1 = Ex.getValuedLength(theTrack1.title)
+                            val l2 = Ex.getValuedLength(theTrack2.title)
+                            when {
+                                l1 > l2 -> {
+                                    removeDuplicateTrack(theTrack1.id!!, theTrack2.id!!)
+                                    println("${theTrack2.title} => ${theTrack1.title}")
+                                }
+                                l2 > l1 -> {
+                                    removeDuplicateTrack(theTrack2.id!!, theTrack1.id!!)
+                                    println("${theTrack1.title} => ${theTrack2.title}")
+                                }
+                                else -> {
+                                    theLeftDuplicates[theTrack1] = theTrack2
+                                }
                             }
                         }
                     }
                 }
             }
             if (a - from > size) {
-                break;
+                break
             }
         }
-        System.out.println("FINISHED");
-        System.out.println("POSSIBLE TRACK DUPLICATES:");
-        for (Map.Entry<Track, Track> entry : theLeftDuplicates.entrySet()) {
-            Track fromTrack = entry.getKey();
-            Track toTrack = entry.getValue();
-            System.out.println(
-                    String.format("%d %d (%s => %s)", fromTrack.getId(), toTrack.getId(), fromTrack.getTitle(),
-                            toTrack.getTitle()));
+        println("FINISHED")
+        println("POSSIBLE TRACK DUPLICATES:")
+        for ((fromTrack, toTrack) in theLeftDuplicates) {
+            println("${fromTrack.id} ${toTrack.id} (${fromTrack.title} => ${toTrack.title})")
         }
     }
 
     @Transactional
-    @RequestMapping(value = "/duplicate/checkArtists", method = RequestMethod.POST)
-    public void checkArtistsAPI(@RequestParam(name = "password") String password,
-                                @RequestParam(name = "fromArtist", defaultValue = "1") int from,
-                                @RequestParam(name = "checkSize", defaultValue = "100") int size) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/duplicate/checkArtists"], method = [RequestMethod.POST])
+    fun checkArtistsAPI(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
+        @RequestParam(name = "checkSize", defaultValue = "100") size: Int
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
-        Map<Artist, Artist> theLeftDuplicates = new HashMap<>();
-        for (int i = from; i < theArtists.size(); i++) {
-            Artist theArtist1 = theArtists.get(i);
-            for (int j = i + 1; j < theArtists.size(); j++) {
-                Artist theArtist2 = theArtists.get(j);
-                if (Ex.equalsValued(theArtist1.getName(), theArtist2.getName())) {
-                    int l1 = Ex.getValuedLength(theArtist1.getName());
-                    int l2 = Ex.getValuedLength(theArtist2.getName());
-                    if (l1 > l2) {
-                        removeDuplicateArtist(theArtist1.getId(), theArtist2.getId());
-                        System.out.println(theArtist2.getName() + " => " + theArtist1.getName());
-                    } else if (l2 > l1) {
-                        removeDuplicateArtist(theArtist2.getId(), theArtist1.getId());
-                        System.out.println(theArtist1.getName() + " => " + theArtist2.getName());
-
-                    } else {
-                        theLeftDuplicates.put(theArtist1, theArtist2);
+        val theArtists = mArtistRepository.findAll().toList()
+        val theLeftDuplicates = mutableMapOf<Artist, Artist>()
+        for (i in from until theArtists.size) {
+            val theArtist1 = theArtists[i]
+            for (j in (i + 1) until theArtists.size) {
+                val theArtist2 = theArtists[j]
+                if (Ex.equalsValued(theArtist1.name, theArtist2.name)) {
+                    val l1 = Ex.getValuedLength(theArtist1.name)
+                    val l2 = Ex.getValuedLength(theArtist2.name)
+                    when {
+                        l1 > l2 -> {
+                            removeDuplicateArtist(theArtist1.id!!, theArtist2.id!!)
+                            println("${theArtist2.name} => ${theArtist1.name}")
+                        }
+                        l2 > l1 -> {
+                            removeDuplicateArtist(theArtist2.id!!, theArtist1.id!!)
+                            println("${theArtist1.name} => ${theArtist2.name}")
+                        }
+                        else -> {
+                            theLeftDuplicates[theArtist1] = theArtist2
+                        }
                     }
-
                 }
             }
             if (i - from > size) {
-                break;
+                break
             }
         }
-        System.out.println("FINISHED");
-        System.out.println("POSSIBLE ARTIST DUPLICATES:");
-        for (Map.Entry<Artist, Artist> entry : theLeftDuplicates.entrySet()) {
-            Artist fromArtist = entry.getKey();
-            Artist toArtist = entry.getValue();
-            System.out.println(
-                    String.format("%d %d (%s => %s)", fromArtist.getId(), toArtist.getId(), fromArtist.getName(),
-                            toArtist.getName()));
+        println("FINISHED")
+        println("POSSIBLE ARTIST DUPLICATES:")
+        for ((fromArtist, toArtist) in theLeftDuplicates) {
+            println("${fromArtist.id} ${toArtist.id} (${fromArtist.name} => ${toArtist.name})")
         }
     }
 
     @Transactional
-    @RequestMapping(value = "/duplicate/checkLastWeek", method = RequestMethod.POST)
-    public void checkLastWeekAPI(@RequestParam(name = "password") String password,
-                                 @RequestParam(name = "from", defaultValue = "1") long from,
-                                 @RequestParam(name = "size", defaultValue = "500") long size) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/duplicate/checkLastWeek"], method = [RequestMethod.POST])
+    fun checkLastWeekAPI(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "from", defaultValue = "1") from: Long,
+        @RequestParam(name = "size", defaultValue = "500") size: Long
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        checkLastWeek(from, size);
+        checkLastWeek(from, size)
     }
 
     @Transactional
-    @RequestMapping(value = "/duplicate/artist", method = RequestMethod.GET)
-    public List<MergeOperation> removeDuplicateArtistAPI(@RequestParam(name = "password") String password,
-                                                         @RequestParam(name = "originalArtistId") Long originalId,
-                                                         @RequestParam(name = "duplicateArtistId") Long duplicateId) {
-        if (!PASSWORD.equals(password)) {
-            return null;
+    @RequestMapping(value = ["/duplicate/artist"], method = [RequestMethod.GET])
+    fun removeDuplicateArtistAPI(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "originalArtistId") originalId: Long,
+        @RequestParam(name = "duplicateArtistId") duplicateId: Long
+    ): List<MergeOperation<*>>? {
+        if (PASSWORD != password) {
+            return null
         }
-        List<MergeOperation> theMergeOperations = removeDuplicateArtist(originalId, duplicateId);
+        val theMergeOperations = removeDuplicateArtist(originalId, duplicateId)
         if (Ex.isNotEmpty(theMergeOperations)) {
-            return theMergeOperations;
+            return theMergeOperations
         } else {
-            throw new ArtistNotFoundException();
+            throw ArtistNotFoundException()
         }
     }
 
     @Transactional
-    @RequestMapping(value = "/duplicate/track", method = RequestMethod.GET)
-    public MergeOperation<Track> removeDuplicateTrackAPI(@RequestParam(name = "password") String password,
-                                                         @RequestParam(name = "originalTrackId") Long originalId,
-                                                         @RequestParam(name = "duplicateTrackId") Long duplicateId) {
-        if (!PASSWORD.equals(password)) {
-            return null;
+    @RequestMapping(value = ["/duplicate/track"], method = [RequestMethod.GET])
+    fun removeDuplicateTrackAPI(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "originalTrackId") originalId: Long,
+        @RequestParam(name = "duplicateTrackId") duplicateId: Long
+    ): MergeOperation<Track>? {
+        if (PASSWORD != password) {
+            return null
         }
-        MergeOperation<Track> theTrackMergeOperation = removeDuplicateTrack(originalId, duplicateId);
-        if (theTrackMergeOperation != null) {
-            return theTrackMergeOperation;
-        } else {
-            throw new TrackNotFoundException();
-        }
+        val theTrackMergeOperation = removeDuplicateTrack(originalId, duplicateId)
+        return theTrackMergeOperation ?: throw TrackNotFoundException()
     }
 
     @Transactional
-    @RequestMapping(value = "/duplicate/checkCollaborations", method = RequestMethod.POST)
-    public void removeDuplicateCollaborationsAPI(@RequestParam(name = "password") String password,
-                                                 @RequestParam(defaultValue = "0") int from, @RequestParam(required = false, defaultValue = "100") int size,
-                                                 @RequestParam() boolean dryRun) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/duplicate/checkCollaborations"], method = [RequestMethod.POST])
+    fun removeDuplicateCollaborationsAPI(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(defaultValue = "0") from: Int,
+        @RequestParam(required = false, defaultValue = "100") size: Int,
+        @RequestParam() dryRun: Boolean
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        List<Artist> theArtists = (List<Artist>) mArtistRepository.findAll();
-        System.out.println("STARTED");
-        Set<String> fs = new HashSet<>();
-        for (int i = from; i < theArtists.size(); i++) {
-            Artist theArtist1 = theArtists.get(i);
-            String[] a = ArtistUtils.splitCollaboration(theArtist1.getName());
-            int a1l = a.length;
+        val theArtists = mArtistRepository.findAll().toList()
+        println("STARTED")
+        val fs = mutableSetOf<String>()
+        for (i in from until theArtists.size) {
+            val theArtist1 = theArtists[i]
+            val a = ArtistUtils.splitCollaboration(theArtist1.name!!)
+            val a1l = a.size
             if (a1l == 1) {
-                continue;
+                continue
             }
-            Set<String> a1 = new HashSet<>();
-            a1.addAll(Arrays.asList(a));
-            for (int j = i + 1; j < theArtists.size(); j++) {
-                Artist theArtist2 = theArtists.get(j);
-                String[] b = ArtistUtils.splitCollaboration(theArtist2.getName());
-                if (b.length != a1l) {
-                    continue;
+            val a1 = mutableSetOf<String>()
+            a1.addAll(a)
+            for (j in (i + 1) until theArtists.size) {
+                val theArtist2 = theArtists[j]
+                val b = ArtistUtils.splitCollaboration(theArtist2.name!!)
+                if (b.size != a1l) {
+                    continue
                 }
-                Set<String> b1 = new HashSet<>();
-                b1.addAll(Arrays.asList(b));
-                if (a1.equals(b1)) {
-                    Artist toRemove = theArtist2;
-                    Artist toMerge = theArtist1;
-                    if (theArtist1.getName().contains("and") || theArtist1.getName().contains("And")) {
-                        toRemove = theArtist1;
-                        toMerge = theArtist2;
+                val b1 = mutableSetOf<String>()
+                b1.addAll(b)
+                if (a1 == b1) {
+                    var toRemove = theArtist2
+                    var toMerge = theArtist1
+                    if (theArtist1.name!!.contains("and") || theArtist1.name!!.contains("And")) {
+                        toRemove = theArtist1
+                        toMerge = theArtist2
                     }
 
-                    System.out.println(
-                            String.format("%d => %d, %s => %s", toRemove.getId(), toMerge.getId(), toRemove.getName(),
-                                    toMerge.getName()));
+                    println("${toRemove.id} => ${toMerge.id}, ${toRemove.name} => ${toMerge.name}")
                     if (!dryRun) {
-                        removeDuplicateArtist(toMerge.getId(), toRemove.getId());
+                        removeDuplicateArtist(toMerge.id!!, toRemove.id!!)
                     }
                 }
             }
             if (i % 100 == 0) {
-                System.out.println("CHECKED " + i);
+                println("CHECKED $i")
             }
             if (i - from >= size) {
-                break;
+                break
             }
         }
-        System.out.println("FINISHED");
-        for (Object f : fs.toArray()) {
-            System.out.println(f);
+        println("FINISHED")
+        for (f in fs) {
+            println(f)
         }
     }
 
-    @Override
-    public void checkLastWeek(long from, long size) {
-        final long theSize = mChartListRepository.count();
-        ChartList thePreviousChartList = null;
-        List<ChartTrack> thePreviousChartTracks = new ArrayList<>();
-        Map<Artist, Artist> thePossibleArtistUpdates = new HashMap<>();
-        final long start = from;
-        System.out.println("CHECK STARTED");
-        while (from <= theSize) {
-            final ChartList theChartList = mChartListRepository.findById(from).orElse(null);
-            final List<ChartTrack> theChartTracks = mChartTrackRepository.findByChartList(theChartList);
+    override fun checkLastWeek(from: Long, size: Long) {
+        val theSize = mChartListRepository.count()
+        var thePreviousChartList: ChartList? = null
+        var thePreviousChartTracks = mutableListOf<ChartTrack>()
+        val thePossibleArtistUpdates = mutableMapOf<Artist, Artist>()
+        val start = from
+        var currentFrom = from
+        println("CHECK STARTED")
+        while (currentFrom <= theSize) {
+            val theChartList = mChartListRepository.findById(currentFrom).orElse(null)
+            val theChartTracks = mChartTrackRepository.findByChartList(theChartList)
 
             if (thePreviousChartList != null &&
-                    !thePreviousChartList.getChart().getId().equals(theChartList.getChart().getId())) {
-                thePreviousChartList = null;
-                thePreviousChartTracks = null;
+                thePreviousChartList.chart?.id != theChartList.chart?.id
+            ) {
+                thePreviousChartList = null
+                thePreviousChartTracks = mutableListOf()
             }
 
             if (thePreviousChartList == null) {
-                thePreviousChartList = mChartListRepository.findById(theChartList.getPreviousChartListId()).orElse(null);
+                thePreviousChartList = mChartListRepository.findById(theChartList.previousChartListId!!).orElse(null)
             }
             if (Ex.isEmpty(thePreviousChartTracks) && thePreviousChartList != null) {
-                thePreviousChartTracks = mChartTrackRepository.findByChartList(thePreviousChartList);
+                thePreviousChartTracks = mChartTrackRepository.findByChartList(thePreviousChartList).toMutableList()
             }
             if (Ex.isNotEmpty(thePreviousChartTracks)) {
-                for (ChartTrack theChartTrack : theChartTracks) {
-                    final int theLastWeekRank = theChartTrack.getLastWeekRank();
-                    if (theLastWeekRank != 0 && theLastWeekRank <= theChartList.getChart().getListSize()) {
-                        boolean found = false;
-                        List<ChartTrack> theSameRankTracks = new ArrayList<>();
-                        for (ChartTrack thePreviousChartTrack : thePreviousChartTracks) {
-                            if (thePreviousChartTrack.getRank() == theLastWeekRank) {
-                                theSameRankTracks.add(thePreviousChartTrack);
-                                if (theChartTrack.getTrack().getId().equals(thePreviousChartTrack.getTrack().getId())) {
-                                    found = true;
-                                    break;
+                for (theChartTrack in theChartTracks) {
+                    val theLastWeekRank = theChartTrack.lastWeekRank
+                    if (theLastWeekRank != 0 && theLastWeekRank <= theChartList.chart!!.listSize!!) {
+                        var found = false
+                        val theSameRankTracks = mutableListOf<ChartTrack>()
+                        for (thePreviousChartTrack in thePreviousChartTracks) {
+                            if (thePreviousChartTrack.rank == theLastWeekRank) {
+                                theSameRankTracks.add(thePreviousChartTrack)
+                                if (theChartTrack.track?.id == thePreviousChartTrack.track?.id) {
+                                    found = true
+                                    break
                                 }
                             }
                         }
                         if (!found) {
                             if (Ex.isEmpty(theSameRankTracks)) {
                                 // try to find the same track in previous list
-                                ChartTrack theSameTrack = mChartTrackRepository
-                                        .findByTrackAndChartList(theChartTrack.getTrack(), thePreviousChartList);
+                                val theSameTrack = mChartTrackRepository
+                                    .findByTrackAndChartList(theChartTrack.track!!, thePreviousChartList!!)
                                 if (theSameTrack != null) {
-                                    mChartTrackRepository.updateRank(theSameTrack, theLastWeekRank);
-                                    mChartTrackRepository.updateLastWeekRank(theChartTrack, theSameTrack.getRank());
-                                    System.out.println("FIXED! UPDATED LAST WEEK RANK");
-                                    continue;
+                                    mChartTrackRepository.updateRank(theSameTrack, theLastWeekRank)
+                                    mChartTrackRepository.updateLastWeekRank(theChartTrack, theSameTrack.rank)
+                                    println("FIXED! UPDATED LAST WEEK RANK")
+                                    continue
                                 } else {
-                                    if (mChartTrackRepository.countRealChartListSize(thePreviousChartList).size() <
-                                            theChartList.getChart().getListSize()) {
-                                        ChartTrack theMissingTrack = mChartTrackController.
-                                                addMissingTrackInternal(thePreviousChartList, theChartTrack.getTrack(),
-                                                        theLastWeekRank);
-                                        System.out.println("FIXED! ADDED MISSING TRACK - " + theMissingTrack);
-                                        continue;
+                                    if (mChartTrackRepository.countRealChartListSize(thePreviousChartList).size <
+                                        theChartList.chart!!.listSize!!
+                                    ) {
+                                        val theMissingTrack = mChartTrackController.
+                                        addMissingTrackInternal(thePreviousChartList, theChartTrack.track!!, theLastWeekRank)
+                                        println("FIXED! ADDED MISSING TRACK - $theMissingTrack")
+                                        continue
                                     }
                                 }
                             } else {
-                                if (theSameRankTracks.size() == 1) {
-                                    ChartTrack theDuplicate = theSameRankTracks.get(0);
-                                    if (theDuplicate.getTrack().getArtist().getId()
-                                            .equals(theChartTrack.getTrack().getArtist().getId())) {
-
-                                        int l1 = Ex.getValuedLength(theDuplicate.getTrack().getTitle());
-                                        int l2 = Ex.getValuedLength(theChartTrack.getTrack().getTitle());
-                                        Track original = l1 >= l2 ? theDuplicate.getTrack() : theChartTrack.getTrack();
-                                        Track duplicate = l1 >= l2 ? theChartTrack.getTrack() : theDuplicate.getTrack();
-                                        MergeOperation<Track> theTrackMergeOperation =
-                                                removeDuplicateTrack(original.getId(), duplicate.getId());
+                                if (theSameRankTracks.size == 1) {
+                                    val theDuplicate = theSameRankTracks[0]
+                                    if (theDuplicate.track?.artist?.id == theChartTrack.track?.artist?.id) {
+                                        val l1 = Ex.getValuedLength(theDuplicate.track!!.title)
+                                        val l2 = Ex.getValuedLength(theChartTrack.track!!.title)
+                                        val original = if (l1 >= l2) theDuplicate.track else theChartTrack.track
+                                        val duplicate = if (l1 >= l2) theChartTrack.track else theDuplicate.track
+                                        val theTrackMergeOperation =
+                                            removeDuplicateTrack(original!!.id!!, duplicate!!.id!!)
                                         if (theTrackMergeOperation != null) {
-                                            theChartTrack.setTrack(theTrackMergeOperation.getMergedTo());
+                                            theChartTrack.track = theTrackMergeOperation.mergedTo
                                         } else {
-                                            System.out.print("NOT ");
+                                            print("NOT ")
                                         }
-                                        System.out.println(
-                                                "FIXED! REMOVE DUPLICATE TRACK - " + duplicate.toString() + " " +
-                                                        duplicate.getId() + " => " + original.toString() + " " +
-                                                        original.getId());
-                                        continue;
+                                        println(
+                                            "FIXED! REMOVE DUPLICATE TRACK - $duplicate ${duplicate.id} => $original ${original.id}"
+                                        )
+                                        continue
                                     } else {
-                                        if (Ex.equalsValued(theDuplicate.getTrack().getTitle(),
-                                                theChartTrack.getTrack().getTitle())) {
-                                            int l1 = Ex.getValuedLength(theDuplicate.getTrack().getArtist().getName());
-                                            int l2 = Ex.getValuedLength(theChartTrack.getTrack().getArtist().getName());
-                                            Track original =
-                                                    l1 >= l2 ? theDuplicate.getTrack() : theChartTrack.getTrack();
-                                            Track duplicate =
-                                                    l1 >= l2 ? theChartTrack.getTrack() : theDuplicate.getTrack();
-                                            MergeOperation<Track> theTrackMergeOperation =
-                                                    removeDuplicateTrack(original.getId(), duplicate.getId());
+                                        if (Ex.equalsValued(
+                                                theDuplicate.track?.title,
+                                                theChartTrack.track?.title
+                                            )
+                                        ) {
+                                            val l1 = Ex.getValuedLength(theDuplicate.track!!.artist?.name)
+                                            val l2 = Ex.getValuedLength(theChartTrack.track!!.artist?.name)
+                                            val original =
+                                                if (l1 >= l2) theDuplicate.track else theChartTrack.track
+                                            val duplicate =
+                                                if (l1 >= l2) theChartTrack.track else theDuplicate.track
+                                            val theTrackMergeOperation =
+                                                removeDuplicateTrack(original!!.id!!, duplicate!!.id!!)
                                             if (theTrackMergeOperation != null) {
-                                                theChartTrack.setTrack(theTrackMergeOperation.getMergedTo());
+                                                theChartTrack.track = theTrackMergeOperation.mergedTo
                                             } else {
-                                                System.out.print("NOT ");
+                                                print("NOT ")
                                             }
-                                            System.out.println(
-                                                    "FIXED! REMOVE DUPLICATE TRACK - " + duplicate.toString() + " " +
-                                                            duplicate.getId() + " => " + original.toString() + " " +
-                                                            original.getId());
-                                            thePossibleArtistUpdates.put(original.getArtist(), duplicate.getArtist());
-                                            continue;
+                                            println(
+                                                "FIXED! REMOVE DUPLICATE TRACK - $duplicate ${duplicate.id} => $original ${original.id}"
+                                            )
+                                            thePossibleArtistUpdates[original.artist!!] = duplicate.artist!!
+                                            continue
                                         }
                                     }
                                 }
                             }
-                            reportLastWeekRankProblem(thePreviousChartList, theChartList, theChartTrack,
-                                    theSameRankTracks);
+                            reportLastWeekRankProblem(
+                                thePreviousChartList!!, theChartList, theChartTrack,
+                                theSameRankTracks
+                            )
                         }
                     }
                 }
             }
-            if (++from % 500 == 0) {
-                System.out.println("CHECK " + from);
+            if (++currentFrom % 500 == 0L) {
+                println("CHECK $currentFrom")
             }
-            if (from - start > size) {
-                break;
+            if (currentFrom - start > size) {
+                break
             }
-            thePreviousChartList = theChartList;
-            thePreviousChartTracks = theChartTracks;
+            thePreviousChartList = theChartList
+            thePreviousChartTracks = theChartTracks.toMutableList()
         }
-        System.out.println("CHECK FINISHED");
-        System.out.println("POSSIBLE ARTIST DUPLICATES:");
-        for (Map.Entry<Artist, Artist> entry : thePossibleArtistUpdates.entrySet()) {
-            Artist fromArtist = entry.getKey();
-            Artist toArtist = entry.getValue();
-            System.out.println(
-                    String.format("%d %d (%s => %s)", fromArtist.getId(), toArtist.getId(), fromArtist.getName(),
-                            toArtist.getName()));
+        println("CHECK FINISHED")
+        println("POSSIBLE ARTIST DUPLICATES:")
+        for ((fromArtist, toArtist) in thePossibleArtistUpdates) {
+            println("${fromArtist.id} ${toArtist.id} (${fromArtist.name} => ${toArtist.name})")
         }
     }
 
-    private List<MergeOperation> removeDuplicateArtist(Long originalId, Long duplicateId) {
-        final Artist theOriginalArtist = mArtistRepository.findById(originalId).orElse(null);
-        final Artist theDuplicateArtist = mArtistRepository.findById(duplicateId).orElse(null);
+    private fun removeDuplicateArtist(originalId: Long, duplicateId: Long): List<MergeOperation<*>>? {
+        val theOriginalArtist = mArtistRepository.findById(originalId).orElse(null)
+        val theDuplicateArtist = mArtistRepository.findById(duplicateId).orElse(null)
         if (theOriginalArtist != null && theDuplicateArtist != null) {
-            List<MergeOperation> theMerges = new ArrayList<>();
-            List<String> theRepeatTitles =
-                    mTrackRepository.findRepeatTitles(theDuplicateArtist.getId(), theOriginalArtist.getId());
-            for (String theTitle : theRepeatTitles) {
-                MergeOperation<Track> theTrackMergeOperation = removeDuplicateTrack(
-                        mTrackRepository.findByTitleAndArtist(theTitle, theOriginalArtist).getId(),
-                        mTrackRepository.findByTitleAndArtist(theTitle, theDuplicateArtist).getId());
+            val theMerges = mutableListOf<MergeOperation<*>>()
+            val theRepeatTitles =
+                mTrackRepository.findRepeatTitles(theDuplicateArtist.id!!, theOriginalArtist.id!!)
+            for (theTitle in theRepeatTitles) {
+                val theTrackMergeOperation = removeDuplicateTrack(
+                    mTrackRepository.findByTitleAndArtist(theTitle, theOriginalArtist)!!.id!!,
+                    mTrackRepository.findByTitleAndArtist(theTitle, theDuplicateArtist)!!.id!!
+                )
                 if (theTrackMergeOperation == null) {
-                    System.out.println("Could not merge the track - " + theTitle);
+                    println("Could not merge the track - $theTitle")
                 } else {
-                    theMerges.add(theTrackMergeOperation);
+                    theMerges.add(theTrackMergeOperation)
                 }
             }
-            mTrackRepository.updateArtists(theDuplicateArtist, theOriginalArtist);
-            List<Long> mergingSingleIds = mArtistRelationRepository
-                    .findMergingSingleIds(theDuplicateArtist.getId(), theOriginalArtist.getId());
-            for (Number mergeSingleId : mergingSingleIds) {
+            mTrackRepository.updateArtists(theDuplicateArtist, theOriginalArtist)
+            val mergingSingleIds = mArtistRelationRepository
+                .findMergingSingleIds(theDuplicateArtist.id!!, theOriginalArtist.id!!)
+            for (mergeSingleId in mergingSingleIds) {
                 mArtistRelationRepository
-                        .deleteBySingleIdAndBandId(mergeSingleId.longValue(), theDuplicateArtist.getId());
+                    .deleteBySingleIdAndBandId(mergeSingleId, theDuplicateArtist.id!!)
             }
-            mArtistRelationRepository.updateSingleArtists(theDuplicateArtist, theOriginalArtist);
+            mArtistRelationRepository.updateSingleArtists(theDuplicateArtist, theOriginalArtist)
 
-            List<Long> mergingBandIds =
-                    mArtistRelationRepository.findMergingBandIds(theDuplicateArtist.getId(), theOriginalArtist.getId());
-            for (Number mergingBandId : mergingBandIds) {
+            val mergingBandIds =
+                mArtistRelationRepository.findMergingBandIds(theDuplicateArtist.id!!, theOriginalArtist.id!!)
+            for (mergingBandId in mergingBandIds) {
                 mArtistRelationRepository
-                        .deleteBySingleIdAndBandId(theDuplicateArtist.getId(), mergingBandId.longValue());
+                    .deleteBySingleIdAndBandId(theDuplicateArtist.id!!, mergingBandId)
             }
-            mArtistRelationRepository.updateBandArtists(theDuplicateArtist, theOriginalArtist);
-            mDuplicateArtistRepository.updateArtists(theDuplicateArtist, theOriginalArtist);
-            mDuplicateArtistRepository.save(new DuplicateArtist(theDuplicateArtist.getName(), theOriginalArtist));
+            mArtistRelationRepository.updateBandArtists(theDuplicateArtist, theOriginalArtist)
+            mDuplicateArtistRepository.updateArtists(theDuplicateArtist, theOriginalArtist)
+            mDuplicateArtistRepository.save(DuplicateArtist(theDuplicateArtist.name!!, theOriginalArtist))
 
-            mArtistRepository.delete(theDuplicateArtist);
-            theMerges.add(new MergeOperation(theDuplicateArtist, theOriginalArtist));
-            return theMerges;
+            mArtistRepository.delete(theDuplicateArtist)
+            theMerges.add(MergeOperation(theDuplicateArtist, theOriginalArtist))
+            return theMerges
         }
-        return null;
+        return null
     }
 
-    private MergeOperation<Track> removeDuplicateTrack(Long originalId, Long duplicateId) {
-        Track duplicateTrack = mTrackRepository.findById(duplicateId).orElse(null);
-        Track originalTrack = mTrackRepository.findById(originalId).orElse(null);
+    private fun removeDuplicateTrack(originalId: Long, duplicateId: Long): MergeOperation<Track>? {
+        val duplicateTrack = mTrackRepository.findById(duplicateId).orElse(null)
+        val originalTrack = mTrackRepository.findById(originalId).orElse(null)
         if (originalTrack != null && duplicateTrack != null) {
-            mChartTrackRepository.updateTracks(duplicateTrack, originalTrack);
-            mDayTrackRepository.updateTracks(duplicateTrack, originalTrack);
-            mTrendTrackRepository.updateTracks(duplicateTrack, originalTrack);
-            mDuplicateTrackRepository.updateTracks(duplicateTrack, originalTrack);
-            mDuplicateTrackRepository.save(new DuplicateTrack(
-                    originalTrack.getArtist().generateDuplicateTitle(duplicateTrack.getTitle()),
-                    originalTrack));
+            mChartTrackRepository.updateTracks(duplicateTrack, originalTrack)
+            mDayTrackRepository.updateTracks(duplicateTrack, originalTrack)
+            mTrendTrackRepository.updateTracks(duplicateTrack, originalTrack)
+            mDuplicateTrackRepository.updateTracks(duplicateTrack, originalTrack)
+            mDuplicateTrackRepository.save(
+                DuplicateTrack(
+                    originalTrack.artist!!.generateDuplicateTitle(duplicateTrack.title!!),
+                    originalTrack
+                )
+            )
 
-            mTrackRepository.delete(duplicateTrack);
-            return new MergeOperation<>(duplicateTrack, originalTrack);
+            mTrackRepository.delete(duplicateTrack)
+            return MergeOperation(duplicateTrack, originalTrack)
         }
-        return null;
+        return null
     }
 
-    private void reportLastWeekRankProblem(ChartList previousChartList, ChartList chartList, ChartTrack theChartTrack,
-                                           List<ChartTrack> sameRankTracks) {
-        System.out.println("****************");
-        System.out.println("--- ORIGINAL TRACK FROM CHART LIST " + chartList.getId());
-        System.out.println(theChartTrack.toString() + " TRACK_ID = " + theChartTrack.getTrack().getId());
-        System.out.println("--- POSSIBLE TRACKS FROM PREVIOUS CHART_LIST " + previousChartList.getId() + " AND _RANK " +
-                theChartTrack.getLastWeekRank());
-        for (ChartTrack thePrevious : sameRankTracks) {
-            System.out.println(thePrevious + " " + thePrevious.getTrack().getId());
+    private fun reportLastWeekRankProblem(
+        previousChartList: ChartList, chartList: ChartList, theChartTrack: ChartTrack,
+        sameRankTracks: List<ChartTrack>
+    ) {
+        println("****************")
+        println("--- ORIGINAL TRACK FROM CHART LIST ${chartList.id}")
+        println("$theChartTrack TRACK_ID = ${theChartTrack.track?.id}")
+        println(
+            "--- POSSIBLE TRACKS FROM PREVIOUS CHART_LIST ${previousChartList.id} AND _RANK ${theChartTrack.lastWeekRank}"
+        )
+        for (thePrevious in sameRankTracks) {
+            println("$thePrevious ${thePrevious.track?.id}")
         }
     }
-
 }

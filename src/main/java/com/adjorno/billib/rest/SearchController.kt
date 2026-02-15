@@ -1,107 +1,108 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.Artist;
-import com.adjorno.billib.rest.db.ArtistUtils;
-import com.adjorno.billib.rest.db.Track;
-import com.adjorno.billib.rest.db.TrackUtils;
-import com.adjorno.billib.rest.model.MergedSearchResult;
-import com.adjorno.billib.rest.model.SearchResult;
-import com.m14n.ex.Ex;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.EntityManager;
+import com.adjorno.billib.rest.db.Artist
+import com.adjorno.billib.rest.db.ArtistUtils
+import com.adjorno.billib.rest.db.Track
+import com.adjorno.billib.rest.db.TrackUtils
+import com.adjorno.billib.rest.model.MergedSearchResult
+import com.adjorno.billib.rest.model.SearchResult
+import com.m14n.ex.Ex
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import java.math.BigInteger
+import jakarta.persistence.EntityManager
 
 @RestController
-public class SearchController {
-    private static final int ALL_RESULTS = -1;
-    private static final int NO_RESULTS = 0;
-    private static int MAX_RESULT_SIZE = 100;
+class SearchController(
+    private val mEntityManager: EntityManager
+) {
 
-    @Autowired
-    private EntityManager mEntityManager;
+    companion object {
+        private const val ALL_RESULTS = -1
+        private const val NO_RESULTS = 0
+        private var MAX_RESULT_SIZE = 100
 
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public MergedSearchResult search(@RequestParam() String query,
-            @RequestParam(name = "artists_offset", required = false, defaultValue = "0") int artistsOffset,
-            @RequestParam(name = "artists_size", required = false, defaultValue = "5") int artistsSize,
-            @RequestParam(name = "tracks_offset", required = false, defaultValue = "0") int tracksOffset,
-            @RequestParam(name = "tracks_size", required = false, defaultValue = "10") int tracksSize,
-            @RequestParam(name = "alphabetical", required = false, defaultValue = "false") boolean alphabetical) {
-        MergedSearchResult theResult = new MergedSearchResult();
-        String[] theKeywords = getKeywords(query);
-        if (theKeywords.length > 0) {
-            String theSearchQuery;
-            if (artistsSize != NO_RESULTS) {
-                SearchResult<Artist> theArtistSearchResult = new SearchResult<>();
-                if (artistsSize > MAX_RESULT_SIZE || artistsSize == ALL_RESULTS) {
-                    artistsSize = MAX_RESULT_SIZE;
+        private fun getKeywords(query: String?): Array<String> {
+            val theSplits = if (Ex.isEmpty(query)) emptyArray() else query!!.split("(\\)|\\])?(\\s+|^|$)(\\(|\\[)?".toRegex()).toTypedArray()
+            val theKeywords = mutableListOf<String>()
+            for (theSplit in theSplits) {
+                if (isKeyword(theSplit)) {
+                    theKeywords.add(theSplit)
                 }
-                theSearchQuery = ArtistUtils.getCountSearchQuery(theKeywords);
-                int theTotal =
-                        ((BigInteger) mEntityManager.createNativeQuery(theSearchQuery).getSingleResult()).intValue();
-                List<Artist> theArtists = new ArrayList<>();
-                if (artistsOffset < theTotal) {
-                    theSearchQuery = ArtistUtils.getSearchQuery(theKeywords, artistsOffset, artistsSize, alphabetical);
-                    theArtists = mEntityManager.createNativeQuery(theSearchQuery, Artist.class).getResultList();
-                    if (theArtists.size() > MAX_RESULT_SIZE) {
-                        theArtists = theArtists.subList(0, MAX_RESULT_SIZE);
-                    }
-                }
-                theArtistSearchResult.setResults(theArtists);
-                theArtistSearchResult.setTotal(theTotal);
-                theArtistSearchResult.setOffset(artistsOffset);
-                theResult.setArtists(theArtistSearchResult);
-
             }
-            if (tracksSize != NO_RESULTS) {
-                SearchResult<Track> theTrackSearchResult = new SearchResult<>();
-                theSearchQuery = TrackUtils.getCountSearchQuery(theKeywords);
-                if (tracksSize > MAX_RESULT_SIZE || tracksSize == ALL_RESULTS) {
-                    tracksSize = MAX_RESULT_SIZE;
-                }
-                int theTotal = ((BigInteger) mEntityManager.createNativeQuery(theSearchQuery).getSingleResult())
-                        .intValue();
-                List<Track> theTracks = new ArrayList<>();
-                if (artistsOffset < theTotal) {
-                    theSearchQuery = TrackUtils.getSearchQuery(theKeywords, tracksOffset, tracksSize, alphabetical);
-                    theTracks = mEntityManager.createNativeQuery(theSearchQuery, Track.class).getResultList();
-                    if (theTracks.size() > MAX_RESULT_SIZE) {
-                        theTracks = theTracks.subList(0, MAX_RESULT_SIZE);
-                    }
-                }
-                theTrackSearchResult.setResults(theTracks);
-                theTrackSearchResult.setTotal(theTotal);
-                theTrackSearchResult.setOffset(tracksOffset);
-                theResult.setTracks(theTrackSearchResult);
-            }
-
+            return theKeywords.toTypedArray()
         }
-        return theResult;
+
+        private fun isKeyword(split: String): Boolean {
+            return split.matches(".*\\w+.*".toRegex()) and
+                    !split.matches(
+                        ("(?i)" + "(and)" + "|(vs\\.?)" + "|(feat\\.?)" + "|(featuring)" + "|(presents)" + "|(^pres\\.?\$)" +
+                                "|(introducing)" + "|(starr?ing)" + "|(y)").toRegex()
+                    )
+        }
     }
 
-    private static String[] getKeywords(String query) {
-        final String[] theSplits = Ex.isEmpty(query) ? new String[0] : query.split("(\\)|\\])?(\\s+|^|$)(\\(|\\[)?");
-        final List<String> theKeywords = new ArrayList<>();
-        for (String theSplit : theSplits) {
-            if (isKeyword(theSplit)) {
-                theKeywords.add(theSplit);
+    @RequestMapping(value = ["/search"], method = [RequestMethod.GET])
+    fun search(
+        @RequestParam() query: String,
+        @RequestParam(name = "artists_offset", required = false, defaultValue = "0") artistsOffset: Int,
+        @RequestParam(name = "artists_size", required = false, defaultValue = "5") artistsSize: Int,
+        @RequestParam(name = "tracks_offset", required = false, defaultValue = "0") tracksOffset: Int,
+        @RequestParam(name = "tracks_size", required = false, defaultValue = "10") tracksSize: Int,
+        @RequestParam(name = "alphabetical", required = false, defaultValue = "false") alphabetical: Boolean
+    ): MergedSearchResult {
+        val theResult = MergedSearchResult()
+        val theKeywords = getKeywords(query)
+        if (theKeywords.isNotEmpty()) {
+            var theSearchQuery: String
+            var adjustedArtistsSize = artistsSize
+            if (adjustedArtistsSize != NO_RESULTS) {
+                val theArtistSearchResult = SearchResult<Artist>()
+                if (adjustedArtistsSize > MAX_RESULT_SIZE || adjustedArtistsSize == ALL_RESULTS) {
+                    adjustedArtistsSize = MAX_RESULT_SIZE
+                }
+                theSearchQuery = ArtistUtils.getCountSearchQuery(theKeywords)
+                val theTotal =
+                    (mEntityManager.createNativeQuery(theSearchQuery).singleResult as BigInteger).toInt()
+                var theArtists = mutableListOf<Artist>()
+                if (artistsOffset < theTotal) {
+                    theSearchQuery = ArtistUtils.getSearchQuery(theKeywords, artistsOffset, adjustedArtistsSize, alphabetical)
+                    theArtists = mEntityManager.createNativeQuery(theSearchQuery, Artist::class.java).resultList as MutableList<Artist>
+                    if (theArtists.size > MAX_RESULT_SIZE) {
+                        theArtists = theArtists.subList(0, MAX_RESULT_SIZE)
+                    }
+                }
+                theArtistSearchResult.results = theArtists
+                theArtistSearchResult.total = theTotal
+                theArtistSearchResult.offset = artistsOffset
+                theResult.artists = theArtistSearchResult
+            }
+
+            var adjustedTracksSize = tracksSize
+            if (adjustedTracksSize != NO_RESULTS) {
+                val theTrackSearchResult = SearchResult<Track>()
+                theSearchQuery = TrackUtils.getCountSearchQuery(theKeywords)
+                if (adjustedTracksSize > MAX_RESULT_SIZE || adjustedTracksSize == ALL_RESULTS) {
+                    adjustedTracksSize = MAX_RESULT_SIZE
+                }
+                val theTotal = (mEntityManager.createNativeQuery(theSearchQuery).singleResult as BigInteger)
+                    .toInt()
+                var theTracks = mutableListOf<Track>()
+                if (artistsOffset < theTotal) {
+                    theSearchQuery = TrackUtils.getSearchQuery(theKeywords, tracksOffset, adjustedTracksSize, alphabetical)
+                    theTracks = mEntityManager.createNativeQuery(theSearchQuery, Track::class.java).resultList as MutableList<Track>
+                    if (theTracks.size > MAX_RESULT_SIZE) {
+                        theTracks = theTracks.subList(0, MAX_RESULT_SIZE)
+                    }
+                }
+                theTrackSearchResult.results = theTracks
+                theTrackSearchResult.total = theTotal
+                theTrackSearchResult.offset = tracksOffset
+                theResult.tracks = theTrackSearchResult
             }
         }
-        return theKeywords.toArray(new String[0]);
-    }
-
-    private static boolean isKeyword(String split) {
-        return split.matches(".*\\w+.*") & !split.matches(
-                "(?i)" + "(and)" + "|(vs\\.?)" + "|(feat\\.?)" + "|(featuring)" + "|(presents)" + "|(^pres\\.?$)" +
-                        "|(introducing)" + "|(starr?ing)" + "|(y)");
+        return theResult
     }
 }

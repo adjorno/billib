@@ -1,17 +1,17 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-public interface DuplicateTrackRepository extends CrudRepository<DuplicateTrack, String> {
+interface DuplicateTrackRepository : CrudRepository<DuplicateTrack, String> {
     @Modifying
     @Query(value = "update DuplicateTrack dt set dt.track = ?2 where dt.track = ?1")
-    void updateTracks(Track from, Track to);
+    fun updateTracks(from: Track, to: Track)
 
-    DuplicateTrack findByDuplicateTitle(String trackTitle);
+    fun findByDuplicateTitle(trackTitle: String): DuplicateTrack?
 
     @Modifying
     @Query(value = "update DuplicateTrack dt set dt.duplicateTitle = ?2 where dt = ?1")
-    void rename(DuplicateTrack duplicateTrack, String optimizedTitle);
+    fun rename(duplicateTrack: DuplicateTrack, optimizedTitle: String)
 }

@@ -1,9 +1,9 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.CrudRepository
 
-public interface ChartRepository extends CrudRepository<Chart, Long> {
+interface ChartRepository : CrudRepository<Chart, Long> {
 
-    Chart findByName(String chartName);
+    fun findByName(chartName: String): Chart?
 
 }

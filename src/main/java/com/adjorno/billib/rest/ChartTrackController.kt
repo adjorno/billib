@@ -1,114 +1,112 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-import com.adjorno.billib.rest.db.*;
-import com.m14n.ex.Ex;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Arrays;
-import java.util.List;
+import com.adjorno.billib.rest.db.*
+import com.m14n.ex.Ex
+import org.springframework.data.domain.Sort
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-public class ChartTrackController {
-    private static final String PASSWORD = "vtldtlm";
+class ChartTrackController(
+    private val mChartListRepository: ChartListRepository,
+    private val mChartTrackRepository: ChartTrackRepository,
+    private val mTrackRepository: TrackRepository
+) {
 
-    @Autowired
-    private ChartListRepository mChartListRepository;
-
-    @Autowired
-    ChartTrackRepository mChartTrackRepository;
-
-    @Autowired
-    TrackRepository mTrackRepository;
+    companion object {
+        private const val PASSWORD = "vtldtlm"
+    }
 
     @Transactional
-    @RequestMapping(value = "/chartTrack/updateTrack", method = RequestMethod.POST)
-    public void updateTrack(@RequestParam(name = "password") String password,
-            @RequestParam(name = "chartTrackId") Long chartTrackId, @RequestParam(name = "trackId") Long trackId) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/chartTrack/updateTrack"], method = [RequestMethod.POST])
+    fun updateTrack(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "chartTrackId") chartTrackId: Long,
+        @RequestParam(name = "trackId") trackId: Long
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        Track theNewTrack = mTrackRepository.findById(trackId).orElse(null);
-        ChartTrack theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null);
+        val theNewTrack = mTrackRepository.findById(trackId).orElse(null)
+        val theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null)
         if (theChartTrack == null && theNewTrack == null) {
-            throw new TrackNotFoundException();
+            throw TrackNotFoundException()
         }
-        mChartTrackRepository.updateTrack(theChartTrack, theNewTrack);
+        mChartTrackRepository.updateTrack(theChartTrack, theNewTrack)
     }
 
     @Transactional
-    @RequestMapping(value = "/chartTrack/updateRank", method = RequestMethod.POST)
-    public void updateRank(@RequestParam(name = "password") String password,
-            @RequestParam(name = "chartTrackId") Long chartTrackId, @RequestParam(name = "rank") int rank) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/chartTrack/updateRank"], method = [RequestMethod.POST])
+    fun updateRank(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "chartTrackId") chartTrackId: Long,
+        @RequestParam(name = "rank") rank: Int
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        ChartTrack theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null);
-        if (theChartTrack == null) {
-            throw new TrackNotFoundException();
-        }
-        mChartTrackRepository.updateRank(theChartTrack, rank);
+        val theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null)
+            ?: throw TrackNotFoundException()
+        mChartTrackRepository.updateRank(theChartTrack, rank)
     }
 
     @Transactional
-    @RequestMapping(value = "/chartTrack/updateLastWeekRanks", method = RequestMethod.POST)
-    public void updateLastWeekRanks(@RequestParam(name = "password") String password,
-            @RequestParam(name = "chartListId") Long chartListId) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/chartTrack/updateLastWeekRanks"], method = [RequestMethod.POST])
+    fun updateLastWeekRanks(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "chartListId") chartListId: Long
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        List<ChartTrack> theChartListTracks =
-                mChartTrackRepository.findByChartList(mChartListRepository.findById(chartListId).orElse(null));
-        for (ChartTrack ct : theChartListTracks) {
-            List<Integer> thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(ct.getId());
-            final int theLast = Ex.isEmpty(thePreviousWeekRanks) ? 0 : thePreviousWeekRanks.get(0);
-            mChartTrackRepository.updateLastWeekRank(ct, theLast);
+        val theChartListTracks =
+            mChartTrackRepository.findByChartList(mChartListRepository.findById(chartListId).orElse(null))
+        for (ct in theChartListTracks) {
+            val thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(ct.id!!)
+            val theLast = if (Ex.isEmpty(thePreviousWeekRanks)) 0 else thePreviousWeekRanks[0]
+            mChartTrackRepository.updateLastWeekRank(ct, theLast)
         }
-
     }
 
     @Transactional
-    @RequestMapping(value = "/chartTrack/updateMissingTrack", method = RequestMethod.POST)
-    public void addMissingChartTrack(@RequestParam(name = "password") String password,
-            @RequestParam(name = "clId") Long chartListId, @RequestParam(name = "tId") Long trackId,
-            @RequestParam(name = "rank") int rank) {
-        if (!PASSWORD.equals(password)) {
-            return;
+    @RequestMapping(value = ["/chartTrack/updateMissingTrack"], method = [RequestMethod.POST])
+    fun addMissingChartTrack(
+        @RequestParam(name = "password") password: String,
+        @RequestParam(name = "clId") chartListId: Long,
+        @RequestParam(name = "tId") trackId: Long,
+        @RequestParam(name = "rank") rank: Int
+    ) {
+        if (PASSWORD != password) {
+            return
         }
-        final Track theTrack = mTrackRepository.findById(trackId).orElse(null);
-        if (theTrack == null) {
-            throw new TrackNotFoundException();
-        }
-        final ChartList theChartList = mChartListRepository.findById(chartListId).orElse(null);
-        if (theChartList == null) {
-            throw new ChartListNotFoundException();
-        }
+        val theTrack = mTrackRepository.findById(trackId).orElse(null)
+            ?: throw TrackNotFoundException()
+        val theChartList = mChartListRepository.findById(chartListId).orElse(null)
+            ?: throw ChartListNotFoundException()
     }
 
-    ChartTrack getDebut(Track track) {
-        return mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date")).get(0);
+    fun getDebut(track: Track): ChartTrack {
+        return mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date"))[0]
     }
 
-    ChartTrack addMissingTrackInternal(ChartList chartList, Track track, int rank) {
-        int theLastWeekRank = 0;
-        final ChartList thePreviousChartList = mChartListRepository.findById(chartList.getPreviousChartListId()).orElse(null);
+    fun addMissingTrackInternal(chartList: ChartList, track: Track, rank: Int): ChartTrack {
+        var theLastWeekRank = 0
+        val thePreviousChartList = mChartListRepository.findById(chartList.previousChartListId).orElse(null)
         if (thePreviousChartList != null) {
-            final ChartTrack thePrevious = mChartTrackRepository.findByTrackAndChartList(track, thePreviousChartList);
+            val thePrevious = mChartTrackRepository.findByTrackAndChartList(track, thePreviousChartList)
             if (thePrevious != null) {
-                theLastWeekRank = thePrevious.getRank();
+                theLastWeekRank = thePrevious.rank
             }
         }
-        final ChartTrack theMissingChartTrack = new ChartTrack();
-        theMissingChartTrack.setLastWeekRank(theLastWeekRank);
-        theMissingChartTrack.setChartList(chartList);
-        theMissingChartTrack.setTrack(track);
-        theMissingChartTrack.setRank(rank);
-        mChartTrackRepository.save(theMissingChartTrack);
-        return theMissingChartTrack;
+        val theMissingChartTrack = ChartTrack()
+        theMissingChartTrack.lastWeekRank = theLastWeekRank
+        theMissingChartTrack.chartList = chartList
+        theMissingChartTrack.track = track
+        theMissingChartTrack.rank = rank
+        mChartTrackRepository.save(theMissingChartTrack)
+        return theMissingChartTrack
     }
 }

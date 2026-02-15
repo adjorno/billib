@@ -1,10 +1,10 @@
-package com.adjorno.billib.rest.db;
+package com.adjorno.billib.rest.db
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
 
-public interface GlobalRankArtistRepository extends CrudRepository<GlobalRankArtist, Long> {
+interface GlobalRankArtistRepository : CrudRepository<GlobalRankArtist, Long> {
     @Modifying
     @Query(value = "INSERT INTO GLOBAL_RANK_ARTIST (ARTIST_ID)\n" +
             "SELECT ARTIST._ID FROM CHART_LIST\n" +
@@ -14,7 +14,7 @@ public interface GlobalRankArtistRepository extends CrudRepository<GlobalRankArt
             "JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID\n" +
             "GROUP BY ARTIST_ID ORDER BY SUM((LIST_SIZE + 1 - _RANK) * (LIST_SIZE + 1 - _RANK)) DESC",
             nativeQuery = true)
-    void refreshAll();
+    fun refreshAll()
 
     @Modifying
     @Query(value = "INSERT INTO GLOBAL_RANK_ARTIST (ARTIST_ID)\n" +
@@ -24,7 +24,7 @@ public interface GlobalRankArtistRepository extends CrudRepository<GlobalRankArt
             "(SELECT ARTIST_ID \n" +
             "FROM GLOBAL_RANK_ARTIST)",
             nativeQuery = true)
-    void addMissing();
+    fun addMissing()
 
-    GlobalRankArtist findByArtistId(Long artistId);
+    fun findByArtistId(artistId: Long): GlobalRankArtist?
 }

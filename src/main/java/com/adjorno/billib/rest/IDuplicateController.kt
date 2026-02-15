@@ -1,5 +1,5 @@
-package com.adjorno.billib.rest;
+package com.adjorno.billib.rest
 
-public interface IDuplicateController {
-    void checkLastWeek(long from, long size);
+interface IDuplicateController {
+    fun checkLastWeek(from: Long, size: Long)
 }
