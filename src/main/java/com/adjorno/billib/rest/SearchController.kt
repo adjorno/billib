@@ -22,7 +22,7 @@ class SearchController(
     companion object {
         private const val ALL_RESULTS = -1
         private const val NO_RESULTS = 0
-        private var MAX_RESULT_SIZE = 100
+        private const val MAX_RESULT_SIZE = 100
 
         private fun getKeywords(query: String?): Array<String> {
             val theSplits = query?.split("(\\)|\\])?(\\s+|^|$)(\\(|\\[)?".toRegex())?.toTypedArray() ?: emptyArray()
