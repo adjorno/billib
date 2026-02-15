@@ -364,10 +364,15 @@ class DuplicateController(
             val theRepeatTitles =
                 mTrackRepository.findRepeatTitles(theDuplicateArtist.id!!, theOriginalArtist.id!!)
             for (theTitle in theRepeatTitles) {
-                val theTrackMergeOperation = removeDuplicateTrack(
-                    mTrackRepository.findByTitleAndArtist(theTitle, theOriginalArtist)!!.id!!,
-                    mTrackRepository.findByTitleAndArtist(theTitle, theDuplicateArtist)!!.id!!
-                )
+                val originalTrackId = mTrackRepository.findByTitleAndArtist(theTitle, theOriginalArtist)?.id
+                val duplicateTrackId = mTrackRepository.findByTitleAndArtist(theTitle, theDuplicateArtist)?.id
+
+                if (originalTrackId == null || duplicateTrackId == null) {
+                    println("Could not find track for title - $theTitle")
+                    continue
+                }
+
+                val theTrackMergeOperation = removeDuplicateTrack(originalTrackId, duplicateTrackId)
                 if (theTrackMergeOperation == null) {
                     println("Could not merge the track - $theTitle")
                 } else {

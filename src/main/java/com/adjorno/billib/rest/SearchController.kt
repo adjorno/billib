@@ -25,7 +25,7 @@ class SearchController(
         private var MAX_RESULT_SIZE = 100
 
         private fun getKeywords(query: String?): Array<String> {
-            val theSplits = if (Ex.isEmpty(query)) emptyArray() else query!!.split("(\\)|\\])?(\\s+|^|$)(\\(|\\[)?".toRegex()).toTypedArray()
+            val theSplits = query?.split("(\\)|\\])?(\\s+|^|$)(\\(|\\[)?".toRegex())?.toTypedArray() ?: emptyArray()
             val theKeywords = mutableListOf<String>()
             for (theSplit in theSplits) {
                 if (isKeyword(theSplit)) {
@@ -66,13 +66,12 @@ class SearchController(
                 theSearchQuery = ArtistUtils.getCountSearchQuery(theKeywords)
                 val theTotal =
                     (mEntityManager.createNativeQuery(theSearchQuery).singleResult as BigInteger).toInt()
-                var theArtists = mutableListOf<Artist>()
+                var theArtists = emptyList<Artist>()
                 if (artistsOffset < theTotal) {
                     theSearchQuery = ArtistUtils.getSearchQuery(theKeywords, artistsOffset, adjustedArtistsSize, alphabetical)
-                    theArtists = mEntityManager.createNativeQuery(theSearchQuery, Artist::class.java).resultList as MutableList<Artist>
-                    if (theArtists.size > MAX_RESULT_SIZE) {
-                        theArtists = theArtists.subList(0, MAX_RESULT_SIZE)
-                    }
+                    @Suppress("UNCHECKED_CAST")
+                    val resultList = mEntityManager.createNativeQuery(theSearchQuery, Artist::class.java).resultList as List<Artist>
+                    theArtists = if (resultList.size > MAX_RESULT_SIZE) resultList.subList(0, MAX_RESULT_SIZE) else resultList
                 }
                 theArtistSearchResult.results = theArtists
                 theArtistSearchResult.total = theTotal
@@ -89,13 +88,12 @@ class SearchController(
                 }
                 val theTotal = (mEntityManager.createNativeQuery(theSearchQuery).singleResult as BigInteger)
                     .toInt()
-                var theTracks = mutableListOf<Track>()
+                var theTracks = emptyList<Track>()
                 if (artistsOffset < theTotal) {
                     theSearchQuery = TrackUtils.getSearchQuery(theKeywords, tracksOffset, adjustedTracksSize, alphabetical)
-                    theTracks = mEntityManager.createNativeQuery(theSearchQuery, Track::class.java).resultList as MutableList<Track>
-                    if (theTracks.size > MAX_RESULT_SIZE) {
-                        theTracks = theTracks.subList(0, MAX_RESULT_SIZE)
-                    }
+                    @Suppress("UNCHECKED_CAST")
+                    val resultList = mEntityManager.createNativeQuery(theSearchQuery, Track::class.java).resultList as List<Track>
+                    theTracks = if (resultList.size > MAX_RESULT_SIZE) resultList.subList(0, MAX_RESULT_SIZE) else resultList
                 }
                 theTrackSearchResult.results = theTracks
                 theTrackSearchResult.total = theTotal

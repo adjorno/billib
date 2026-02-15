@@ -88,9 +88,10 @@ class TrendsController(
     fun getTrendsAPI(
         @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?
     ): Trends {
-        val theWeek =
-            if (date == null) mChartListRepository.findLast(1L, PageRequest.of(0, 1)).content[0].week!!
-            else mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date))!!
+        val theWeek = (
+            if (date == null) mChartListRepository.findLast(1L, PageRequest.of(0, 1)).content.firstOrNull()?.week
+            else mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date))
+        ) ?: throw IllegalStateException("Week not found for date: $date")
         val theTrendTracks = mTrendTrackRepository.findTrendsOfTheWeek(theWeek) ?: emptyList()
         val theTrendLists = mutableMapOf<Long, TrendList>()
         for (theTrendTrack in theTrendTracks) {
@@ -150,7 +151,7 @@ class TrendsController(
         val theBestDebuts = filterDebutsByCharts(
             mChartTrackRepository.findDebuts(week.id!!),
             blacklistedCharts()
-        ).sortedByDescending { (it[1] as Int) }
+        ).sortedByDescending { it[1] as? Int ?: 0 }
         val theDebutsType = mTrendTypeRepository.findById(TrendType.TYPE_DEBUTS).orElse(null)
         val theDebuts = mutableSetOf<Long>()
         for (obj in theBestDebuts) {
@@ -172,29 +173,12 @@ class TrendsController(
             mChartTrackRepository.findByWeek(week),
             blacklistedCharts()
         ).toMutableList()
-        theChartTracks.sortWith { o1, o2 ->
-            if (o1.lastWeekRank == 0) {
-                if (o2.lastWeekRank == 0) {
-                    return@sortWith 0
-                }
-                return@sortWith 1
-            }
-            if (o2.lastWeekRank == 0) {
-                return@sortWith -1
-            }
-            var theResult =
-                (o1.rank - o1.lastWeekRank).compareTo(o2.rank - o2.lastWeekRank)
-            if (theResult != 0) {
-                return@sortWith theResult
-            }
-            theResult = o1.rank.compareTo(o2.rank)
-            if (theResult != 0) {
-                return@sortWith theResult
-            }
-            val size1 = o1.chartList?.chart?.listSize ?: 0
-            val size2 = o2.chartList?.chart?.listSize ?: 0
-            size1.compareTo(size2)
-        }
+        theChartTracks.sortWith(
+            compareBy<ChartTrack> { if (it.lastWeekRank == 0) 1 else 0 } // non-debuts first
+                .thenBy { if (it.lastWeekRank != 0) it.rank - it.lastWeekRank else Int.MAX_VALUE }
+                .thenBy { it.rank }
+                .thenBy { it.chartList?.chart?.listSize ?: 0 }
+        )
         val theFuturesType = mTrendTypeRepository.findById(TrendType.TYPE_FUTURES).orElse(null)
         for (i in 0 until minOf(theChartTracks.size, DB_LIST_SIZE_PER_TYPE)) {
             mTrendTrackRepository.save(TrendTrack(null, week, theChartTracks[i].track, theFuturesType))

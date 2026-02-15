@@ -61,6 +61,7 @@ class TrackController(
         to: String?,
         @RequestParam(value = "size", required = false, defaultValue = "100") size: Int
     ): Iterable<Track> {
+        @Suppress("UNCHECKED_CAST")
         val theBestTracks = mEntityManager.createNativeQuery(TrackUtils.getBestTracksQuery(chartId, size, from, to), Track::class.java)
             .resultList as List<Track>
         return theBestTracks
@@ -73,7 +74,7 @@ class TrackController(
         val theOne = if (Ex.isNotEmpty(date))
             mDayTrackRepository.findById(java.sql.Date.valueOf(date)).orElse(null)
         else
-            mDayTrackRepository.findLast(PageRequest.of(0, 1)).content[0]
+            mDayTrackRepository.findLast(PageRequest.of(0, 1)).content.firstOrNull()
 
         return theOne ?: throw TrackNotFoundException()
     }
@@ -101,7 +102,7 @@ class TrackController(
     override fun getTrackHistory(id: Long, chartId: Long?): Map<String, Map<String, Int>> {
         val theTrack = mTrackRepository.findById(id).orElse(null)
             ?: throw TrackNotFoundException()
-        val theRequestedChart = if (Ex.isPositive(chartId)) mChartRepository.findById(chartId!!).orElse(null) else null
+        val theRequestedChart = chartId?.let { if (Ex.isPositive(it)) mChartRepository.findById(it).orElse(null) else null }
         val theCharts: Iterable<Chart> =
             if (theRequestedChart == null) mChartRepository.findAll() else listOf(theRequestedChart)
         val theFullHistory = mutableMapOf<String, MutableMap<String, Int>>()
@@ -122,7 +123,7 @@ class TrackController(
         val theTrackInfo = TrackInfo()
         theTrackInfo.track = theTrack
         theTrackInfo.history = getTrackHistory(id, null)
-        theTrackInfo.globalRank = mGlobalRankTrackRepository.findByTrackId(theTrack.id!!)?.rank ?: 0
+        theTrackInfo.globalRank = theTrack.id?.let { mGlobalRankTrackRepository.findByTrackId(it)?.rank } ?: 0
         return theTrackInfo
     }
 

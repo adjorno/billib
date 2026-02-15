@@ -65,7 +65,8 @@ class ChartTrackController(
         val theChartListTracks =
             mChartTrackRepository.findByChartList(mChartListRepository.findById(chartListId).orElse(null))
         for (ct in theChartListTracks) {
-            val thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(ct.id!!)
+            val chartTrackId = ct.id ?: continue
+            val thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(chartTrackId)
             val theLast = if (Ex.isEmpty(thePreviousWeekRanks)) 0 else thePreviousWeekRanks[0]
             mChartTrackRepository.updateLastWeekRank(ct, theLast)
         }
@@ -89,12 +90,14 @@ class ChartTrackController(
     }
 
     fun getDebut(track: Track): ChartTrack {
-        return mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date"))[0]
+        return mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date")).first()
     }
 
     fun addMissingTrackInternal(chartList: ChartList, track: Track, rank: Int): ChartTrack {
         var theLastWeekRank = 0
-        val thePreviousChartList = mChartListRepository.findById(chartList.previousChartListId).orElse(null)
+        val thePreviousChartList = chartList.previousChartListId?.let {
+            mChartListRepository.findById(it).orElse(null)
+        }
         if (thePreviousChartList != null) {
             val thePrevious = mChartTrackRepository.findByTrackAndChartList(track, thePreviousChartList)
             if (thePrevious != null) {
