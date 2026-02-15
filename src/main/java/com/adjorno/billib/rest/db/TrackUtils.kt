@@ -36,7 +36,7 @@ object TrackUtils {
         if (!Ex.isEmpty(to)) {
             theQueryBuilder.append("AND WEEK.DATE < '").append(to).append("' ")
         }
-        theQueryBuilder.append("GROUP BY CHART_TRACK.TRACK_ID ORDER BY SUM((CHART.LIST_SIZE + 1 - CHART_TRACK._RANK) * (CHART.LIST_SIZE + 1 - CHART_TRACK._RANK)) DESC ")
+        theQueryBuilder.append("GROUP BY TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME ORDER BY SUM((CHART.LIST_SIZE + 1 - CHART_TRACK._RANK) * (CHART.LIST_SIZE + 1 - CHART_TRACK._RANK)) DESC ")
         theQueryBuilder.append("LIMIT ").append(limit)
 
         return theQueryBuilder.toString()
@@ -45,7 +45,7 @@ object TrackUtils {
     @JvmStatic
     fun getSearchQuery(keywords: Array<String>, offset: Int, limit: Int, alphabetical: Boolean): String {
         val theQueryBuilder = StringBuilder(
-            "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, ARTIST._ID, ARTIST.NAME FROM TRACK" +
+            "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, TRACK.ARTIST_NAME, TRACK.FIRST_CHART_DATE, TRACK.PEAK_GLOBAL_RANK, TRACK.TOTAL_WEEKS_ON_CHART FROM TRACK" +
                     " JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID"
         )
         if (!alphabetical) {
@@ -66,10 +66,10 @@ object TrackUtils {
             if (alphabetical)
                 "ARTIST.NAME ASC, TRACK.TITLE ASC"
             else
-                "GLOBAL_RANK_TRACK._RANK ASC"
+                "GLOBAL_RANK_TRACK.RANK ASC"
         )
         if (limit != 0) {
-            theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit)
+            theQueryBuilder.append(" LIMIT ").append(limit).append(" OFFSET ").append(offset)
         }
         return theQueryBuilder.toString()
     }

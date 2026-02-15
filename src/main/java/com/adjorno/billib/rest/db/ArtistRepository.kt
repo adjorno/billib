@@ -11,16 +11,16 @@ interface ArtistRepository : CrudRepository<Artist, Long> {
     @Query(value = "update Artist a set a.name = ?2 where a = ?1")
     fun rename(artist: Artist, newName: String)
 
-    @Query(value = "SELECT ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_ARTIST\n" +
+    @Query(value = "SELECT ARTIST._ID, ARTIST.NAME, ARTIST.NAME_NORMALIZED FROM GLOBAL_RANK_ARTIST\n" +
             "INNER JOIN ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID\n" +
             "WHERE ARTIST_ID IN (?1)\n" +
-            "ORDER BY GLOBAL_RANK_ARTIST._RANK\n" + "LIMIT ?2", nativeQuery = true)
+            "ORDER BY GLOBAL_RANK_ARTIST.RANK\n" + "LIMIT ?2", nativeQuery = true)
     fun sortByGlobalRank(ids: List<Long>, size: Int): List<Artist>
 
-    @Query(value = "SELECT ARTIST._ID, ARTIST.NAME FROM GLOBAL_RANK_ARTIST\n" +
+    @Query(value = "SELECT ARTIST._ID, ARTIST.NAME, ARTIST.NAME_NORMALIZED FROM GLOBAL_RANK_ARTIST\n" +
             "INNER JOIN ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID\n" +
-            "WHERE GLOBAL_RANK_ARTIST._RANK >= ?1 AND GLOBAL_RANK_ARTIST._RANK < ?2\n" +
-            "ORDER BY GLOBAL_RANK_ARTIST._RANK", nativeQuery = true)
+            "WHERE GLOBAL_RANK_ARTIST.RANK >= ?1 AND GLOBAL_RANK_ARTIST.RANK < ?2\n" +
+            "ORDER BY GLOBAL_RANK_ARTIST.RANK", nativeQuery = true)
     fun findGlobalList(from: Long, to: Long): List<Artist>
 
     fun findByNameLike(name: String): List<Artist>

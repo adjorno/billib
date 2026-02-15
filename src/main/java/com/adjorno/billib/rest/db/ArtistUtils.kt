@@ -120,13 +120,28 @@ object ArtistUtils {
     }
 
     @JvmStatic
-    fun asSingleArtists(artistRelations: List<ArtistRelation>): List<Artist> {
-        return artistRelations.mapNotNull { it.single }
+    fun asArtist1s(artistRelations: List<ArtistRelation>): List<Artist> {
+        return artistRelations.mapNotNull { it.artist1 }
     }
 
     @JvmStatic
-    fun asBandArtists(artistRelations: List<ArtistRelation>): List<Artist> {
-        return artistRelations.mapNotNull { it.band }
+    fun asArtist2s(artistRelations: List<ArtistRelation>): List<Artist> {
+        return artistRelations.mapNotNull { it.artist2 }
+    }
+
+    /**
+     * Extracts all collaborating artists from relations, excluding the given artist.
+     * Returns the "other" artist from each relation.
+     */
+    @JvmStatic
+    fun extractCollaborators(artistRelations: List<ArtistRelation>, excludeArtist: Artist): List<Artist> {
+        return artistRelations.mapNotNull { relation ->
+            when {
+                relation.artist1?.id == excludeArtist.id -> relation.artist2
+                relation.artist2?.id == excludeArtist.id -> relation.artist1
+                else -> null
+            }
+        }
     }
 
     @JvmStatic
@@ -136,7 +151,7 @@ object ArtistUtils {
 
     @JvmStatic
     fun getSearchQuery(keywords: Array<String>, offset: Int, limit: Int, alphabetical: Boolean): String {
-        val theQueryBuilder = StringBuilder("SELECT ARTIST._ID, ARTIST.NAME FROM ARTIST")
+        val theQueryBuilder = StringBuilder("SELECT ARTIST._ID, ARTIST.NAME, ARTIST.NAME_NORMALIZED FROM ARTIST")
         if (!alphabetical) {
             theQueryBuilder.append(" JOIN GLOBAL_RANK_ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID")
         }
@@ -154,10 +169,10 @@ object ArtistUtils {
             if (alphabetical)
                 "ARTIST.NAME ASC"
             else
-                "GLOBAL_RANK_ARTIST._RANK ASC"
+                "GLOBAL_RANK_ARTIST.RANK ASC"
         )
         if (limit != 0) {
-            theQueryBuilder.append(" LIMIT ").append(offset).append(", ").append(limit)
+            theQueryBuilder.append(" LIMIT ").append(limit).append(" OFFSET ").append(offset)
         }
         return theQueryBuilder.toString()
     }

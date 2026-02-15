@@ -15,7 +15,10 @@ data class TrendType(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long? = null,
 
-        @Column(name = "DESCRIPTION")
+        @Column(name = "name", nullable = false)
+        var name: String,
+
+        @Column(name = "description")
         var description: String? = null
 ) {
     companion object {

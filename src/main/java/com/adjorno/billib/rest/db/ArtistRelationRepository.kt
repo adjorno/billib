@@ -7,26 +7,30 @@ import org.springframework.data.repository.CrudRepository
 interface ArtistRelationRepository : CrudRepository<ArtistRelation, Long> {
 
     @Modifying
-    @Query(value = "update ArtistRelation ar set ar.single = ?2 where ar.single = ?1")
-    fun updateSingleArtists(duplicateArtist: Artist, originalArtist: Artist)
+    @Query(value = "update ArtistRelation ar set ar.artist1 = ?2 where ar.artist1 = ?1")
+    fun updateArtist1(duplicateArtist: Artist, originalArtist: Artist)
 
     @Modifying
-    @Query(value = "update ArtistRelation ar set ar.band = ?2 where ar.band = ?1")
-    fun updateBandArtists(duplicateArtist: Artist, originalArtist: Artist)
+    @Query(value = "update ArtistRelation ar set ar.artist2 = ?2 where ar.artist2 = ?1")
+    fun updateArtist2(duplicateArtist: Artist, originalArtist: Artist)
 
-    @Query(value = "SELECT SINGLE_ID FROM ARTIST_RELATION WHERE BAND_ID IN (?1, ?2) GROUP BY SINGLE_ID",
+    @Query(value = "SELECT artist_id_1 FROM artist_relation WHERE artist_id_2 IN (?1, ?2) GROUP BY artist_id_1",
             nativeQuery = true)
-    fun findMergingSingleIds(bandId1: Long, bandId2: Long): List<Long>
+    fun findMergingArtist1Ids(artistId1: Long, artistId2: Long): List<Long>
 
-    @Query(value = "SELECT BAND_ID FROM ARTIST_RELATION WHERE SINGLE_ID IN (?1, ?2) GROUP BY BAND_ID",
+    @Query(value = "SELECT artist_id_2 FROM artist_relation WHERE artist_id_1 IN (?1, ?2) GROUP BY artist_id_2",
             nativeQuery = true)
-    fun findMergingBandIds(singleId1: Long, singleId2: Long): List<Long>
+    fun findMergingArtist2Ids(artistId1: Long, artistId2: Long): List<Long>
 
     @Modifying
-    @Query(value = "delete from ArtistRelation ar where ar.single.id = ?1 and ar.band.id = ?2")
-    fun deleteBySingleIdAndBandId(singleId: Long, bandId: Long)
+    @Query(value = "delete from ArtistRelation ar where ar.artist1.id = ?1 and ar.artist2.id = ?2")
+    fun deleteByArtist1IdAndArtist2Id(artist1Id: Long, artist2Id: Long)
 
-    fun findByBand(artist: Artist): List<ArtistRelation>
+    fun findByArtist1(artist: Artist): List<ArtistRelation>
 
-    fun findBySingle(artist: Artist): List<ArtistRelation>
+    fun findByArtist2(artist: Artist): List<ArtistRelation>
+
+    // Find all relations where the artist appears as either artist1 or artist2
+    @Query(value = "select ar from ArtistRelation ar where ar.artist1 = ?1 or ar.artist2 = ?1")
+    fun findByArtist(artist: Artist): List<ArtistRelation>
 }

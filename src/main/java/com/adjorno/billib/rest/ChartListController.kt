@@ -46,7 +46,7 @@ class ChartListController {
         val theChart = chartRepository.findByIdOrNull(chartId) ?: throw ChartListNotFoundException()
         var theChartList: ChartList? = null
         if (date.isNullOrBlank()) {
-            theChartList = chartListRepository.findLast(theChart, PageRequest.of(0, 1)).content[0]
+            theChartList = chartListRepository.findLast(theChart, PageRequest.of(0, 1)).content.firstOrNull()
         } else {
             val theWeeks = weekRepository.findClosest(date)
             if (!theWeeks.isNullOrEmpty()) {

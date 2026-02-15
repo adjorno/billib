@@ -95,10 +95,12 @@ class TrendsController(
         val theTrendLists = mutableMapOf<Long, TrendList>()
         for (theTrendTrack in theTrendTracks) {
             val trendTypeId = theTrendTrack.type?.id ?: continue
-            val trendTypeDesc = theTrendTrack.type?.description ?: continue
+            val trendType = theTrendTrack.type ?: continue
+            // Use description if available, otherwise fall back to name
+            val trendTypeLabel = trendType.description ?: trendType.name
             val track = theTrendTrack.track ?: continue
             val theTrendList =
-                theTrendLists.getOrDefault(trendTypeId, TrendList(trendTypeDesc))
+                theTrendLists.getOrDefault(trendTypeId, TrendList(trendTypeLabel))
             if (theTrendList.tracks.size < LIST_SIZE_PER_TYPE) {
                 theTrendList.tracks.add(track)
             }
