@@ -88,8 +88,30 @@ subprojects {
             configure<com.codingfeline.buildkonfig.gradle.BuildKonfigExtension> {
                 packageName = "com.ifochka.billib"
                 defaultConfigs {
-                    buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "VERSION_NAME", "1.0.0")
-                    buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API_BASE_URL", "http://localhost:8080")
+                    buildConfigField(
+                        com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        "VERSION_NAME",
+                        "1.0.0"
+                    )
+
+                    // Default URL for desktop/WASM development
+                    val defaultUrl = System.getenv("API_BASE_URL") ?: "http://localhost:8080"
+                    buildConfigField(
+                        com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        "API_BASE_URL",
+                        defaultUrl
+                    )
+                }
+
+                // Android-specific: Use 10.0.2.2 for emulator (emulator's host loopback)
+                targetConfigs {
+                    create("android") {
+                        buildConfigField(
+                            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                            "API_BASE_URL",
+                            System.getenv("API_BASE_URL") ?: "http://10.0.2.2:8080"
+                        )
+                    }
                 }
             }
         }

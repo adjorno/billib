@@ -192,3 +192,8 @@ import.log
 .kotlin/
 kotlin-js-store/
 node_modules/
+
+# Android signing
+keystore.properties
+*.keystore
+*.jks
