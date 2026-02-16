@@ -1,5 +1,6 @@
 package com.ifochka.billib.ui.chart
 
+import com.ifochka.billib.data.error.ChartError
 import com.ifochka.billib.data.model.Chart
 import com.ifochka.billib.data.model.ChartList
 
@@ -14,6 +15,6 @@ sealed interface ChartUiState {
     ) : ChartUiState
 
     data class Error(
-        val message: String,
+        val error: ChartError,
     ) : ChartUiState
 }

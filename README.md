@@ -45,6 +45,13 @@ See [billib-importer/DEPLOYMENT.md](billib-importer/DEPLOYMENT.md) for Railway d
 - **1,692,356 chart positions** - Denormalized for performance
 - **Query performance**: < 10ms for most queries
 
+## Documentation
+
+- 📐 [**Architecture**](docs/ARCHITECTURE.md) - MVVM pattern, data flow, DI setup
+- 🎨 [**UI Components**](docs/COMPONENTS.md) - Reusable Compose components
+- 🧪 [**Testing**](docs/TESTING.md) - Testing strategy and examples
+- 📡 [**API Reference**](https://billib-production.up.railway.app/swagger-ui.html) - Interactive Swagger UI
+
 ## Technology
 
 - Kotlin 2.3.0 + Spring Boot 3.5.0

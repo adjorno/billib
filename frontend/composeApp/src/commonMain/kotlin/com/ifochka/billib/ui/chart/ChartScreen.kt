@@ -74,7 +74,7 @@ fun ChartScreen(viewModel: ChartViewModel = koinViewModel()) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = state.message,
+                            text = state.error.toDisplayMessage(),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
