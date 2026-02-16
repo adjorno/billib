@@ -63,15 +63,6 @@ subprojects {
                     )
                 }
 
-                targetConfigs {
-                    create("android") {
-                        buildConfigField(
-                            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
-                            "API_BASE_URL",
-                            apiBaseUrl ?: "http://10.0.2.2:8080"
-                        )
-                    }
-                }
             }
         }
     }

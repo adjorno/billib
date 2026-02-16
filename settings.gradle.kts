@@ -37,7 +37,6 @@ include("backend")
 // Library modules
 include("libraries:data-source:billboard")
 project(":libraries:data-source:billboard").name = "billboard"
-include("libraries:inmemory-rest")
 include("libraries:billib-importer")
 
 // Railway deployment skips frontend (doesn't have Android SDK)
