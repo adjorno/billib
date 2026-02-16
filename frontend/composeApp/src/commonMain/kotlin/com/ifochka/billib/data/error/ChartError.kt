@@ -48,7 +48,7 @@ sealed interface ChartError {
             is NetworkError -> "No internet connection. Check your network and try again."
             is NoChartsAvailable -> "No charts available. Please try again later."
             is ChartNotFound -> "Chart not found (ID: $chartId)."
-            is ServerError -> "Server error${code.let { " ($it)" }}. Please try again later."
+            is ServerError -> "Server error ($code). Please try again later."
             is Unknown -> message.ifBlank { "An unexpected error occurred. Please try again." }
         }
 }
