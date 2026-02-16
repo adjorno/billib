@@ -16,9 +16,14 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Run ktlint
+      - name: Run ktlint (all modules)
         run: ./gradlew ktlintCheck
-      - name: Run detekt
+      - name: Run detekt (frontend multiplatform modules)
         run: ./gradlew detektMetadataCommonMain
+      # Backend/libraries detekt - Disabled due to Kotlin version incompatibility
+      # detekt 1.23.8 was compiled with Kotlin 2.0.21, but project uses Kotlin 2.3.0
+      # Uncomment when detekt 2.0.0+ is released to stable repositories
+      # - name: Run detekt (backend/libraries)
+      #   run: ./gradlew :backend:detekt :libraries:billib-importer:detekt :libraries:data-source:billboard:detekt
       - name: Run unit tests
         run: ./gradlew test
