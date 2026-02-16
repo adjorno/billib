@@ -55,7 +55,7 @@ subprojects {
                     buildConfigField(
                         com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         "VERSION_NAME",
-                        "1.0.0"
+                        project.findProperty("VERSION_NAME") as? String ?: "1.0.0-dev"
                     )
 
                     buildConfigField(
