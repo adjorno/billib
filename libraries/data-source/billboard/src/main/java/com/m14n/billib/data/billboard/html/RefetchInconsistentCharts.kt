@@ -7,13 +7,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
-import java.util.*
+import java.util.Properties
 
 // Dates that showed FAILURE in consistency checker
 val INCONSISTENT_DATES = listOf(
     "2025-05-31",
     "2025-06-07",
-    "2025-06-14"
+    "2025-06-14",
 )
 
 private val jsonDecoder = Json {
@@ -64,7 +64,7 @@ fun main() {
             val newChart = BBChart(
                 name = hot100.name,
                 date = date,
-                tracks = tracksParser.parse(document)
+                tracks = tracksParser.parse(document),
             )
 
             // Save refetched version
@@ -80,7 +80,6 @@ fun main() {
                 println("✓ Successfully fetched (no old version to compare)")
                 println("  Tracks: ${newChart.tracks.size}")
             }
-
         } catch (e: Exception) {
             println("✗ FAILED to fetch: ${e.message}")
             e.printStackTrace()
@@ -92,7 +91,11 @@ fun main() {
     println("=".repeat(80))
 }
 
-fun compareCharts(old: BBChart, new: BBChart, date: String) {
+fun compareCharts(
+    old: BBChart,
+    new: BBChart,
+    date: String,
+) {
     val differences = mutableListOf<String>()
 
     // Compare track counts
@@ -110,14 +113,14 @@ fun compareCharts(old: BBChart, new: BBChart, date: String) {
 
         when {
             oldTrack == null && newTrack != null -> {
-                changedPositions.add("  #${i+1}: [NEW] ${newTrack.artist} - ${newTrack.title}")
+                changedPositions.add("  #${i + 1}: [NEW] ${newTrack.artist} - ${newTrack.title}")
             }
             oldTrack != null && newTrack == null -> {
-                changedPositions.add("  #${i+1}: [REMOVED] ${oldTrack.artist} - ${oldTrack.title}")
+                changedPositions.add("  #${i + 1}: [REMOVED] ${oldTrack.artist} - ${oldTrack.title}")
             }
             oldTrack != null && newTrack != null -> {
                 if (oldTrack.title != newTrack.title || oldTrack.artist != newTrack.artist) {
-                    changedPositions.add("  #${i+1}: ${oldTrack.artist} - ${oldTrack.title}")
+                    changedPositions.add("  #${i + 1}: ${oldTrack.artist} - ${oldTrack.title}")
                     changedPositions.add("      → ${newTrack.artist} - ${newTrack.title}")
                 }
                 // Check last week rank changes

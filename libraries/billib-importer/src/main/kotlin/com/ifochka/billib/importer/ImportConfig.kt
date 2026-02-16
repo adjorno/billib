@@ -7,5 +7,5 @@ data class ImportConfig(
     val dbPassword: String,
     val metadataFile: String = "metadata_billboard.json",
     val batchSize: Int = 5000,
-    val enableProgressTracking: Boolean = true
+    val enableProgressTracking: Boolean = true,
 )

@@ -1,6 +1,21 @@
 package com.ifochka.billib.rest
 
-import com.ifochka.billib.rest.db.*
+import com.ifochka.billib.rest.db.Artist
+import com.ifochka.billib.rest.db.ArtistRelationRepository
+import com.ifochka.billib.rest.db.ArtistRepository
+import com.ifochka.billib.rest.db.ArtistUtils
+import com.ifochka.billib.rest.db.ChartList
+import com.ifochka.billib.rest.db.ChartListRepository
+import com.ifochka.billib.rest.db.ChartTrack
+import com.ifochka.billib.rest.db.ChartTrackRepository
+import com.ifochka.billib.rest.db.DayTrackRepository
+import com.ifochka.billib.rest.db.DuplicateArtist
+import com.ifochka.billib.rest.db.DuplicateArtistRepository
+import com.ifochka.billib.rest.db.DuplicateTrack
+import com.ifochka.billib.rest.db.DuplicateTrackRepository
+import com.ifochka.billib.rest.db.Track
+import com.ifochka.billib.rest.db.TrackRepository
+import com.ifochka.billib.rest.db.TrendTrackRepository
 import com.ifochka.billib.rest.model.MergeOperation
 import com.m14n.ex.Ex
 import org.springframework.transaction.annotation.Transactional
@@ -20,15 +35,14 @@ class DuplicateController(
     private val mDayTrackRepository: DayTrackRepository,
     private val mTrendTrackRepository: TrendTrackRepository,
     private val mChartTrackController: ChartTrackController,
-    private val mArtistRelationRepository: ArtistRelationRepository
+    private val mArtistRelationRepository: ArtistRelationRepository,
 ) : IDuplicateController {
-
     @Transactional
     @RequestMapping(value = ["/duplicate/checkTracks"], method = [RequestMethod.POST])
     fun checkTracksAPI(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
-        @RequestParam(name = "checkSize", defaultValue = "100") size: Int
+        @RequestParam(name = "checkSize", defaultValue = "100") size: Int,
     ) {
         val theArtists = mArtistRepository.findAll().toList()
         val theLeftDuplicates = mutableMapOf<Track, Track>()
@@ -75,7 +89,7 @@ class DuplicateController(
     fun checkArtistsAPI(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
-        @RequestParam(name = "checkSize", defaultValue = "100") size: Int
+        @RequestParam(name = "checkSize", defaultValue = "100") size: Int,
     ) {
         val theArtists = mArtistRepository.findAll().toList()
         val theLeftDuplicates = mutableMapOf<Artist, Artist>()
@@ -117,7 +131,7 @@ class DuplicateController(
     fun checkLastWeekAPI(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "from", defaultValue = "1") from: Long,
-        @RequestParam(name = "size", defaultValue = "500") size: Long
+        @RequestParam(name = "size", defaultValue = "500") size: Long,
     ) {
         checkLastWeek(from, size)
     }
@@ -127,7 +141,7 @@ class DuplicateController(
     fun removeDuplicateArtistAPI(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "originalArtistId") originalId: Long,
-        @RequestParam(name = "duplicateArtistId") duplicateId: Long
+        @RequestParam(name = "duplicateArtistId") duplicateId: Long,
     ): List<MergeOperation<*>>? {
         val theMergeOperations = removeDuplicateArtist(originalId, duplicateId)
         if (Ex.isNotEmpty(theMergeOperations)) {
@@ -142,7 +156,7 @@ class DuplicateController(
     fun removeDuplicateTrackAPI(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "originalTrackId") originalId: Long,
-        @RequestParam(name = "duplicateTrackId") duplicateId: Long
+        @RequestParam(name = "duplicateTrackId") duplicateId: Long,
     ): MergeOperation<Track>? {
         val theTrackMergeOperation = removeDuplicateTrack(originalId, duplicateId)
         return theTrackMergeOperation ?: throw TrackNotFoundException()
@@ -154,7 +168,7 @@ class DuplicateController(
         @RequestParam(name = "password") password: String,
         @RequestParam(defaultValue = "0") from: Int,
         @RequestParam(required = false, defaultValue = "100") size: Int,
-        @RequestParam() dryRun: Boolean
+        @RequestParam() dryRun: Boolean,
     ) {
         val theArtists = mArtistRepository.findAll().toList()
         println("STARTED")
@@ -203,7 +217,10 @@ class DuplicateController(
         }
     }
 
-    override fun checkLastWeek(from: Long, size: Long) {
+    override fun checkLastWeek(
+        from: Long,
+        size: Long,
+    ) {
         val theSize = mChartListRepository.count()
         var thePreviousChartList: ChartList? = null
         var thePreviousChartTracks = mutableListOf<ChartTrack>()
@@ -257,8 +274,12 @@ class DuplicateController(
                                     if (mChartTrackRepository.countRealChartListSize(thePreviousChartList).size <
                                         theChartList.chart!!.listSize!!
                                     ) {
-                                        val theMissingTrack = mChartTrackController.
-                                        addMissingTrackInternal(thePreviousChartList, theChartTrack.track!!, theLastWeekRank)
+                                        val theMissingTrack = mChartTrackController
+                                            .addMissingTrackInternal(
+                                                thePreviousChartList,
+                                                theChartTrack.track!!,
+                                                theLastWeekRank,
+                                            )
                                         println("FIXED! ADDED MISSING TRACK - $theMissingTrack")
                                         continue
                                     }
@@ -279,13 +300,13 @@ class DuplicateController(
                                             print("NOT ")
                                         }
                                         println(
-                                            "FIXED! REMOVE DUPLICATE TRACK - $duplicate ${duplicate.id} => $original ${original.id}"
+                                            "FIXED! REMOVE DUPLICATE TRACK - $duplicate ${duplicate.id} => $original ${original.id}",
                                         )
                                         continue
                                     } else {
                                         if (Ex.equalsValued(
                                                 theDuplicate.track?.title,
-                                                theChartTrack.track?.title
+                                                theChartTrack.track?.title,
                                             )
                                         ) {
                                             val l1 = Ex.getValuedLength(theDuplicate.track!!.artist?.name)
@@ -302,7 +323,7 @@ class DuplicateController(
                                                 print("NOT ")
                                             }
                                             println(
-                                                "FIXED! REMOVE DUPLICATE TRACK - $duplicate ${duplicate.id} => $original ${original.id}"
+                                                "FIXED! REMOVE DUPLICATE TRACK - $duplicate ${duplicate.id} => $original ${original.id}",
                                             )
                                             thePossibleArtistUpdates[original.artist!!] = duplicate.artist!!
                                             continue
@@ -311,8 +332,10 @@ class DuplicateController(
                                 }
                             }
                             reportLastWeekRankProblem(
-                                thePreviousChartList!!, theChartList, theChartTrack,
-                                theSameRankTracks
+                                thePreviousChartList!!,
+                                theChartList,
+                                theChartTrack,
+                                theSameRankTracks,
                             )
                         }
                     }
@@ -334,7 +357,10 @@ class DuplicateController(
         }
     }
 
-    private fun removeDuplicateArtist(originalId: Long, duplicateId: Long): List<MergeOperation<*>>? {
+    private fun removeDuplicateArtist(
+        originalId: Long,
+        duplicateId: Long,
+    ): List<MergeOperation<*>>? {
         val theOriginalArtist = mArtistRepository.findById(originalId).orElse(null)
         val theDuplicateArtist = mArtistRepository.findById(duplicateId).orElse(null)
         if (theOriginalArtist != null && theDuplicateArtist != null) {
@@ -385,7 +411,10 @@ class DuplicateController(
         return null
     }
 
-    private fun removeDuplicateTrack(originalId: Long, duplicateId: Long): MergeOperation<Track>? {
+    private fun removeDuplicateTrack(
+        originalId: Long,
+        duplicateId: Long,
+    ): MergeOperation<Track>? {
         val duplicateTrack = mTrackRepository.findById(duplicateId).orElse(null)
         val originalTrack = mTrackRepository.findById(originalId).orElse(null)
         if (originalTrack != null && duplicateTrack != null) {
@@ -396,8 +425,8 @@ class DuplicateController(
             mDuplicateTrackRepository.save(
                 DuplicateTrack(
                     originalTrack.artist!!.generateDuplicateTitle(duplicateTrack.title!!),
-                    originalTrack
-                )
+                    originalTrack,
+                ),
             )
 
             mTrackRepository.delete(duplicateTrack)
@@ -407,14 +436,16 @@ class DuplicateController(
     }
 
     private fun reportLastWeekRankProblem(
-        previousChartList: ChartList, chartList: ChartList, theChartTrack: ChartTrack,
-        sameRankTracks: List<ChartTrack>
+        previousChartList: ChartList,
+        chartList: ChartList,
+        theChartTrack: ChartTrack,
+        sameRankTracks: List<ChartTrack>,
     ) {
         println("****************")
         println("--- ORIGINAL TRACK FROM CHART LIST ${chartList.id}")
         println("$theChartTrack TRACK_ID = ${theChartTrack.track?.id}")
         println(
-            "--- POSSIBLE TRACKS FROM PREVIOUS CHART_LIST ${previousChartList.id} AND _RANK ${theChartTrack.lastWeekRank}"
+            "--- POSSIBLE TRACKS FROM PREVIOUS CHART_LIST ${previousChartList.id} AND _RANK ${theChartTrack.lastWeekRank}",
         )
         for (thePrevious in sameRankTracks) {
             println("$thePrevious ${thePrevious.track?.id}")

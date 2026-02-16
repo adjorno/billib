@@ -3,20 +3,31 @@ package com.m14n.billib.data.billboard.model.consistency
 import com.m14n.billib.data.billboard.model.BBTrack
 
 fun interface TrackConsistencyChecker {
-    fun check(actualTrack: BBTrack, previousChartTrack: BBTrack): Result
+    fun check(
+        actualTrack: BBTrack,
+        previousChartTrack: BBTrack,
+    ): Result
 
-    data class Result(val inconsistencies: List<Inconsistency>) {
+    data class Result(
+        val inconsistencies: List<Inconsistency>,
+    ) {
         val unacceptable = inconsistencies.any { trackInconsistency -> !trackInconsistency.acceptable }
     }
 
     sealed interface Inconsistency {
         val acceptable: Boolean
 
-        data class Artist(val actual: String, val expected: String, override val acceptable: Boolean = false) :
-            Inconsistency
+        data class Artist(
+            val actual: String,
+            val expected: String,
+            override val acceptable: Boolean = false,
+        ) : Inconsistency
 
-        data class Title(val actual: String, val expected: String, override val acceptable: Boolean = false) :
-            Inconsistency
+        data class Title(
+            val actual: String,
+            val expected: String,
+            override val acceptable: Boolean = false,
+        ) : Inconsistency
     }
 }
 
@@ -38,12 +49,14 @@ val defaultTrackConsistencyChecker = TrackConsistencyChecker { actualTrack, prev
             },
             if (actualArtist.raw == expectedArtist.raw) {
                 null
-            } else TrackConsistencyChecker.Inconsistency.Artist(
-                actual = actualTrack.artist,
-                expected = previousChartTrack.artist,
-                acceptable = actualArtist == expectedArtist
-            ),
-        )
+            } else {
+                TrackConsistencyChecker.Inconsistency.Artist(
+                    actual = actualTrack.artist,
+                    expected = previousChartTrack.artist,
+                    acceptable = actualArtist == expectedArtist,
+                )
+            },
+        ),
     )
 }
 
@@ -52,6 +65,7 @@ data class Title(
     val parts: List<CleanTitlePart>,
 ) {
     override fun hashCode() = parts.hashCode()
+
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is Title) {
             return false
@@ -60,21 +74,26 @@ data class Title(
     }
 
     companion object {
-        fun fromRawValue(rawValue: String) = Title(
-            raw = rawValue,
-            parts = rawValue
-                .split(
-                    " ", "'", "’", "-", "?",
-                    ignoreCase = true,
-                )
-                .filter { it.isNotBlank() }
-                .map { CleanTitlePart.fromRawValue(it) }
-        )
+        fun fromRawValue(rawValue: String) =
+            Title(
+                raw = rawValue,
+                parts = rawValue
+                    .split(
+                        " ",
+                        "'",
+                        "’",
+                        "-",
+                        "?",
+                        ignoreCase = true,
+                    )
+                    .filter { it.isNotBlank() }
+                    .map { CleanTitlePart.fromRawValue(it) },
+            )
     }
 }
 
 data class CleanTitlePart(
-    val value: String
+    val value: String,
 ) {
     companion object {
         fun fromRawValue(rawValue: String): CleanTitlePart {
@@ -100,41 +119,42 @@ data class Artist(
     }
 
     companion object {
-        fun fromRawValue(rawValue: String) = Artist(
-            raw = rawValue,
-            parts = rawValue
-                .cleanFromSpecialCharacters()
-                .split(
-                    ",",
-                    "/",
-                    " duet with ",
-                    " with ",
-                    " and ",
-                    " or ",
-                    " & ",
-                    " ft ",
-                    " feat ",
-                    " featuring ",
-                    " + ",
-                    ignoreCase = true
-                )
-                /**
-                 * To cover the case when the ` X ` in the "Mia X" can be taken as a separator
-                 */
-                .map {
-                    it.split(
-                        " x ",
-                        ignoreCase = true
+        fun fromRawValue(rawValue: String) =
+            Artist(
+                raw = rawValue,
+                parts = rawValue
+                    .cleanFromSpecialCharacters()
+                    .split(
+                        ",",
+                        "/",
+                        " duet with ",
+                        " with ",
+                        " and ",
+                        " or ",
+                        " & ",
+                        " ft ",
+                        " feat ",
+                        " featuring ",
+                        " + ",
+                        ignoreCase = true,
                     )
-                }
-                .flatten()
-                .map { CleanArtistPart.fromRawValue(it) }.toSet()
-        )
+                    /**
+                     * To cover the case when the ` X ` in the "Mia X" can be taken as a separator
+                     */
+                    .map {
+                        it.split(
+                            " x ",
+                            ignoreCase = true,
+                        )
+                    }
+                    .flatten()
+                    .map { CleanArtistPart.fromRawValue(it) }.toSet(),
+            )
     }
 }
 
 data class CleanArtistPart(
-    val value: String
+    val value: String,
 ) {
     companion object {
         fun fromRawValue(rawValue: String): CleanArtistPart {
@@ -145,9 +165,10 @@ data class CleanArtistPart(
     }
 }
 
-fun String.cleanFromSpecialCharacters() = specialCharsReplacements.fold(this) { text, charReplacement ->
-    text.replace(charReplacement.first, charReplacement.second)
-}
+fun String.cleanFromSpecialCharacters() =
+    specialCharsReplacements.fold(this) { text, charReplacement ->
+        text.replace(charReplacement.first, charReplacement.second)
+    }
 
 val specialCharsReplacements = listOf(
     '(' to ' ',

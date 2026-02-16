@@ -6,9 +6,8 @@ import java.sql.Connection
 
 class ChartImporter(
     private val connection: Connection,
-    private val progress: ProgressTracker
+    private val progress: ProgressTracker,
 ) {
-
     fun importCharts(charts: List<BBChartMetadata>): Map<String, Long> {
         progress.log("Importing ${charts.size} chart types...")
 
@@ -19,11 +18,12 @@ class ChartImporter(
         connection.createStatement().execute(journalSql)
 
         // Insert charts
-        val insertSql = """
+        val insertSql =
+            """
             INSERT INTO CHART (NAME, JOURNAL_ID, LIST_SIZE, START_DATE, END_DATE)
             VALUES (?, 1, ?, ?, ?)
             ON CONFLICT DO NOTHING
-        """.trimIndent()
+            """.trimIndent()
 
         connection.prepareStatement(insertSql).use { stmt ->
             charts.forEach { chart ->

@@ -12,17 +12,15 @@ object ArtistUtils {
         a1: String,
         a2: String,
         artistRepository: ArtistRepository,
-        duplicateArtistRepository: DuplicateArtistRepository
-    ): Boolean {
-        return a1.equals(a2, ignoreCase = true)
-    }
+        duplicateArtistRepository: DuplicateArtistRepository,
+    ): Boolean = a1.equals(a2, ignoreCase = true)
 
     @JvmStatic
     fun equals(
         a1: String,
         a2: String,
         artistRepository: ArtistRepository,
-        duplicateArtistRepository: DuplicateArtistRepository
+        duplicateArtistRepository: DuplicateArtistRepository,
     ): Boolean {
         val aa1 = artistAlternatives(a1, artistRepository, duplicateArtistRepository)
         val aa2 = artistAlternatives(a2, artistRepository, duplicateArtistRepository)
@@ -40,7 +38,7 @@ object ArtistUtils {
     fun artistAlternatives(
         artistName: String,
         artistRepository: ArtistRepository,
-        duplicateArtistRepository: DuplicateArtistRepository
+        duplicateArtistRepository: DuplicateArtistRepository,
     ): Array<String> {
         val theResult = mutableListOf<String>()
         val theArtist = artistRepository.findByName(artistName)
@@ -55,17 +53,16 @@ object ArtistUtils {
     }
 
     @JvmStatic
-    fun optimizeName(original: String): String {
-        return optimizeFeaturing(
+    fun optimizeName(original: String): String =
+        optimizeFeaturing(
             optimizeWith(
                 optimizeDuetWith(
                     original.replace("(?i) featuring ".toRegex(), " feat. ")
                         .replace("(?i) with ".toRegex(), " & ")
-                        .replace("(?i) / ".toRegex(), " & ")
-                )
-            )
+                        .replace("(?i) / ".toRegex(), " & "),
+                ),
+            ),
         )
-    }
 
     @JvmStatic
     fun optimizeDuetWith(artistName: String): String {
@@ -101,39 +98,36 @@ object ArtistUtils {
     }
 
     @JvmStatic
-    fun splitCollaboration(artist: String): Array<String> {
-        return artist.lowercase()
+    fun splitCollaboration(artist: String): Array<String> =
+        artist.lowercase()
             .split(
                 "( & )|" +
-                "(, )|" +
-                "( and )|" +
-                "( vs\\.? )|" +
-                "( feat\\.? )|" +
-                "( y )|" +
-                "( / )|" +
-                "( presents )|" +
-                "( pres\\.? )|" +
-                "( starr?ing )|" +
-                "( introducing )|" +
-                "| ( \\+ )".toRegex()
+                    "(, )|" +
+                    "( and )|" +
+                    "( vs\\.? )|" +
+                    "( feat\\.? )|" +
+                    "( y )|" +
+                    "( / )|" +
+                    "( presents )|" +
+                    "( pres\\.? )|" +
+                    "( starr?ing )|" +
+                    "( introducing )|" +
+                    "| ( \\+ )".toRegex(),
             ).toTypedArray()
-    }
 
     /**
      * Returns all collaboration artists (e.g., "A, B, C") from the relations.
      */
     @JvmStatic
-    fun asCollaborationArtists(artistRelations: List<ArtistRelation>): List<Artist> {
-        return artistRelations.mapNotNull { it.collaborationArtist }
-    }
+    fun asCollaborationArtists(artistRelations: List<ArtistRelation>): List<Artist> =
+        artistRelations.mapNotNull { it.collaborationArtist }
 
     /**
      * Returns all member artists (individual artists who are part of collaborations).
      */
     @JvmStatic
-    fun asMemberArtists(artistRelations: List<ArtistRelation>): List<Artist> {
-        return artistRelations.mapNotNull { it.memberArtist }
-    }
+    fun asMemberArtists(artistRelations: List<ArtistRelation>): List<Artist> =
+        artistRelations.mapNotNull { it.memberArtist }
 
     /**
      * For a given artist, extracts all collaborating artists from the relations.
@@ -144,7 +138,10 @@ object ArtistUtils {
      * for the collaborations, not just relations involving excludeArtist.
      */
     @JvmStatic
-    fun extractCollaborators(artistRelations: List<ArtistRelation>, excludeArtist: Artist): List<Artist> {
+    fun extractCollaborators(
+        artistRelations: List<ArtistRelation>,
+        excludeArtist: Artist,
+    ): List<Artist> {
         val collaborators = mutableSetOf<Artist>()
 
         // Case 1: Artist is a collaboration - return all its members
@@ -159,7 +156,9 @@ object ArtistUtils {
 
         // For each collaboration this artist is a member of, add all other members
         collaborationsAsMember.forEach { collab ->
-            artistRelations.filter { it.collaborationArtist?.id == collab.id && it.memberArtist?.id != excludeArtist.id }
+            artistRelations.filter {
+                it.collaborationArtist?.id == collab.id && it.memberArtist?.id != excludeArtist.id
+            }
                 .forEach { it.memberArtist?.let { member -> collaborators.add(member) } }
         }
 
@@ -167,12 +166,15 @@ object ArtistUtils {
     }
 
     @JvmStatic
-    fun asArtistIds(artists: List<Artist>): List<Long> {
-        return artists.mapNotNull { it.id }
-    }
+    fun asArtistIds(artists: List<Artist>): List<Long> = artists.mapNotNull { it.id }
 
     @JvmStatic
-    fun getSearchQuery(keywords: Array<String>, offset: Int, limit: Int, alphabetical: Boolean): String {
+    fun getSearchQuery(
+        keywords: Array<String>,
+        offset: Int,
+        limit: Int,
+        alphabetical: Boolean,
+    ): String {
         val theQueryBuilder = StringBuilder("SELECT ARTIST._ID, ARTIST.NAME, ARTIST.NAME_NORMALIZED FROM ARTIST")
         if (!alphabetical) {
             theQueryBuilder.append(" JOIN GLOBAL_RANK_ARTIST ON ARTIST._ID = GLOBAL_RANK_ARTIST.ARTIST_ID")
@@ -188,10 +190,11 @@ object ArtistUtils {
             theQueryBuilder.append(" ARTIST.NAME LIKE '%").append(keyWord.replace("'", "''")).append("%'")
         }
         theQueryBuilder.append(" ORDER BY ").append(
-            if (alphabetical)
+            if (alphabetical) {
                 "ARTIST.NAME ASC"
-            else
+            } else {
                 "GLOBAL_RANK_ARTIST.RANK ASC"
+            },
         )
         if (limit != 0) {
             theQueryBuilder.append(" LIMIT ").append(limit).append(" OFFSET ").append(offset)
@@ -216,7 +219,5 @@ object ArtistUtils {
     }
 
     @JvmStatic
-    fun asArtists(tracks: List<Track>): List<Artist> {
-        return tracks.mapNotNull { it.artist }
-    }
+    fun asArtists(tracks: List<Track>): List<Artist> = tracks.mapNotNull { it.artist }
 }

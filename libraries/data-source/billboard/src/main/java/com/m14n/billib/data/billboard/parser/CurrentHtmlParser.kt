@@ -19,13 +19,14 @@ import org.jsoup.select.Evaluator
 fun dateParser() =
     DelegateHtmlChartDateParser(
         CurrentTextDateParser(),
-        DateFormatParser(BB.CHART_DATE_FORMAT)
+        DateFormatParser(BB.CHART_DATE_FORMAT),
     )
 
 class CurrentTextDateParser : HtmlChartTextDateParser {
-    override fun parse(document: Document): String = document.body()
-        .selectFirst("div#chart-date-picker")!!
-        .requestAttr("data-date")
+    override fun parse(document: Document): String =
+        document.body()
+            .selectFirst("div#chart-date-picker")!!
+            .requestAttr("data-date")
 }
 
 class CurrentChartListParser : HtmlChartListParser {

@@ -14,9 +14,8 @@ data class Week(
     @Column(name = "WEEK_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-
     @Column(name = "DATE")
-    var date: String? = null
+    var date: String? = null,
 ) {
     override fun toString() = date.toString()
 }

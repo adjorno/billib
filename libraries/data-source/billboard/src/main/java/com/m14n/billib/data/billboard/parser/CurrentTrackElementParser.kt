@@ -9,9 +9,11 @@ import org.jsoup.select.Evaluator
  * February 2026: Billboard changed chart stats structure from positional list items
  * to labeled flex divs. Old format (pre-2026) is no longer supported.
  */
-class CurrentTrackElementParser: TrackElementParser {
+class CurrentTrackElementParser : TrackElementParser {
     override fun parse(element: Element): BBTrack {
-        val rankElement = element.selectFirst(Evaluator.Class("o-chart-results-list__item"))!!.selectFirst(Evaluator.Class("c-label"))!!
+        val rankElement = element.selectFirst(
+            Evaluator.Class("o-chart-results-list__item"),
+        )!!.selectFirst(Evaluator.Class("c-label"))!!
         val titleElement = element.selectFirst(Evaluator.Id("title-of-a-story"))!!
         val artistElement = titleElement.parent()!!.selectFirst(Evaluator.Class("c-label"))!!
 
@@ -34,8 +36,8 @@ class CurrentTrackElementParser: TrackElementParser {
                     wksOnChartElement?.text()?.trim()?.toInt() ?: 0
                 } catch (e: Exception) {
                     0
-                }
-            )
+                },
+            ),
         )
     }
 }

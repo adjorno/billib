@@ -6,7 +6,6 @@ import java.sql.DriverManager
 import java.sql.SQLException
 
 object DatabaseConnection {
-
     fun create(config: ImportConfig): Connection {
         try {
             Class.forName("org.postgresql.Driver")
@@ -15,7 +14,7 @@ object DatabaseConnection {
             val connection = DriverManager.getConnection(
                 config.dbUrl,
                 config.dbUser,
-                config.dbPassword
+                config.dbPassword,
             )
             connection.autoCommit = false // Use manual transactions for performance
             return connection
@@ -32,8 +31,8 @@ object DatabaseConnection {
         }
     }
 
-    fun testConnection(config: ImportConfig): Boolean {
-        return try {
+    fun testConnection(config: ImportConfig): Boolean =
+        try {
             create(config).use { conn ->
                 val stmt = conn.createStatement()
                 val rs = stmt.executeQuery("SELECT 1")
@@ -42,5 +41,4 @@ object DatabaseConnection {
         } catch (e: Exception) {
             false
         }
-    }
 }

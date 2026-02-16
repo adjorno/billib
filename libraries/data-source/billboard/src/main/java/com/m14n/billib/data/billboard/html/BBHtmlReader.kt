@@ -11,7 +11,8 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.util.*
+import java.util.Date
+import java.util.Properties
 
 object BBHtmlReader {
     @Throws(Exception::class)
@@ -42,16 +43,23 @@ object BBHtmlReader {
             val theChart = BBChart(
                 name = it.name,
                 date = BB.CHART_DATE_FORMAT.format(theWeekDate),
-                tracks = tracksParser.parse(theDocument)
+                tracks = tracksParser.parse(theDocument),
             )
             BenchmarkCore.stop(theBenchmark)
-            writeChartToFile(theChart, theWeekFolder!!,
-                    it.prefix + "-" + theWeekDate + ".json")
+            writeChartToFile(
+                theChart,
+                theWeekFolder!!,
+                it.prefix + "-" + theWeekDate + ".json",
+            )
         }
     }
 
     @Throws(IOException::class)
-    fun writeChartToFile(chart: BBChart, folder: File, fileName: String) {
+    fun writeChartToFile(
+        chart: BBChart,
+        folder: File,
+        fileName: String,
+    ) {
         val theChartFile = File(folder, fileName)
         FileWriter(theChartFile).use {
             it.write(Json.encodeToString(chart))

@@ -1,20 +1,23 @@
 package com.ifochka.billib.rest
 
-import org.springframework.web.bind.annotation.RestController
+import com.ifochka.billib.rest.db.Artist
+import com.ifochka.billib.rest.db.ArtistRelationRepository
+import com.ifochka.billib.rest.db.ArtistRepository
+import com.ifochka.billib.rest.db.ArtistUtils
+import com.ifochka.billib.rest.db.DuplicateArtist
+import com.ifochka.billib.rest.db.DuplicateArtistRepository
+import com.ifochka.billib.rest.db.GlobalRankArtistRepository
+import com.ifochka.billib.rest.model.ArtistInfo
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
-import com.ifochka.billib.rest.db.*
-import com.ifochka.billib.rest.model.ArtistInfo
-import com.m14n.ex.Ex
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.transaction.annotation.Transactional
-import java.util.ArrayList
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 open class ArtistController {
-
     @Autowired
     private lateinit var artistRepository: ArtistRepository
 
@@ -31,15 +34,15 @@ open class ArtistController {
     private lateinit var trackController: TrackController
 
     @RequestMapping(value = ["/artist/getById"], method = [RequestMethod.GET])
-    fun getById(@RequestParam id: Long): Artist {
-        return artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
-    }
+    fun getById(
+        @RequestParam id: Long,
+    ): Artist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
 
     @RequestMapping(value = ["/artist/info"], method = [RequestMethod.GET])
     fun getInfo(
         @RequestParam id: Long,
         @RequestParam(name = "relations_size", required = false, defaultValue = "5") relationsSize: Int,
-        @RequestParam(name = "tracks_size", required = false, defaultValue = "5") tracksSize: Int
+        @RequestParam(name = "tracks_size", required = false, defaultValue = "5") tracksSize: Int,
     ): ArtistInfo {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
         val theInfo = ArtistInfo()
@@ -53,15 +56,13 @@ open class ArtistController {
     @RequestMapping(value = ["/artist/global"], method = [RequestMethod.GET])
     fun getGlobalArtists(
         @RequestParam rank: Long,
-        @RequestParam(required = false, defaultValue = "1") size: Long
-    ): List<Artist> {
-        return artistRepository.findGlobalList(rank, rank + size)
-    }
+        @RequestParam(required = false, defaultValue = "1") size: Long,
+    ): List<Artist> = artistRepository.findGlobalList(rank, rank + size)
 
     @RequestMapping(value = ["/artist/relations"], method = [RequestMethod.GET])
     fun getRelations(
         @RequestParam id: Long,
-        @RequestParam(required = false, defaultValue = "0") size: Int
+        @RequestParam(required = false, defaultValue = "0") size: Int,
     ): List<Artist> {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
 
@@ -93,13 +94,16 @@ open class ArtistController {
         val requestedSize = if (size == 0) collaborators.size else size
         return artistRepository.sortByGlobalRank(
             ArtistUtils.asArtistIds(collaborators),
-            requestedSize
+            requestedSize,
         )
     }
 
     @Transactional
     @RequestMapping(value = ["/artist/rename"], method = [RequestMethod.POST])
-    open fun rename(@RequestParam id: Long, @RequestParam(name = "name") newName: String) {
+    open fun rename(
+        @RequestParam id: Long,
+        @RequestParam(name = "name") newName: String,
+    ) {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
         val theDuplicate = duplicateArtistRepository.findByDuplicateName(newName)
         val theOldName = theArtist.name

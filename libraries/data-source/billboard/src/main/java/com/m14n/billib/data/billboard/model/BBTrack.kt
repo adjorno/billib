@@ -9,10 +9,7 @@ data class BBTrack(
     var title: String,
     var artist: String,
     @SerialName("position")
-    var positionInfo: BBPositionInfo? = null
+    var positionInfo: BBPositionInfo? = null,
 ) {
-
-    override fun toString(): String {
-        return "$rank. $artist - $title ($positionInfo)"
-    }
+    override fun toString(): String = "$rank. $artist - $title ($positionInfo)"
 }

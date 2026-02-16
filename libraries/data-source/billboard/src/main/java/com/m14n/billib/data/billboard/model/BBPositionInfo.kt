@@ -10,10 +10,7 @@ data class BBPositionInfo(
     @SerialName("Peak Position")
     var peekPosition: Int = 0,
     @SerialName("Wks on Chart")
-    var wksOnChart: Int = 0
+    var wksOnChart: Int = 0,
 ) {
-
-    override fun toString(): String {
-        return "Last = $lastWeek, Peak = $peekPosition, Charts = $wksOnChart"
-    }
+    override fun toString(): String = "Last = $lastWeek, Peak = $peekPosition, Charts = $wksOnChart"
 }

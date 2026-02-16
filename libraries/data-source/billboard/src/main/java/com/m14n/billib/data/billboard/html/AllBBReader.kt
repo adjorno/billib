@@ -14,7 +14,9 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.text.ParseException
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Properties
 
 private val jsonDecoder = Json {
     prettyPrint = true
@@ -46,7 +48,12 @@ fun main() {
 }
 
 @Throws(ParseException::class)
-private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata: BBChartMetadata, date: Date) {
+private fun fetchChart(
+    root: File,
+    metadata: BBJournalMetadata,
+    theChartMetadata: BBChartMetadata,
+    date: Date,
+) {
     println("---------------------" + theChartMetadata.name + "----------------------------")
     val theChartDir = File(root, theChartMetadata.folder)
     if (!theChartDir.exists()) {
@@ -64,8 +71,17 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
         val theCurrent = BB.CHART_DATE_FORMAT.format(theCalendar.time)
         theCalendar.add(
             Calendar.DATE,
-            if ("2018-01-06" == theCurrent) -3 else if ("2018-01-03" == theCurrent) -4 else
-                if ("1962-01-06" == theCurrent) -12 else -7
+            if ("2018-01-06" == theCurrent) {
+                -3
+            } else if ("2018-01-03" == theCurrent) {
+                -4
+            } else {
+                if ("1962-01-06" == theCurrent) {
+                    -12
+                } else {
+                    -7
+                }
+            },
         )
         if (theCalendar.time.before(theChartMetadata.startDate.toChartDate())) {
             break
@@ -73,14 +89,15 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
         val theFormatDate = BB.CHART_DATE_FORMAT.format(theCalendar.time)
         val theChartFile = File(
             theChartDir,
-            theChartMetadata.prefix + "-" + theFormatDate + ".json"
+            theChartMetadata.prefix + "-" + theFormatDate + ".json",
         )
         if (!theChartFile.exists()) {
             Thread.sleep(6000)
             try {
                 val theChartDocument = BBHtmlParser.getChartDocument(
-                    metadata, theChartMetadata,
-                    theFormatDate
+                    metadata,
+                    theChartMetadata,
+                    theFormatDate,
                 )
                 val theHtmlDate = try {
                     BB.CHART_DATE_FORMAT.format(dateParser.parse(theChartDocument))
@@ -88,10 +105,13 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
                     e.printStackTrace()
                     "COULD_NOT_FETCH_DATE"
                 }
-                if (theFormatDate != theHtmlDate
+                if (theFormatDate != theHtmlDate &&
                     // Billboard mistake as always :-)
-                    && !("2018-11-10" == theHtmlDate && "2018-11-03" == theFormatDate &&
-                            "Youtube" == theChartMetadata.name)
+                    !(
+                        "2018-11-10" == theHtmlDate &&
+                            "2018-11-03" == theFormatDate &&
+                            "Youtube" == theChartMetadata.name
+                    )
                 ) {
                     println("${theChartMetadata.name} $theFormatDate WRONG DATE!")
                     theSkip++
@@ -111,7 +131,8 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
                 }
                 val theChart = BBChart(
                     name = theChartMetadata.name,
-                    date = theFormatDate, tracks = theTracks
+                    date = theFormatDate,
+                    tracks = theTracks,
                 )
 
                 FileWriter(theChartFile).use {
@@ -123,10 +144,8 @@ private fun fetchChart(root: File, metadata: BBJournalMetadata, theChartMetadata
                 e.printStackTrace()
                 theSkip++
             }
-
         } else {
             theSkip = 0
         }
     }
 }
-

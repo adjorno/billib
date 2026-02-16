@@ -1,15 +1,20 @@
 package com.ifochka.billib.rest
 
-import org.springframework.web.bind.annotation.RestController
+import com.ifochka.billib.rest.db.ChartList
+import com.ifochka.billib.rest.db.ChartListRepository
+import com.ifochka.billib.rest.db.ChartRepository
+import com.ifochka.billib.rest.db.ChartTrackRepository
+import com.ifochka.billib.rest.db.TrackRepository
+import com.ifochka.billib.rest.db.WeekRepository
+import com.m14n.billib.data.BB
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.data.domain.PageRequest
-import com.ifochka.billib.rest.db.*
-import com.m14n.billib.data.BB
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ChartListController {
@@ -32,7 +37,9 @@ class ChartListController {
     private lateinit var chartTrackController: ChartTrackController
 
     @RequestMapping(value = ["/chartList/getById"], method = [RequestMethod.GET])
-    fun getChartListById(@RequestParam(name = "id") chartListId: Long): ChartList {
+    fun getChartListById(
+        @RequestParam(name = "id") chartListId: Long,
+    ): ChartList {
         val theChartList =
             chartListRepository.findByIdOrNull(chartListId) ?: throw ChartListNotFoundException()
         return getPrintableChartList(theChartList)
@@ -41,7 +48,7 @@ class ChartListController {
     @RequestMapping(value = ["/chartList/getByDate"], method = [RequestMethod.GET])
     fun getChartListByDate(
         @RequestParam(name = "chart_id") chartId: Long,
-        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?
+        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?,
     ): ChartList {
         val theChart = chartRepository.findByIdOrNull(chartId) ?: throw ChartListNotFoundException()
         var theChartList: ChartList? = null
@@ -60,7 +67,9 @@ class ChartListController {
     }
 
     @RequestMapping(value = ["/chartList/getFirstAppearance"], method = [RequestMethod.GET])
-    fun getFirstAppearance(@RequestParam(name = "track_id") trackId: Long): ChartList? {
+    fun getFirstAppearance(
+        @RequestParam(name = "track_id") trackId: Long,
+    ): ChartList? {
         val theTrack = trackRepository.findByIdOrNull(trackId) ?: throw TrackNotFoundException()
         val theDebut = chartTrackController.getDebut(theTrack)
         val theChartList = theDebut.chartList

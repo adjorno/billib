@@ -4,18 +4,20 @@ import com.ifochka.billib.importer.model.BBChart
 import com.ifochka.billib.importer.util.ProgressTracker
 import java.sql.Connection
 
-data class ChartListKey(val chartId: Long, val weekId: Long)
+data class ChartListKey(
+    val chartId: Long,
+    val weekId: Long,
+)
 
 class ChartListImporter(
     private val connection: Connection,
     private val progress: ProgressTracker,
-    private val batchSize: Int = 5000
+    private val batchSize: Int = 5000,
 ) {
-
     fun importChartLists(
         charts: List<BBChart>,
         chartMap: Map<String, Long>,
-        weekMap: Map<String, Long>
+        weekMap: Map<String, Long>,
     ): Map<ChartListKey, Long> {
         progress.log("Importing ${charts.size} chart instances...")
 
@@ -35,11 +37,12 @@ class ChartListImporter(
             .distinct()
 
         // Insert chart lists
-        val insertSql = """
+        val insertSql =
+            """
             INSERT INTO CHART_LIST (CHART_ID, WEEK_ID, NUMBER)
             VALUES (?, ?, 1)
             ON CONFLICT (CHART_ID, WEEK_ID) DO NOTHING
-        """.trimIndent()
+            """.trimIndent()
 
         connection.prepareStatement(insertSql).use { stmt ->
             var count = 0

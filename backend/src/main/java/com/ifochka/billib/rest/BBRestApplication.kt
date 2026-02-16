@@ -13,13 +13,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @SpringBootApplication
 open class BBRestApplication {
     @Bean
-    open fun corsConfigurer(): WebMvcConfigurer {
-        return object : WebMvcConfigurer {
+    open fun corsConfigurer(): WebMvcConfigurer =
+        object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
                 registry.addMapping("/**")
             }
         }
-    }
 }
 
 fun main(args: Array<String>) {

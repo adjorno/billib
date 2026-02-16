@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface GlobalRankTrackViewRepository : JpaRepository<GlobalRankTrackView, Long> {
-
     /**
      * Find global rank for a specific track
      */
@@ -16,35 +15,41 @@ interface GlobalRankTrackViewRepository : JpaRepository<GlobalRankTrackView, Lon
     /**
      * Get top ranked tracks
      */
-    @Query("""
+    @Query(
+        """
         SELECT grt FROM GlobalRankTrackView grt
         ORDER BY grt.rank
-    """)
+    """,
+    )
     fun findTopRanked(pageable: Pageable): Page<GlobalRankTrackView>
 
     /**
      * Get tracks with rank range
      */
-    @Query("""
+    @Query(
+        """
         SELECT grt FROM GlobalRankTrackView grt
         WHERE grt.rank BETWEEN :minRank AND :maxRank
         ORDER BY grt.rank
-    """)
+    """,
+    )
     fun findByRankRange(
         @Param("minRank") minRank: Long,
-        @Param("maxRank") maxRank: Long
+        @Param("maxRank") maxRank: Long,
     ): List<GlobalRankTrackView>
 
     /**
      * Get tracks with minimum appearances
      */
-    @Query("""
+    @Query(
+        """
         SELECT grt FROM GlobalRankTrackView grt
         WHERE grt.totalAppearances >= :minAppearances
         ORDER BY grt.rank
-    """)
+    """,
+    )
     fun findByMinimumAppearances(
         @Param("minAppearances") minAppearances: Long,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<GlobalRankTrackView>
 }

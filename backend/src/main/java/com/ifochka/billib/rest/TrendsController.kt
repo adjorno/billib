@@ -1,10 +1,19 @@
 package com.ifochka.billib.rest
 
-import com.ifochka.billib.rest.db.*
+import com.ifochka.billib.rest.db.ChartListRepository
+import com.ifochka.billib.rest.db.ChartTrack
+import com.ifochka.billib.rest.db.ChartTrackRepository
+import com.ifochka.billib.rest.db.TrackRepository
+import com.ifochka.billib.rest.db.TrackUtils
+import com.ifochka.billib.rest.db.TrendTrack
+import com.ifochka.billib.rest.db.TrendTrackRepository
+import com.ifochka.billib.rest.db.TrendType
+import com.ifochka.billib.rest.db.TrendTypeRepository
+import com.ifochka.billib.rest.db.Week
+import com.ifochka.billib.rest.db.WeekRepository
 import com.ifochka.billib.rest.model.TrendList
 import com.ifochka.billib.rest.model.Trends
 import com.m14n.billib.data.BB
-import com.m14n.ex.Ex
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.transaction.annotation.Propagation
@@ -22,16 +31,17 @@ class TrendsController(
     private val mChartTrackRepository: ChartTrackRepository,
     private val mChartListRepository: ChartListRepository,
     private val mTrendTrackRepository: TrendTrackRepository,
-    private val mTrackController: TrackController
+    private val mTrackController: TrackController,
 ) : ITrendsController {
-
     companion object {
         private const val LIST_SIZE_PER_TYPE = 10
         private const val DB_LIST_SIZE_PER_TYPE = 5 * LIST_SIZE_PER_TYPE
 
         private fun getOrCreateGainerCache(
-            trackId: Long, cache: MutableMap<Long, Long>, trackController: TrackController,
-            week: Week
+            trackId: Long,
+            cache: MutableMap<Long, Long>,
+            trackController: TrackController,
+            week: Week,
         ): Long {
             if (cache.containsKey(trackId)) {
                 return cache[trackId]!!
@@ -58,7 +68,10 @@ class TrendsController(
             }
         }
 
-        private fun filterByCharts(original: List<ChartTrack>, blacklisted: List<Long>): List<ChartTrack> {
+        private fun filterByCharts(
+            original: List<ChartTrack>,
+            blacklisted: List<Long>,
+        ): List<ChartTrack> {
             val result = mutableListOf<ChartTrack>()
             for (chartTrack in original) {
                 if (!blacklisted.contains(chartTrack.chartList?.chart?.id)) {
@@ -68,7 +81,10 @@ class TrendsController(
             return result
         }
 
-        private fun filterDebutsByCharts(original: List<Array<Any>>, blacklisted: List<Long>): List<Array<Any>> {
+        private fun filterDebutsByCharts(
+            original: List<Array<Any>>,
+            blacklisted: List<Long>,
+        ): List<Array<Any>> {
             val result = mutableListOf<Array<Any>>()
             for (chartTrack in original) {
                 if (!blacklisted.contains((chartTrack[0] as ChartTrack).chartList?.chart?.id)) {
@@ -78,18 +94,20 @@ class TrendsController(
             return result
         }
 
-        private fun blacklistedCharts(): List<Long> {
-            return listOf(13L /*Japan*/, 17L /*Gospel*/, 18L /*Christian*/)
-        }
+        // Blacklisted chart IDs: 13=Japan, 17=Gospel, 18=Christian
+        private fun blacklistedCharts(): List<Long> = listOf(13L, 17L, 18L)
     }
 
     @RequestMapping(value = ["/trends"], method = [RequestMethod.GET])
     fun getTrendsAPI(
-        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?
+        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?,
     ): Trends {
         val theWeek = (
-            if (date == null) mChartListRepository.findLast(1L, PageRequest.of(0, 1)).content.firstOrNull()?.week
-            else mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date))
+            if (date == null) {
+                mChartListRepository.findLast(1L, PageRequest.of(0, 1)).content.firstOrNull()?.week
+            } else {
+                mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date))
+            }
         ) ?: throw IllegalStateException("Week not found for date: $date")
         val theTrendTracks = mTrendTrackRepository.findTrendsOfTheWeek(theWeek) ?: emptyList()
         val theTrendLists = mutableMapOf<Long, TrendList>()
@@ -108,7 +126,7 @@ class TrendsController(
         }
         val theTrends = Trends(
             theWeek.date!!,
-            theTrendLists.values.toTypedArray()
+            theTrendLists.values.toTypedArray(),
         )
         return theTrends
     }
@@ -116,13 +134,16 @@ class TrendsController(
     @RequestMapping(value = ["/generateTrends"], method = [RequestMethod.POST])
     fun generateTrendsAPI(
         @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) week: String,
-        @RequestParam(required = false, defaultValue = "0") type: Int
+        @RequestParam(required = false, defaultValue = "0") type: Int,
     ) {
         generateTrends(week, type.toLong())
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    override fun generateTrends(week: String, type: Long) {
+    override fun generateTrends(
+        week: String,
+        type: Long,
+    ) {
         println("STARTED GENERATING TRENDS $week")
         val theWeek = mWeekRepository.findByDate(week)
         if (theWeek != null) {
@@ -147,7 +168,7 @@ class TrendsController(
         println("STARTED GENERATE DEBUTS")
         val theBestDebuts = filterDebutsByCharts(
             mChartTrackRepository.findDebuts(week.id!!),
-            blacklistedCharts()
+            blacklistedCharts(),
         ).sortedByDescending { it[1] as? Int ?: 0 }
         val theDebutsType = mTrendTypeRepository.findById(TrendType.TYPE_DEBUTS).orElse(null)
         val theDebuts = mutableSetOf<Long>()
@@ -168,13 +189,13 @@ class TrendsController(
         println("STARTED GENERATE FUTURES")
         val theChartTracks = filterByCharts(
             mChartTrackRepository.findByWeek(week),
-            blacklistedCharts()
+            blacklistedCharts(),
         ).toMutableList()
         theChartTracks.sortWith(
             compareBy<ChartTrack> { if (it.lastWeekRank == 0) 1 else 0 } // non-debuts first
                 .thenBy { if (it.lastWeekRank != 0) it.rank - it.lastWeekRank else Int.MAX_VALUE }
                 .thenBy { it.rank }
-                .thenBy { it.chartList?.chart?.listSize ?: 0 }
+                .thenBy { it.chartList?.chart?.listSize ?: 0 },
         )
         val theFuturesType = mTrendTypeRepository.findById(TrendType.TYPE_FUTURES).orElse(null)
         for (i in 0 until minOf(theChartTracks.size, DB_LIST_SIZE_PER_TYPE)) {
@@ -188,7 +209,7 @@ class TrendsController(
         println("STARTED GENERATE SENIORS")
         val theChartTracks = filterByCharts(
             mChartTrackRepository.findByWeek(week),
-            blacklistedCharts()
+            blacklistedCharts(),
         )
         val theTracks = mTrackRepository
             .sortByGlobalRank(TrackUtils.asTrackIds(TrackUtils.asTracks(theChartTracks)), DB_LIST_SIZE_PER_TYPE)
@@ -205,7 +226,7 @@ class TrendsController(
         val theGainersType = mTrendTypeRepository.findById(TrendType.TYPE_GAINERS).orElse(null)
         val theChartTracks = filterByCharts(
             mChartTrackRepository.findByWeek(week),
-            blacklistedCharts()
+            blacklistedCharts(),
         )
         val theTracks = TrackUtils.asTracks(theChartTracks)
         val theTrackIds = TrackUtils.asTrackIds(theTracks).toSet().toMutableList()

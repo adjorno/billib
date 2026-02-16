@@ -2,12 +2,19 @@ package com.m14n.billib.data.billboard
 
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
-import java.util.*
+import java.util.Properties
+
+@OptIn(ExperimentalSerializationApi::class)
+private val json = Json {
+    ignoreUnknownKeys = true
+    prettyPrint = true
+    prettyPrintIndent = "  "
+}
 
 fun main() {
     val properties = Properties().apply {
@@ -19,26 +26,25 @@ fun main() {
     val today = properties.getProperty("data.today")
 
     val originalMetadata = Json.decodeFromString<BBJournalMetadata>(
-        File(root, "metadata_billboard.json").readText()
+        File(root, "metadata_billboard.json").readText(),
     )
     originalMetadata.charts.forEach { chartMetadata ->
         generateBillboardDateSequence(
             startDate = chartMetadata.startDate.date,
-            endDate = (chartMetadata.endDate ?: today).date
+            endDate = (chartMetadata.endDate ?: today).date,
         ).forEach { weekDate ->
             val originalChartListFile = File(
                 File(root, chartMetadata.folder),
-                "${chartMetadata.prefix}-${weekDate.text}.json"
+                "${chartMetadata.prefix}-${weekDate.text}.json",
             )
             if (originalChartListFile.exists()) {
-                val originalChartList = Json { ignoreUnknownKeys = true }
+                val originalChartList = json
                     .decodeFromString<BBChart>(originalChartListFile.readText())
                 println("Chart list $originalChartList has found")
                 FileWriter(originalChartListFile).use {
-                    it.write(Json {
-                        prettyPrint = true
-                        prettyPrintIndent = "  "
-                    }.encodeToString(originalChartList))
+                    it.write(
+                        json.encodeToString(originalChartList),
+                    )
                 }
             }
         }

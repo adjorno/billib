@@ -8,33 +8,34 @@ import java.sql.Date
 class ChartPositionImporter(
     private val connection: Connection,
     private val progress: ProgressTracker,
-    private val batchSize: Int = 5000
+    private val batchSize: Int = 5000,
 ) {
-
     fun importChartPositions(
         charts: List<BBChart>,
         trackMap: Map<TrackKey, Long>,
         artistMap: Map<String, Long>,
         chartMap: Map<String, Long>,
         weekMap: Map<String, Long>,
-        chartListMap: Map<ChartListKey, Long>
+        chartListMap: Map<ChartListKey, Long>,
     ) {
         progress.log("Importing chart positions for ${charts.size} charts...")
 
-        val insertSql = """
+        val insertSql =
+            """
             INSERT INTO CHART_TRACK_POSITION (
                 TRACK_ID, CHART_LIST_ID, _RANK, LAST_WEEK_RANK,
                 WEEK_DATE, CHART_ID, ARTIST_ID, TRACK_TITLE, ARTIST_NAME
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT DO NOTHING
-        """.trimIndent()
+            """.trimIndent()
 
         // Also insert into legacy CHART_TRACK table
-        val legacyInsertSql = """
+        val legacyInsertSql =
+            """
             INSERT INTO CHART_TRACK (TRACK_ID, CHART_LIST_ID, _RANK, LAST_WEEK_RANK)
             VALUES (?, ?, ?, ?)
             ON CONFLICT (TRACK_ID, CHART_LIST_ID) DO NOTHING
-        """.trimIndent()
+            """.trimIndent()
 
         var totalPositions = 0
         var processedCharts = 0
@@ -85,7 +86,13 @@ class ChartPositionImporter(
                                         stmt.executeBatch()
                                         legacyStmt.executeBatch()
                                         connection.commit()
-                                        progress.track("Chart Positions", totalPositions, charts.sumOf { it.tracks.size })
+                                        progress.track(
+                                            "Chart Positions",
+                                            totalPositions,
+                                            charts.sumOf {
+                                                it.tracks.size
+                                            },
+                                        )
                                     }
                                 }
                             }
@@ -108,18 +115,17 @@ class ChartPositionImporter(
         progress.log("Imported $totalPositions chart positions from $processedCharts charts")
     }
 
-    private fun parseDate(dateStr: String): Date? {
-        return try {
+    private fun parseDate(dateStr: String): Date? =
+        try {
             // Expected format: yyyy-MM-dd
             Date.valueOf(dateStr)
         } catch (e: Exception) {
             progress.log("WARNING: Invalid date format: $dateStr")
             null
         }
-    }
 
-    private fun parseLastWeekRank(lastWeekStr: String?): Int {
-        return when {
+    private fun parseLastWeekRank(lastWeekStr: String?): Int =
+        when {
             lastWeekStr == null -> 0
             lastWeekStr == "--" -> 0
             lastWeekStr.startsWith("*") -> 0
@@ -127,7 +133,6 @@ class ChartPositionImporter(
             lastWeekStr.startsWith("NEW") -> 0
             else -> lastWeekStr.trim().toIntOrNull() ?: 0
         }
-    }
 
     fun refreshMaterializedViews() {
         progress.log("Refreshing materialized views...")

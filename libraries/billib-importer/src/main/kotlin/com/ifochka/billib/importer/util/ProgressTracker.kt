@@ -1,8 +1,13 @@
 package com.ifochka.billib.importer.util
 
-class ProgressTracker(private val enabled: Boolean = true) {
-
-    fun track(phase: String, current: Int, total: Int) {
+class ProgressTracker(
+    private val enabled: Boolean = true,
+) {
+    fun track(
+        phase: String,
+        current: Int,
+        total: Int,
+    ) {
         if (!enabled) return
 
         val percent = if (total > 0) (current * 100.0 / total).toInt() else 0
@@ -29,7 +34,10 @@ class ProgressTracker(private val enabled: Boolean = true) {
         }
     }
 
-    private fun generateProgressBar(percent: Int, width: Int = 40): String {
+    private fun generateProgressBar(
+        percent: Int,
+        width: Int = 40,
+    ): String {
         val filled = (percent * width) / 100
         val empty = width - filled
         return "█".repeat(filled) + "░".repeat(empty)

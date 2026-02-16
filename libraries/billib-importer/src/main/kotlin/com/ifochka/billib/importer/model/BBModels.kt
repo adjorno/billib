@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class BBJournalMetadata(
     val name: String,
     val url: String,
-    val charts: List<BBChartMetadata>
+    val charts: List<BBChartMetadata>,
 )
 
 data class BBChartMetadata(
@@ -16,21 +16,21 @@ data class BBChartMetadata(
     val startDate: String,
     @SerializedName("end_date")
     val endDate: String? = null,
-    val prefix: String
+    val prefix: String,
 )
 
 data class BBChart(
     val name: String,
     @SerializedName("chart_date")
     val date: String,
-    val tracks: List<BBTrack>
+    val tracks: List<BBTrack>,
 )
 
 data class BBTrack(
     val rank: Int,
     val title: String,
     val artist: String,
-    val position: BBPositionInfo? = null
+    val position: BBPositionInfo? = null,
 )
 
 data class BBPositionInfo(
@@ -39,5 +39,5 @@ data class BBPositionInfo(
     @SerializedName("Peak Position")
     val peakPosition: Int = 0,
     @SerializedName("Wks on Chart")
-    val wksOnChart: Int = 0
+    val wksOnChart: Int = 0,
 )

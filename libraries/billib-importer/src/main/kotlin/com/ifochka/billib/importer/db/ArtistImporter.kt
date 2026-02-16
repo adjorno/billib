@@ -6,9 +6,8 @@ import java.sql.Connection
 class ArtistImporter(
     private val connection: Connection,
     private val progress: ProgressTracker,
-    private val batchSize: Int = 5000
+    private val batchSize: Int = 5000,
 ) {
-
     fun importArtists(artistNames: Set<String>): Map<String, Long> {
         progress.log("Importing ${artistNames.size} unique artists...")
 

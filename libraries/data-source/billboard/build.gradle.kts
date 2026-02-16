@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.detekt)
     application
 }
 
@@ -29,9 +30,6 @@ dependencies {
     implementation(libs.m14n.ex)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization.json)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.kotlin)
 }
 
 application {
