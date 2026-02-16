@@ -61,7 +61,7 @@ subprojects {
                     buildConfigField(
                         com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         "API_BASE_URL",
-                        apiBaseUrl ?: "http://localhost:8080"
+                        apiBaseUrl ?: "https://billib-production.up.railway.app"
                     )
                 }
 
