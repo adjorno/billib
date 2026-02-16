@@ -1,2 +1,2 @@
 - Never commit to or push the main branch.
-- The new feature must always be implemented in the feature branch created out of the main branch latest. 
+- The new feature must always be implemented in the feature branch created out of the main branch latest.
