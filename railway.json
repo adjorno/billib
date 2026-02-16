@@ -7,11 +7,11 @@
     "build": {
       "commands": [
         "chmod +x gradlew",
-        "./gradlew bootJar -x test"
+        "./gradlew :backend:bootJar -x test"
       ]
     }
   },
   "deploy": {
-    "startCommand": "java -Dspring.profiles.active=production -Dserver.port=$PORT -jar build/libs/BilliBRESTJava-*.jar"
+    "startCommand": "java -Dspring.profiles.active=production -Dserver.port=$PORT -jar backend/build/libs/BilliBRESTJava-*.jar"
   }
 }
