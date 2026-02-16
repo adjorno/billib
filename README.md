@@ -49,6 +49,7 @@ See [billib-importer/DEPLOYMENT.md](billib-importer/DEPLOYMENT.md) for Railway d
 
 - 📐 [**Architecture**](docs/ARCHITECTURE.md) - MVVM pattern, data flow, DI setup
 - 🎨 [**UI Components**](docs/COMPONENTS.md) - Reusable Compose components
+- 🧪 [**Testing**](docs/TESTING.md) - Testing strategy and examples
 - 📡 [**API Reference**](https://billib-production.up.railway.app/swagger-ui.html) - Interactive Swagger UI
 
 ## Technology
