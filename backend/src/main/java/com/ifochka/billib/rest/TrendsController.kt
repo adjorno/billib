@@ -95,7 +95,8 @@ class TrendsController(
             return result
         }
 
-        private fun blacklistedCharts(): List<Long> = listOf(13L /*Japan*/, 17L /*Gospel*/, 18L /*Christian*/)
+        // Blacklisted chart IDs: 13=Japan, 17=Gospel, 18=Christian
+        private fun blacklistedCharts(): List<Long> = listOf(13L, 17L, 18L)
     }
 
     @RequestMapping(value = ["/trends"], method = [RequestMethod.GET])
