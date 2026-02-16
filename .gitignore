@@ -187,3 +187,13 @@ import.log
 *.sql
 !billib-importer/src/main/resources/db/schema.sql
 !src/main/resources/db/**/*.sql
+
+# Kotlin Multiplatform
+.kotlin/
+kotlin-js-store/
+node_modules/
+
+# Android signing
+keystore.properties
+*.keystore
+*.jks
