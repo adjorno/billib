@@ -3,7 +3,6 @@ package com.ifochka.billib.rest
 import com.ifochka.billib.rest.db.ChartListRepository
 import com.ifochka.billib.rest.db.ChartTrack
 import com.ifochka.billib.rest.db.ChartTrackRepository
-import com.ifochka.billib.rest.db.ITrendsController
 import com.ifochka.billib.rest.db.TrackRepository
 import com.ifochka.billib.rest.db.TrackUtils
 import com.ifochka.billib.rest.db.TrendTrack
