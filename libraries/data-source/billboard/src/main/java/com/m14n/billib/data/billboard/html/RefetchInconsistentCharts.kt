@@ -3,11 +3,10 @@ package com.m14n.billib.data.billboard.html
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
 import com.m14n.billib.data.billboard.parser.defaultChartListParser
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
-import java.util.*
+import java.util.Properties
 
 // Dates that showed FAILURE in consistency checker
 val INCONSISTENT_DATES = listOf(

@@ -1,7 +1,7 @@
 package com.ifochka.billib.rest
 
 import org.springframework.data.util.Pair
-import java.util.*
+import java.util.Date
 
 class UpdateResult {
     companion object {

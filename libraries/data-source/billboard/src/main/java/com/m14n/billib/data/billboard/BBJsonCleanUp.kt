@@ -2,12 +2,10 @@ package com.m14n.billib.data.billboard
 
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
-import java.util.*
+import java.util.Properties
 
 fun main() {
     val properties = Properties().apply {

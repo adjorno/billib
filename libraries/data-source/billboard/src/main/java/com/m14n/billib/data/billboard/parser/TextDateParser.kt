@@ -2,7 +2,7 @@ package com.m14n.billib.data.billboard.parser
 
 import java.text.DateFormat
 import java.text.ParseException
-import java.util.*
+import java.util.Date
 
 interface TextDateParser {
     /**

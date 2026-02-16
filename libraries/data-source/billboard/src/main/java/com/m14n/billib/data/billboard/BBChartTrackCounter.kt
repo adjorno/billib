@@ -5,7 +5,7 @@ import com.m14n.billib.data.billboard.model.BBChartMetadata
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.*
+import java.util.Properties
 
 fun main() {
     val properties = Properties().apply {

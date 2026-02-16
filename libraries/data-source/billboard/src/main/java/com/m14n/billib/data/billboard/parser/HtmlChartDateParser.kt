@@ -2,7 +2,7 @@ import com.m14n.billib.data.billboard.parser.TextDateParser
 import com.m14n.billib.data.billboard.parser.dateParser
 import org.jsoup.nodes.Document
 import java.text.ParseException
-import java.util.*
+import java.util.Date
 import java.util.logging.Level
 import java.util.logging.Logger
 

@@ -6,7 +6,8 @@ import com.m14n.billib.data.billboard.model.BBJournalMetadata
 import com.m14n.billib.data.billboard.model.consistency.defaultChartConsistencyChecker
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.*
+import java.util.Date
+import java.util.Properties
 
 private val json: Json by lazy {
     Json { ignoreUnknownKeys = true }

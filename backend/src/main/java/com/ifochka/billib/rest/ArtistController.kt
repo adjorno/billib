@@ -1,6 +1,13 @@
 package com.ifochka.billib.rest
 
-import com.ifochka.billib.rest.db.*
+import com.ifochka.billib.rest.db.Artist
+import com.ifochka.billib.rest.db.ArtistNotFoundException
+import com.ifochka.billib.rest.db.ArtistRelationRepository
+import com.ifochka.billib.rest.db.ArtistRepository
+import com.ifochka.billib.rest.db.ArtistUtils
+import com.ifochka.billib.rest.db.DuplicateArtist
+import com.ifochka.billib.rest.db.DuplicateArtistRepository
+import com.ifochka.billib.rest.db.GlobalRankArtistRepository
 import com.ifochka.billib.rest.model.ArtistInfo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull

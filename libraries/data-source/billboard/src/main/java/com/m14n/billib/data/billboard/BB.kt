@@ -3,7 +3,7 @@ package com.m14n.billib.data.billboard
 import com.m14n.billib.data.billboard.BB.CHART_DATE_FORMAT
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 object BB {
     const val CHART_DATE_FORMAT_STRING = "yyyy-MM-dd"
