@@ -18,7 +18,6 @@ ktlint_function_naming_ignore_when_annotated_with = Composable
 ktlint_standard_multiline-expression-wrapping = disabled
 ktlint_standard_chain-method-continuation = disabled
 # Temporarily disabled for gradual code quality improvement
-ktlint_standard_discouraged-comment-location = disabled
 ktlint_standard_property-naming = disabled
 ktlint_standard_max-line-length = disabled
 ktlint_standard_comment-wrapping = disabled
