@@ -10,8 +10,8 @@ Kotlin Multiplatform app using **MVVM** pattern with Repository abstraction.
 ```mermaid
 graph TD
     A[UI Layer<br/>Compose Multiplatform]
-    B[Domain Layer<br/>Repository Interfaces<br/>Error Types]
-    C[Data Layer<br/>API Clients - Ktor<br/>Data Models]
+    B[Domain Layer<br/>Repository Interfaces]
+    C[Data Layer<br/>API Clients - Ktor<br/>Data Models<br/>Error Types]
 
     A -->|StateFlow| B
     B -->|suspend functions| C
