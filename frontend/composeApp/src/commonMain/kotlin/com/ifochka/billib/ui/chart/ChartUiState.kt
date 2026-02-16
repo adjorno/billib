@@ -15,6 +15,6 @@ sealed interface ChartUiState {
     ) : ChartUiState
 
     data class Error(
-        val error: com.ifochka.billib.data.error.ChartError,
+        val error: ChartError,
     ) : ChartUiState
 }

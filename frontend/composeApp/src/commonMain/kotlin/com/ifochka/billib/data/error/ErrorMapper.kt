@@ -3,7 +3,7 @@ package com.ifochka.billib.data.error
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
-import io.ktor.utils.io.errors.IOException
+import kotlinx.io.IOException
 
 /**
  * Maps exceptions to typed ChartError.
