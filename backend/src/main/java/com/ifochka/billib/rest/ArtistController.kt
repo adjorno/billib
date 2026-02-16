@@ -1,7 +1,6 @@
 package com.ifochka.billib.rest
 
 import com.ifochka.billib.rest.db.Artist
-import com.ifochka.billib.rest.db.ArtistNotFoundException
 import com.ifochka.billib.rest.db.ArtistRelationRepository
 import com.ifochka.billib.rest.db.ArtistRepository
 import com.ifochka.billib.rest.db.ArtistUtils

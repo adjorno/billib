@@ -2,10 +2,19 @@ package com.m14n.billib.data.billboard
 
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
 import java.util.Properties
+
+@OptIn(ExperimentalSerializationApi::class)
+private val json = Json {
+    ignoreUnknownKeys = true
+    prettyPrint = true
+    prettyPrintIndent = "  "
+}
 
 fun main() {
     val properties = Properties().apply {
@@ -29,15 +38,12 @@ fun main() {
                 "${chartMetadata.prefix}-${weekDate.text}.json",
             )
             if (originalChartListFile.exists()) {
-                val originalChartList = Json { ignoreUnknownKeys = true }
+                val originalChartList = json
                     .decodeFromString<BBChart>(originalChartListFile.readText())
                 println("Chart list $originalChartList has found")
                 FileWriter(originalChartListFile).use {
                     it.write(
-                        Json {
-                            prettyPrint = true
-                            prettyPrintIndent = "  "
-                        }.encodeToString(originalChartList),
+                        json.encodeToString(originalChartList),
                     )
                 }
             }

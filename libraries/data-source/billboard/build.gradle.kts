@@ -30,9 +30,6 @@ dependencies {
     implementation(libs.m14n.ex)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization.json)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.kotlin)
 }
 
 application {

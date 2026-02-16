@@ -26,4 +26,4 @@ jobs:
       # - name: Run detekt (backend/libraries)
       #   run: ./gradlew :backend:detekt :libraries:billib-importer:detekt :libraries:data-source:billboard:detekt
       - name: Run unit tests
-        run: ./gradlew test -x :libraries:data-source:billboard:compileKotlin -x :libraries:data-source:billboard:test
+        run: ./gradlew test
