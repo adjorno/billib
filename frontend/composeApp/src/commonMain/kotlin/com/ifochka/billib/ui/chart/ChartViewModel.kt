@@ -2,6 +2,7 @@ package com.ifochka.billib.ui.chart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ifochka.billib.data.error.ErrorMapper
 import com.ifochka.billib.data.repository.ChartRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,13 +29,11 @@ class ChartViewModel(
                         // Load the first chart by default (usually Hot 100)
                         selectChart(charts.first().id ?: return@launch)
                     } else {
-                        _uiState.value = ChartUiState.Error("No charts available")
+                        _uiState.value = ChartUiState.Error(ErrorMapper.mapEmptyCharts())
                     }
                 }
-                .onFailure { error ->
-                    _uiState.value = ChartUiState.Error(
-                        error.message ?: "Failed to load charts",
-                    )
+                .onFailure { throwable ->
+                    _uiState.value = ChartUiState.Error(ErrorMapper.mapError(throwable))
                 }
         }
     }
@@ -48,10 +47,8 @@ class ChartViewModel(
             if (currentState !is ChartUiState.Success) {
                 // If not in success state, we need to load all charts first
                 val chartsResult = repository.getAllCharts()
-                chartsResult.onFailure { error ->
-                    _uiState.value = ChartUiState.Error(
-                        error.message ?: "Failed to load charts",
-                    )
+                chartsResult.onFailure { throwable ->
+                    _uiState.value = ChartUiState.Error(ErrorMapper.mapError(throwable))
                     return@launch
                 }
 
@@ -81,10 +78,8 @@ class ChartViewModel(
                     selectedWeek = chartList.week?.date ?: "Unknown",
                 )
             }
-            .onFailure { error ->
-                _uiState.value = ChartUiState.Error(
-                    error.message ?: "Failed to load chart data",
-                )
+            .onFailure { throwable ->
+                _uiState.value = ChartUiState.Error(ErrorMapper.mapError(throwable))
             }
     }
 
