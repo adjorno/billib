@@ -27,38 +27,21 @@ android {
     // Try keystore.properties first (local dev), fallback to env vars (CI/CD)
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
-    val useKeystoreFile = keystorePropertiesFile.exists()
 
-    if (useKeystoreFile) {
+    if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(FileInputStream(keystorePropertiesFile))
     }
 
     // Determine keystore path from either source
-    val keystorePath = if (useKeystoreFile) {
-        keystoreProperties["storeFile"]?.toString()
-    } else {
-        System.getenv("ANDROID_KEYSTORE_PATH")
-    }
+    val keystorePath = keystoreProperties.getProperty("storeFile") ?: System.getenv("ANDROID_KEYSTORE_PATH")
 
     signingConfigs {
         if (keystorePath != null) {
             create("release") {
                 storeFile = file(keystorePath)
-                storePassword = if (useKeystoreFile) {
-                    keystoreProperties["storePassword"]?.toString()
-                } else {
-                    System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                }
-                keyAlias = if (useKeystoreFile) {
-                    keystoreProperties["keyAlias"]?.toString()
-                } else {
-                    System.getenv("ANDROID_KEY_ALIAS")
-                }
-                keyPassword = if (useKeystoreFile) {
-                    keystoreProperties["keyPassword"]?.toString()
-                } else {
-                    System.getenv("ANDROID_KEY_PASSWORD")
-                }
+                storePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = keystoreProperties.getProperty("keyAlias") ?: System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword = keystoreProperties.getProperty("keyPassword") ?: System.getenv("ANDROID_KEY_PASSWORD")
             }
         }
     }

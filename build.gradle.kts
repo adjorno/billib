@@ -87,6 +87,8 @@ subprojects {
         plugins.withId("com.codingfeline.buildkonfig") {
             configure<com.codingfeline.buildkonfig.gradle.BuildKonfigExtension> {
                 packageName = "com.ifochka.billib"
+                val apiBaseUrl = System.getenv("API_BASE_URL")
+
                 defaultConfigs {
                     buildConfigField(
                         com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
@@ -95,11 +97,10 @@ subprojects {
                     )
 
                     // Default URL for desktop/WASM development
-                    val defaultUrl = System.getenv("API_BASE_URL") ?: "http://localhost:8080"
                     buildConfigField(
                         com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         "API_BASE_URL",
-                        defaultUrl
+                        apiBaseUrl ?: "http://localhost:8080"
                     )
                 }
 
@@ -109,7 +110,7 @@ subprojects {
                         buildConfigField(
                             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                             "API_BASE_URL",
-                            System.getenv("API_BASE_URL") ?: "http://10.0.2.2:8080"
+                            apiBaseUrl ?: "http://10.0.2.2:8080"
                         )
                     }
                 }
