@@ -37,6 +37,11 @@ project(":libraries:data-source:billboard").name = "billboard"
 include("libraries:inmemory-rest")
 include("billib-importer")
 
-// Frontend modules
-include(":frontend:composeApp")
-include(":frontend:androidApp")
+// Railway deployment skips frontend (doesn't have Android SDK)
+val isRailwayBuild = System.getenv("RAILWAY_ENVIRONMENT") != null
+if (!isRailwayBuild) {
+    include(":frontend:composeApp")
+    include(":frontend:androidApp")
+} else {
+    logger.lifecycle("Frontend modules excluded (Railway environment detected)")
+}
