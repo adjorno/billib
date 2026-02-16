@@ -47,8 +47,8 @@ graph TD
 ```kotlin
 single { HttpClient { ... } }         // Ktor HTTP client
 single<BillibApi> { KtorBillibApi }   // API implementation
-single { ChartRepository }             // Repository
-factory { ChartViewModel }             // ViewModel (new instance per injection)
+singleOf(::ChartRepository)             // Repository
+factoryOf(::ChartViewModel)             // ViewModel (new instance per injection)
 ```
 
 **Platform Init:**
