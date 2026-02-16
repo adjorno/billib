@@ -1,6 +1,5 @@
 package com.ifochka.billib.rest.db
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -19,21 +18,17 @@ data class ChartTrack(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     var id: Long? = null,
-
     @OneToOne
     @JoinColumn(name = "TRACK_ID")
     var track: Track? = null,
-
     @OneToOne
     @JoinColumn(name = "CHART_LIST_ID")
     @JsonIgnore
     var chartList: ChartList? = null,
-
     @Column(name = "_RANK")
     var rank: Int = 0,
-
     @Column(name = "LAST_WEEK_RANK")
-    var lastWeekRank: Int = 0
+    var lastWeekRank: Int = 0,
 ) {
-    override fun toString() = "${chartList.toString()} - $rank. ${track.toString()}"
+    override fun toString() = "$chartList - $rank. $track"
 }

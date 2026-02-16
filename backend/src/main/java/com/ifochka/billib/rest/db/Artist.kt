@@ -14,17 +14,13 @@ data class Artist(
     @Column(name = "_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-
     @Column(name = "NAME")
     var name: String? = null,
-
     // Generated column for normalized search (read-only)
     @Column(name = "NAME_NORMALIZED", insertable = false, updatable = false)
-    var nameNormalized: String? = null
+    var nameNormalized: String? = null,
 ) {
-    fun generateDuplicateTitle(title: String): String {
-        return "$name - $title"
-    }
+    fun generateDuplicateTitle(title: String): String = "$name - $title"
 
     override fun toString(): String = name.toString()
 }

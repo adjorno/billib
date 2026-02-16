@@ -10,22 +10,25 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun generateBillboardDateSequence(startDate: Date, endDate: Date) =
-    generateSequence(startDate) { currentDate ->
-        Calendar.getInstance().apply {
-            time = currentDate
-            add(Calendar.DATE, weekIncrement(currentDate))
-        }.time.takeUnless { it.after(endDate) }
-    }
-
-private fun weekIncrement(currentDate: Date) = CHART_DATE_FORMAT.format(currentDate).let { strDate ->
-    when (strDate) {
-        "1961-12-25" -> 12
-        "2018-01-03" -> 3
-        "2017-12-30" -> 4
-        else -> 7
-    }
+fun generateBillboardDateSequence(
+    startDate: Date,
+    endDate: Date,
+) = generateSequence(startDate) { currentDate ->
+    Calendar.getInstance().apply {
+        time = currentDate
+        add(Calendar.DATE, weekIncrement(currentDate))
+    }.time.takeUnless { it.after(endDate) }
 }
+
+private fun weekIncrement(currentDate: Date) =
+    CHART_DATE_FORMAT.format(currentDate).let { strDate ->
+        when (strDate) {
+            "1961-12-25" -> 12
+            "2018-01-03" -> 3
+            "2017-12-30" -> 4
+            else -> 7
+        }
+    }
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = DateSerializer::class)
@@ -33,18 +36,19 @@ object DateSerializer : KSerializer<Date> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Date", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Date) {
+    override fun serialize(
+        encoder: Encoder,
+        value: Date,
+    ) {
         encoder.encodeString(value.time.toString())
     }
 
-    override fun deserialize(decoder: Decoder): Date {
-        return Date(decoder.decodeString().toLong())
-    }
+    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeString().toLong())
 }
 
 internal val CHART_DATE_FORMAT: DateFormat = SimpleDateFormat("yyyy-MM-dd")
 val String.date: Date
-    get()= CHART_DATE_FORMAT.parse(this)
+    get() = CHART_DATE_FORMAT.parse(this)
 
 val Date.text: String
     get() = CHART_DATE_FORMAT.format(this)

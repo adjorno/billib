@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface GlobalRankArtistViewRepository : JpaRepository<GlobalRankArtistView, Long> {
-
     /**
      * Find global rank for a specific artist
      */
@@ -16,35 +15,41 @@ interface GlobalRankArtistViewRepository : JpaRepository<GlobalRankArtistView, L
     /**
      * Get top ranked artists
      */
-    @Query("""
+    @Query(
+        """
         SELECT gra FROM GlobalRankArtistView gra
         ORDER BY gra.rank
-    """)
+    """,
+    )
     fun findTopRanked(pageable: Pageable): Page<GlobalRankArtistView>
 
     /**
      * Get artists with rank range
      */
-    @Query("""
+    @Query(
+        """
         SELECT gra FROM GlobalRankArtistView gra
         WHERE gra.rank BETWEEN :minRank AND :maxRank
         ORDER BY gra.rank
-    """)
+    """,
+    )
     fun findByRankRange(
         @Param("minRank") minRank: Long,
-        @Param("maxRank") maxRank: Long
+        @Param("maxRank") maxRank: Long,
     ): List<GlobalRankArtistView>
 
     /**
      * Get artists with minimum track count
      */
-    @Query("""
+    @Query(
+        """
         SELECT gra FROM GlobalRankArtistView gra
         WHERE gra.uniqueTracks >= :minTracks
         ORDER BY gra.rank
-    """)
+    """,
+    )
     fun findByMinimumTracks(
         @Param("minTracks") minTracks: Long,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<GlobalRankArtistView>
 }

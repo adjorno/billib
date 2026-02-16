@@ -1,16 +1,22 @@
 package com.ifochka.billib.importer
 
-import com.ifochka.billib.importer.db.*
+import com.google.gson.Gson
+import com.ifochka.billib.importer.db.ArtistImporter
+import com.ifochka.billib.importer.db.ChartImporter
+import com.ifochka.billib.importer.db.ChartListImporter
+import com.ifochka.billib.importer.db.ChartPositionImporter
+import com.ifochka.billib.importer.db.TrackImporter
+import com.ifochka.billib.importer.db.TrackKey
 import com.ifochka.billib.importer.model.BBChart
 import com.ifochka.billib.importer.model.BBJournalMetadata
 import com.ifochka.billib.importer.util.DatabaseConnection
 import com.ifochka.billib.importer.util.ProgressTracker
-import com.google.gson.Gson
 import java.io.File
 import java.sql.Connection
 
-class BillboardImporter(private val config: ImportConfig) {
-
+class BillboardImporter(
+    private val config: ImportConfig,
+) {
     private val progress = ProgressTracker(config.enableProgressTracking)
     private val gson = Gson()
 
@@ -92,21 +98,17 @@ class BillboardImporter(private val config: ImportConfig) {
         return allCharts
     }
 
-    private fun extractUniqueArtists(charts: List<BBChart>): Set<String> {
-        return charts.flatMap { chart ->
+    private fun extractUniqueArtists(charts: List<BBChart>): Set<String> =
+        charts.flatMap { chart ->
             chart.tracks.map { it.artist.trim() }
         }.toSet()
-    }
 
-    private fun extractUniqueTracks(charts: List<BBChart>): Set<TrackKey> {
-        return charts.flatMap { chart ->
+    private fun extractUniqueTracks(charts: List<BBChart>): Set<TrackKey> =
+        charts.flatMap { chart ->
             chart.tracks.map { TrackKey(it.title.trim(), it.artist.trim()) }
         }.toSet()
-    }
 
-    private fun extractUniqueWeeks(charts: List<BBChart>): Set<String> {
-        return charts.map { it.date }.toSet()
-    }
+    private fun extractUniqueWeeks(charts: List<BBChart>): Set<String> = charts.map { it.date }.toSet()
 
     private fun importData(
         conn: Connection,
@@ -114,7 +116,7 @@ class BillboardImporter(private val config: ImportConfig) {
         allCharts: List<BBChart>,
         uniqueArtists: Set<String>,
         uniqueTracks: Set<TrackKey>,
-        uniqueWeeks: Set<String>
+        uniqueWeeks: Set<String>,
     ) {
         // Phase 1: Import dimension tables
         progress.section("Phase 1: Importing Dimension Tables")
@@ -137,7 +139,12 @@ class BillboardImporter(private val config: ImportConfig) {
 
         val positionImporter = ChartPositionImporter(conn, progress, config.batchSize)
         positionImporter.importChartPositions(
-            allCharts, trackMap, artistMap, chartMap, weekMap, chartListMap
+            allCharts,
+            trackMap,
+            artistMap,
+            chartMap,
+            weekMap,
+            chartListMap,
         )
 
         // Phase 3: Refresh materialized views

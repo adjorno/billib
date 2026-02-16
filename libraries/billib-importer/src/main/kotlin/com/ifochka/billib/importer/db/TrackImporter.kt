@@ -3,28 +3,31 @@ package com.ifochka.billib.importer.db
 import com.ifochka.billib.importer.util.ProgressTracker
 import java.sql.Connection
 
-data class TrackKey(val title: String, val artistName: String)
+data class TrackKey(
+    val title: String,
+    val artistName: String,
+)
 
 class TrackImporter(
     private val connection: Connection,
     private val progress: ProgressTracker,
-    private val batchSize: Int = 5000
+    private val batchSize: Int = 5000,
 ) {
-
     fun importTracks(
         tracks: Set<TrackKey>,
-        artistMap: Map<String, Long>
+        artistMap: Map<String, Long>,
     ): Map<TrackKey, Long> {
         progress.log("Importing ${tracks.size} unique tracks...")
 
         val trackMap = mutableMapOf<TrackKey, Long>()
 
         // Batch insert tracks with denormalized artist_name
-        val insertSql = """
+        val insertSql =
+            """
             INSERT INTO TRACK (TITLE, ARTIST_ID, ARTIST_NAME)
             VALUES (?, ?, ?)
             ON CONFLICT (TITLE, ARTIST_ID) DO NOTHING
-        """.trimIndent()
+            """.trimIndent()
 
         connection.prepareStatement(insertSql).use { stmt ->
             var count = 0

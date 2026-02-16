@@ -34,7 +34,7 @@ interface TrackElementParser {
  */
 class DelegateChartListParser(
     private val htmlTrackElementsParser: HtmlTrackElementsParser,
-    private val trackElementParser: TrackElementParser
+    private val trackElementParser: TrackElementParser,
 ) : HtmlChartListParser {
     override fun parse(document: Document): List<BBTrack> =
         htmlTrackElementsParser.parse(document).map { trackElement ->
@@ -47,15 +47,16 @@ class DelegateChartListParser(
  * supplied delegates.
  */
 class CompositeChartListParser(
-    private val delegates: List<HtmlChartListParser>
+    private val delegates: List<HtmlChartListParser>,
 ) : HtmlChartListParser {
-    override fun parse(document: Document): List<BBTrack> = delegates.asSequence()
-        .mapNotNull { delegate ->
-            try {
-                delegate.parse(document)
-            } catch (e: ParseException) {
-                e.printStackTrace()
-                null
-            }
-        }.firstOrNull() ?: throw ParseException("There are no parsers for the given html", -1)
+    override fun parse(document: Document): List<BBTrack> =
+        delegates.asSequence()
+            .mapNotNull { delegate ->
+                try {
+                    delegate.parse(document)
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                    null
+                }
+            }.firstOrNull() ?: throw ParseException("There are no parsers for the given html", -1)
 }

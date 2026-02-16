@@ -3,7 +3,6 @@ package com.m14n.billib.data.billboard.model.consistency
 import org.junit.Test
 
 class TrackConsistencyCheckerTest {
-
     @Test
     fun `test Alex O'Neal`() {
         val actual = Artist.fromRawValue("Alexander O Neal")

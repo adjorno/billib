@@ -19,7 +19,6 @@ object BB {
             } catch (e: NumberFormatException) {
                 e.printStackTrace()
             }
-
         }
         return 0
     }

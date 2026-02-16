@@ -13,15 +13,14 @@ import org.springframework.web.bind.annotation.RestController
 class ChartTrackController(
     private val mChartListRepository: ChartListRepository,
     private val mChartTrackRepository: ChartTrackRepository,
-    private val mTrackRepository: TrackRepository
+    private val mTrackRepository: TrackRepository,
 ) {
-
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateTrack"], method = [RequestMethod.POST])
     fun updateTrack(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "chartTrackId") chartTrackId: Long,
-        @RequestParam(name = "trackId") trackId: Long
+        @RequestParam(name = "trackId") trackId: Long,
     ) {
         val theNewTrack = mTrackRepository.findById(trackId).orElse(null)
         val theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null)
@@ -35,7 +34,7 @@ class ChartTrackController(
     @RequestMapping(value = ["/chartTrack/updateRank"], method = [RequestMethod.POST])
     fun updateRank(
         @RequestParam(name = "chartTrackId") chartTrackId: Long,
-        @RequestParam(name = "rank") rank: Int
+        @RequestParam(name = "rank") rank: Int,
     ) {
         val theChartTrack = mChartTrackRepository.findById(chartTrackId).orElse(null)
             ?: throw TrackNotFoundException()
@@ -45,7 +44,7 @@ class ChartTrackController(
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateLastWeekRanks"], method = [RequestMethod.POST])
     fun updateLastWeekRanks(
-        @RequestParam(name = "chartListId") chartListId: Long
+        @RequestParam(name = "chartListId") chartListId: Long,
     ) {
         val theChartListTracks =
             mChartTrackRepository.findByChartList(mChartListRepository.findById(chartListId).orElse(null))
@@ -63,7 +62,7 @@ class ChartTrackController(
         @RequestParam(name = "password") password: String,
         @RequestParam(name = "clId") chartListId: Long,
         @RequestParam(name = "tId") trackId: Long,
-        @RequestParam(name = "rank") rank: Int
+        @RequestParam(name = "rank") rank: Int,
     ) {
         val theTrack = mTrackRepository.findById(trackId).orElse(null)
             ?: throw TrackNotFoundException()
@@ -71,11 +70,13 @@ class ChartTrackController(
             ?: throw ChartListNotFoundException()
     }
 
-    fun getDebut(track: Track): ChartTrack {
-        return mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date")).first()
-    }
+    fun getDebut(track: Track): ChartTrack = mChartTrackRepository.findByTrackAndSort(track, Sort.by("w.date")).first()
 
-    fun addMissingTrackInternal(chartList: ChartList, track: Track, rank: Int): ChartTrack {
+    fun addMissingTrackInternal(
+        chartList: ChartList,
+        track: Track,
+        rank: Int,
+    ): ChartTrack {
         var theLastWeekRank = 0
         val thePreviousChartList = chartList.previousChartListId?.let {
             mChartListRepository.findById(it).orElse(null)

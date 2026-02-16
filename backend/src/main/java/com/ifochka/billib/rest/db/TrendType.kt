@@ -10,16 +10,14 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "TREND_TYPE")
 data class TrendType(
-        @Id
-        @Column(name = "_id")
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long? = null,
-
-        @Column(name = "name", nullable = false)
-        var name: String,
-
-        @Column(name = "description")
-        var description: String? = null
+    @Id
+    @Column(name = "_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+    @Column(name = "name", nullable = false)
+    var name: String,
+    @Column(name = "description")
+    var description: String? = null,
 ) {
     companion object {
         const val TYPE_ALL: Long = 0

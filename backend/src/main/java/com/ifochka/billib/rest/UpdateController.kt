@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
@@ -14,9 +13,8 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 class UpdateController(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
 ) {
-
     /**
      * Refreshes global rankings for both tracks and artists.
      * This updates the materialized views that calculate rankings based on chart performance.
@@ -27,8 +25,8 @@ class UpdateController(
      * Usage: POST /updateGlobal
      */
     @RequestMapping(value = ["/updateGlobal"], method = [RequestMethod.POST])
-    fun updateGlobalAPI(): UpdateGlobalResult {
-        return try {
+    fun updateGlobalAPI(): UpdateGlobalResult =
+        try {
             val tracksUpdated = updateGlobalRankingTracks()
             val artistsUpdated = updateGlobalRankingArtists()
 
@@ -36,15 +34,14 @@ class UpdateController(
                 success = true,
                 message = "Global rankings refreshed successfully",
                 tracksUpdated = tracksUpdated,
-                artistsUpdated = artistsUpdated
+                artistsUpdated = artistsUpdated,
             )
         } catch (e: Exception) {
             UpdateGlobalResult(
                 success = false,
-                message = "Error refreshing global rankings: ${e.message}"
+                message = "Error refreshing global rankings: ${e.message}",
             )
         }
-    }
 
     /**
      * Refreshes global track rankings materialized view.
@@ -103,5 +100,5 @@ data class UpdateGlobalResult(
     val success: Boolean,
     val message: String,
     val tracksUpdated: Int? = null,
-    val artistsUpdated: Int? = null
+    val artistsUpdated: Int? = null,
 )

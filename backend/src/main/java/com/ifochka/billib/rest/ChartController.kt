@@ -1,11 +1,11 @@
 package com.ifochka.billib.rest
 
 import com.ifochka.billib.rest.db.Chart
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.beans.factory.annotation.Autowired
 import com.ifochka.billib.rest.db.ChartRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ChartController {

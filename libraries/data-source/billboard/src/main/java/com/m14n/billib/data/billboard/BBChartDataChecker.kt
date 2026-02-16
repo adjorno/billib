@@ -1,9 +1,9 @@
 package com.m14n.billib.data.billboard
 
-import com.m14n.billib.data.billboard.model.consistency.defaultChartConsistencyChecker
 import com.m14n.billib.data.billboard.model.BBChart
 import com.m14n.billib.data.billboard.model.BBChartMetadata
 import com.m14n.billib.data.billboard.model.BBJournalMetadata
+import com.m14n.billib.data.billboard.model.consistency.defaultChartConsistencyChecker
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
@@ -49,7 +49,8 @@ private fun checkTheWholeChart(
             theChart = json.decodeFromString<BBChart>(theFile.readText())
             if (thePreviousChart != null) {
                 val chartConsistencyResult = defaultChartConsistencyChecker.check(
-                    previousChart = thePreviousChart!!, chart = theChart
+                    previousChart = thePreviousChart!!,
+                    chart = theChart,
                 )
                 if (chartConsistencyResult.inconsistencies.isNotEmpty()) {
                     println("${theChart.name} - ${theChart.date} : $chartConsistencyResult")

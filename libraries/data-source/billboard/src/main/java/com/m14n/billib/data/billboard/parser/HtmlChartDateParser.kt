@@ -39,10 +39,9 @@ interface HtmlChartTextDateParser {
  */
 class DelegateHtmlChartDateParser(
     private val htmlChartTextDateParser: HtmlChartTextDateParser,
-    private val textDateParser: TextDateParser
+    private val textDateParser: TextDateParser,
 ) : HtmlChartDateParser {
-    override fun parse(document: Document): Date =
-        textDateParser.parse(htmlChartTextDateParser.parse(document))
+    override fun parse(document: Document): Date = textDateParser.parse(htmlChartTextDateParser.parse(document))
 }
 
 /**
@@ -50,17 +49,18 @@ class DelegateHtmlChartDateParser(
  * supplied delegates.
  */
 class CompositeHtmlChartDateParser(
-    private val delegates: List<HtmlChartDateParser>
+    private val delegates: List<HtmlChartDateParser>,
 ) : HtmlChartDateParser {
-    override fun parse(document: Document): Date = delegates.asSequence()
-        .mapNotNull { delegate ->
-            try {
-                delegate.parse(document)
-            } catch (e: ParseException) {
-                e.printStackTrace()
-                null
-            }
-        }.firstOrNull() ?: throw ParseException("There are no parsers for the given html", -1)
+    override fun parse(document: Document): Date =
+        delegates.asSequence()
+            .mapNotNull { delegate ->
+                try {
+                    delegate.parse(document)
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                    null
+                }
+            }.firstOrNull() ?: throw ParseException("There are no parsers for the given html", -1)
 }
 
 /**
@@ -69,12 +69,13 @@ class CompositeHtmlChartDateParser(
  */
 class LogOnErrorChartDateParser(
     private val delegate: HtmlChartDateParser,
-    private val logger: Logger
+    private val logger: Logger,
 ) : HtmlChartDateParser {
-    override fun parse(document: Document): Date = try {
-        delegate.parse(document)
-    } catch (e: ParseException) {
-        logger.log(Level.WARNING, document.toString(), e)
-        throw e
-    }
+    override fun parse(document: Document): Date =
+        try {
+            delegate.parse(document)
+        } catch (e: ParseException) {
+            logger.log(Level.WARNING, document.toString(), e)
+            throw e
+        }
 }

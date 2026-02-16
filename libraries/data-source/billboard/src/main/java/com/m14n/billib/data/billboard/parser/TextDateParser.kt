@@ -5,7 +5,6 @@ import java.text.ParseException
 import java.util.*
 
 interface TextDateParser {
-
     /**
      * Parses the given text and converts it into [Date]
      * @param textDate Date in the text form
@@ -17,7 +16,7 @@ interface TextDateParser {
 }
 
 class DateFormatParser(
-    private val dateFormat: DateFormat
+    private val dateFormat: DateFormat,
 ) : TextDateParser {
     override fun parse(textDate: String): Date = dateFormat.parse(textDate)
 }

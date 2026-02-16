@@ -35,12 +35,12 @@ fun main() {
         val theChart = BBChart(
             name = chartMeta.name,
             date = DATE,
-            tracks = tracksParser.parse(document)
+            tracks = tracksParser.parse(document),
         )
         val theChartDir = File(root, chartMeta.folder)
         val theChartFile = File(
             theChartDir,
-            chartMeta.prefix + "-" + DATE + ".json"
+            chartMeta.prefix + "-" + DATE + ".json",
         )
         FileWriter(theChartFile).use {
             it.write(jsonDecoder.encodeToString(theChart))

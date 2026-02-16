@@ -10,5 +10,8 @@ interface TrendTrackRepository : CrudRepository<TrendTrack, Long> {
 
     @Modifying
     @Query(value = "update TrendTrack tt set tt.track = ?2 where tt.track = ?1")
-    fun updateTracks(from: Track, to: Track)
+    fun updateTracks(
+        from: Track,
+        to: Track,
+    )
 }

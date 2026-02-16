@@ -6,13 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BBChart(
     var name: String,
-
     @SerialName("chart_date")
     var date: String,
-
-    var tracks: List<BBTrack>
+    var tracks: List<BBTrack>,
 ) {
-    override fun toString(): String {
-        return "$name $date"
-    }
+    override fun toString(): String = "$name $date"
 }

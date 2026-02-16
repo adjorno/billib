@@ -19,20 +19,22 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
 }
 
-// Configure frontend modules
+// Configure all subprojects with ktlint
 subprojects {
-    if (project.path.startsWith(":frontend")) {
-        apply(plugin = "org.jlleitschuh.gradle.ktlint")
-        apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
-        plugins.withId("org.jlleitschuh.gradle.ktlint") {
-            configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-                debug.set(true)
-                filter {
-                    exclude { it.file.path.contains("/build/") }
-                }
+    plugins.withId("org.jlleitschuh.gradle.ktlint") {
+        configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+            debug.set(true)
+            filter {
+                exclude { it.file.path.contains("/build/") }
             }
         }
+    }
+
+    // Configure frontend-specific tools and configuration
+    if (project.path.startsWith(":frontend")) {
+        apply(plugin = "io.gitlab.arturbosch.detekt")
 
         plugins.withId("io.gitlab.arturbosch.detekt") {
             configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {

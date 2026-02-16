@@ -5,7 +5,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CurrentTrackElementsParserTest {
-
     private val sut = CurrentChartListParser()
 
     @Test
@@ -13,7 +12,7 @@ class CurrentTrackElementsParserTest {
         val doc = Jsoup.parse(
             javaClass.classLoader.getResourceAsStream("samples/2021-11-25/country_2021_11_27.html"),
             "UTF-8",
-            "test"
+            "test",
         )
         assertEquals(50, sut.parse(doc).toList().size)
     }

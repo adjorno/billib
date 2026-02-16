@@ -14,7 +14,6 @@ data class GlobalRankArtist(
     @Column(name = "rank")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var rank: Long? = null,
-
     @Column(name = "artist_id")
-    var artistId: Long? = null
+    var artistId: Long? = null,
 )

@@ -12,5 +12,5 @@ data class BBChartMetadata(
     var startDate: String,
     @SerialName("end_date")
     var endDate: String? = null,
-    var prefix: String
+    var prefix: String,
 )

@@ -14,7 +14,6 @@ data class GlobalRankTrack(
     @Column(name = "rank")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var rank: Long? = null,
-
     @Column(name = "track_id")
-    var trackId: Long? = null
+    var trackId: Long? = null,
 )

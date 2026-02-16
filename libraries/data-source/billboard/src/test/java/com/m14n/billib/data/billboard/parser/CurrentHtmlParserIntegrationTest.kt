@@ -4,7 +4,7 @@ import defaultDateParser
 import org.jsoup.Jsoup
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.*
+import java.util.Calendar
 
 class CurrentHtmlParserIntegrationTest {
     private val sut = defaultDateParser()
@@ -15,13 +15,15 @@ class CurrentHtmlParserIntegrationTest {
             // 2021 November, 27
             set(2021, Calendar.NOVEMBER, 27)
         }
-        val chartFileName = "country_${expectedDate.get(Calendar.YEAR)}_${expectedDate.get(Calendar.MONTH) + 1}_${expectedDate.get(Calendar.DAY_OF_MONTH)}.html"
+        val chartFileName = "country_${expectedDate.get(
+            Calendar.YEAR,
+        )}_${expectedDate.get(Calendar.MONTH) + 1}_${expectedDate.get(Calendar.DAY_OF_MONTH)}.html"
         val doc = Jsoup.parse(
             javaClass.classLoader.getResourceAsStream(
-                "samples/2021-11-25/${chartFileName}"
+                "samples/2021-11-25/$chartFileName",
             ),
             "UTF-8",
-            "test"
+            "test",
         )
         val date = sut.parse(doc)
         val actualCalendar = Calendar.getInstance().apply {

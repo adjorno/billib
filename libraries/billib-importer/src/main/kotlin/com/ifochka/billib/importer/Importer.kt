@@ -3,11 +3,13 @@ package com.ifochka.billib.importer
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    println("""
+    println(
+        """
         ╔═══════════════════════════════════════════════════════════╗
         ║         Billboard Charts PostgreSQL Importer             ║
         ╚═══════════════════════════════════════════════════════════╝
-    """.trimIndent())
+        """.trimIndent(),
+    )
 
     try {
         val config = parseArgs(args)
@@ -22,7 +24,6 @@ fun main(args: Array<String>) {
 
         println("\n✅ Import completed successfully in ${minutes}m ${seconds}s")
         exitProcess(0)
-
     } catch (e: Exception) {
         println("\n❌ Import failed: ${e.message}")
         e.printStackTrace()
@@ -72,12 +73,13 @@ private fun parseArgs(args: Array<String>): ImportConfig {
         dbUrl = dbUrl,
         dbUser = dbUser,
         dbPassword = dbPassword,
-        batchSize = batchSize
+        batchSize = batchSize,
     )
 }
 
 private fun printHelp() {
-    println("""
+    println(
+        """
         Usage: java -jar billib-importer.jar [options]
 
         Options:
@@ -112,5 +114,6 @@ private fun printHelp() {
           java -jar billib-importer.jar \\
             --data-path /path/to/json/data
 
-    """.trimIndent())
+        """.trimIndent(),
+    )
 }

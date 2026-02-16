@@ -19,26 +19,28 @@ fun main() {
     val today = properties.getProperty("data.today")
 
     val originalMetadata = Json.decodeFromString<BBJournalMetadata>(
-        File(root, "metadata_billboard.json").readText()
+        File(root, "metadata_billboard.json").readText(),
     )
     originalMetadata.charts.forEach { chartMetadata ->
         generateBillboardDateSequence(
             startDate = chartMetadata.startDate.date,
-            endDate = (chartMetadata.endDate ?: today).date
+            endDate = (chartMetadata.endDate ?: today).date,
         ).forEach { weekDate ->
             val originalChartListFile = File(
                 File(root, chartMetadata.folder),
-                "${chartMetadata.prefix}-${weekDate.text}.json"
+                "${chartMetadata.prefix}-${weekDate.text}.json",
             )
             if (originalChartListFile.exists()) {
                 val originalChartList = Json { ignoreUnknownKeys = true }
                     .decodeFromString<BBChart>(originalChartListFile.readText())
                 println("Chart list $originalChartList has found")
                 FileWriter(originalChartListFile).use {
-                    it.write(Json {
-                        prettyPrint = true
-                        prettyPrintIndent = "  "
-                    }.encodeToString(originalChartList))
+                    it.write(
+                        Json {
+                            prettyPrint = true
+                            prettyPrintIndent = "  "
+                        }.encodeToString(originalChartList),
+                    )
                 }
             }
         }

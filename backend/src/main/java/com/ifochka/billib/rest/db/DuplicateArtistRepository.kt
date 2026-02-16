@@ -7,7 +7,10 @@ import org.springframework.data.repository.CrudRepository
 interface DuplicateArtistRepository : CrudRepository<DuplicateArtist, String> {
     @Modifying
     @Query(value = "update DuplicateArtist da set da.artist = ?2 where da.artist = ?1")
-    fun updateArtists(from: Artist, to: Artist)
+    fun updateArtists(
+        from: Artist,
+        to: Artist,
+    )
 
     fun findByDuplicateName(name: String): DuplicateArtist?
 
@@ -15,5 +18,8 @@ interface DuplicateArtistRepository : CrudRepository<DuplicateArtist, String> {
 
     @Modifying
     @Query(value = "update DuplicateArtist da set da.duplicateName = ?2 where da = ?1")
-    fun rename(duplicateArtist: DuplicateArtist, optimizedName: String)
+    fun rename(
+        duplicateArtist: DuplicateArtist,
+        optimizedName: String,
+    )
 }

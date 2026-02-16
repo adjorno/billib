@@ -7,7 +7,6 @@ import org.junit.Test
 import java.util.logging.Logger
 
 class HtmlChartDateParserTest {
-
     @Test
     fun `for non-null logger default parser is LogOnErrorChartDateParser`() {
         assertTrue(defaultDateParser(Logger.getGlobal()) is LogOnErrorChartDateParser)

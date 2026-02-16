@@ -5,26 +5,44 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 
 interface ArtistRelationRepository : CrudRepository<ArtistRelation, Long> {
-
     @Modifying
     @Query(value = "update ArtistRelation ar set ar.collaborationArtist = ?2 where ar.collaborationArtist = ?1")
-    fun updateCollaborationArtist(duplicateArtist: Artist, originalArtist: Artist)
+    fun updateCollaborationArtist(
+        duplicateArtist: Artist,
+        originalArtist: Artist,
+    )
 
     @Modifying
     @Query(value = "update ArtistRelation ar set ar.memberArtist = ?2 where ar.memberArtist = ?1")
-    fun updateMemberArtist(duplicateArtist: Artist, originalArtist: Artist)
+    fun updateMemberArtist(
+        duplicateArtist: Artist,
+        originalArtist: Artist,
+    )
 
-    @Query(value = "SELECT collaboration_artist_id FROM artist_relation WHERE member_artist_id IN (?1, ?2) GROUP BY collaboration_artist_id",
-            nativeQuery = true)
-    fun findMergingCollaborationIds(artistId1: Long, artistId2: Long): List<Long>
+    @Query(
+        value = "SELECT collaboration_artist_id FROM artist_relation WHERE member_artist_id IN (?1, ?2) GROUP BY collaboration_artist_id",
+        nativeQuery = true,
+    )
+    fun findMergingCollaborationIds(
+        artistId1: Long,
+        artistId2: Long,
+    ): List<Long>
 
-    @Query(value = "SELECT member_artist_id FROM artist_relation WHERE collaboration_artist_id IN (?1, ?2) GROUP BY member_artist_id",
-            nativeQuery = true)
-    fun findMergingMemberIds(artistId1: Long, artistId2: Long): List<Long>
+    @Query(
+        value = "SELECT member_artist_id FROM artist_relation WHERE collaboration_artist_id IN (?1, ?2) GROUP BY member_artist_id",
+        nativeQuery = true,
+    )
+    fun findMergingMemberIds(
+        artistId1: Long,
+        artistId2: Long,
+    ): List<Long>
 
     @Modifying
     @Query(value = "delete from ArtistRelation ar where ar.collaborationArtist.id = ?1 and ar.memberArtist.id = ?2")
-    fun deleteByCollaborationIdAndMemberId(collaborationId: Long, memberId: Long)
+    fun deleteByCollaborationIdAndMemberId(
+        collaborationId: Long,
+        memberId: Long,
+    )
 
     fun findByCollaborationArtist(artist: Artist): List<ArtistRelation>
 

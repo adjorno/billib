@@ -7,13 +7,14 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.sql.Date
 
-
 interface DayTrackRepository : CrudRepository<DayTrack, Date> {
     @Modifying
     @Query(value = "update DayTrack dt set dt.track = ?2 where dt.track = ?1")
-    fun updateTracks(from: Track, to: Track)
+    fun updateTracks(
+        from: Track,
+        to: Track,
+    )
 
     @Query(value = "select dt from DayTrack dt order by dt.day desc")
     fun findLast(pageable: Pageable): Page<DayTrack>
-
 }
