@@ -15,7 +15,7 @@ object ErrorMapper {
 
             is ClientRequestException -> {
                 when (throwable.response.status) {
-                    HttpStatusCode.NotFound -> ChartError.Unknown("Resource not found")
+                    HttpStatusCode.NotFound -> ChartError.Unknown("The requested chart data could not be found.")
                     else -> ChartError.ServerError(
                         code = throwable.response.status.value,
                         message = throwable.message,
