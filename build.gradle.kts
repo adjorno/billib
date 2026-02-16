@@ -1,11 +1,9 @@
 plugins {
     // Backend plugins
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.spring)
-    alias(libs.plugins.spring.boot)
-    alias(libs.plugins.spring.dependency.management)
-    jacoco
-    application
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.spring) apply false
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management) apply false
 
     // Frontend plugins (apply false - will be applied in frontend modules)
     alias(libs.plugins.androidApplication) apply false
@@ -18,45 +16,7 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.buildkonfig) apply false
-}
-
-application {
-    mainClass.set("com.adjorno.billib.rest.BBRestApplicationKt")
-}
-
-group = "com.adjorno.billib.rest"
-version = "0.0.1"
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
-
-kotlin {
-    jvmToolchain(21)
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.spring.boot.starter)
-    implementation(libs.kotlin.reflect)
-    implementation(libs.spring.boot.starter.web)
-    implementation(libs.spring.boot.starter.data.jpa)
-    implementation(libs.gson)
-    implementation(libs.postgresql)
-    implementation(libs.jsoup)
-    implementation(libs.m14n.ex)
-    implementation(libs.m14n.billib.data)
-    implementation(libs.jakarta.xml.bind.api)
-    implementation(libs.glassfish.jaxb.runtime)
-}
-
-tasks.named<Jar>("jar") {
-    enabled = false
+    alias(libs.plugins.kotlin.serialization) apply false
 }
 
 // Configure frontend modules
@@ -96,7 +56,6 @@ subprojects {
                         "1.0.0"
                     )
 
-                    // Default URL for desktop/WASM development
                     buildConfigField(
                         com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         "API_BASE_URL",
@@ -104,16 +63,6 @@ subprojects {
                     )
                 }
 
-                // Android-specific: Use 10.0.2.2 for emulator (emulator's host loopback)
-                targetConfigs {
-                    create("android") {
-                        buildConfigField(
-                            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
-                            "API_BASE_URL",
-                            apiBaseUrl ?: "http://10.0.2.2:8080"
-                        )
-                    }
-                }
             }
         }
     }
