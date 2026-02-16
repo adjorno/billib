@@ -35,7 +35,7 @@ dependencyResolutionManagement {
 include("libraries:data-source:billboard")
 project(":libraries:data-source:billboard").name = "billboard"
 include("libraries:inmemory-rest")
-include("billib-importer")
+include("libraries:billib-importer")
 
 // Railway deployment skips frontend (doesn't have Android SDK)
 val isRailwayBuild = System.getenv("RAILWAY_ENVIRONMENT") != null

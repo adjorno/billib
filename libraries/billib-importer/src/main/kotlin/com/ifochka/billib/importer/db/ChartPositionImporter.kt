@@ -1,7 +1,7 @@
-package com.adjorno.billib.importer.db
+package com.ifochka.billib.importer.db
 
-import com.adjorno.billib.importer.model.BBChart
-import com.adjorno.billib.importer.util.ProgressTracker
+import com.ifochka.billib.importer.model.BBChart
+import com.ifochka.billib.importer.util.ProgressTracker
 import java.sql.Connection
 import java.sql.Date
 

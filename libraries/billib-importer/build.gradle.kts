@@ -4,7 +4,7 @@ plugins {
     application
 }
 
-group = "com.adjorno.billib"
+group = "com.ifochka.billib"
 version = "1.0.0"
 
 repositories {
@@ -20,7 +20,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.adjorno.billib.importer.ImporterKt")
+    mainClass.set("com.ifochka.billib.importer.ImporterKt")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -42,6 +42,6 @@ kotlin {
 tasks.register<JavaExec>("import") {
     group = "application"
     description = "Run the Billboard data importer"
-    mainClass.set("com.adjorno.billib.importer.ImporterKt")
+    mainClass.set("com.ifochka.billib.importer.ImporterKt")
     classpath = sourceSets["main"].runtimeClasspath
 }

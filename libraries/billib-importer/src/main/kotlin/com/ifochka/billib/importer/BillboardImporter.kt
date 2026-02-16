@@ -1,10 +1,10 @@
-package com.adjorno.billib.importer
+package com.ifochka.billib.importer
 
-import com.adjorno.billib.importer.db.*
-import com.adjorno.billib.importer.model.BBChart
-import com.adjorno.billib.importer.model.BBJournalMetadata
-import com.adjorno.billib.importer.util.DatabaseConnection
-import com.adjorno.billib.importer.util.ProgressTracker
+import com.ifochka.billib.importer.db.*
+import com.ifochka.billib.importer.model.BBChart
+import com.ifochka.billib.importer.model.BBJournalMetadata
+import com.ifochka.billib.importer.util.DatabaseConnection
+import com.ifochka.billib.importer.util.ProgressTracker
 import com.google.gson.Gson
 import java.io.File
 import java.sql.Connection

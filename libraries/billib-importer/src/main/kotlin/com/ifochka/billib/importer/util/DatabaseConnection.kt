@@ -1,6 +1,6 @@
-package com.adjorno.billib.importer.util
+package com.ifochka.billib.importer.util
 
-import com.adjorno.billib.importer.ImportConfig
+import com.ifochka.billib.importer.ImportConfig
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException

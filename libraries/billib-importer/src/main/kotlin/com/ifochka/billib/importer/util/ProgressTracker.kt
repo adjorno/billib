@@ -1,4 +1,4 @@
-package com.adjorno.billib.importer.util
+package com.ifochka.billib.importer.util
 
 class ProgressTracker(private val enabled: Boolean = true) {
 

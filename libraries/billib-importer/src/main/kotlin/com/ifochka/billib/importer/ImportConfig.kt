@@ -1,4 +1,4 @@
-package com.adjorno.billib.importer
+package com.ifochka.billib.importer
 
 data class ImportConfig(
     val dataPath: String,

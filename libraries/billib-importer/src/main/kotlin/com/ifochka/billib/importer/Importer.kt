@@ -1,4 +1,4 @@
-package com.adjorno.billib.importer
+package com.ifochka.billib.importer
 
 import kotlin.system.exitProcess
 

@@ -1,4 +1,4 @@
-package com.adjorno.billib.importer.model
+package com.ifochka.billib.importer.model
 
 import com.google.gson.annotations.SerializedName
 
