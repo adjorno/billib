@@ -20,7 +20,8 @@ interface ArtistRelationRepository : CrudRepository<ArtistRelation, Long> {
     )
 
     @Query(
-        value = "SELECT collaboration_artist_id FROM artist_relation WHERE member_artist_id IN (?1, ?2) GROUP BY collaboration_artist_id",
+        value = "SELECT collaboration_artist_id FROM artist_relation " +
+            "WHERE member_artist_id IN (?1, ?2) GROUP BY collaboration_artist_id",
         nativeQuery = true,
     )
     fun findMergingCollaborationIds(
@@ -29,7 +30,8 @@ interface ArtistRelationRepository : CrudRepository<ArtistRelation, Long> {
     ): List<Long>
 
     @Query(
-        value = "SELECT member_artist_id FROM artist_relation WHERE collaboration_artist_id IN (?1, ?2) GROUP BY member_artist_id",
+        value = "SELECT member_artist_id FROM artist_relation " +
+            "WHERE collaboration_artist_id IN (?1, ?2) GROUP BY member_artist_id",
         nativeQuery = true,
     )
     fun findMergingMemberIds(

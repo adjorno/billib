@@ -56,7 +56,8 @@ object TrackUtils {
         alphabetical: Boolean,
     ): String {
         val theQueryBuilder = StringBuilder(
-            "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, TRACK.ARTIST_NAME, TRACK.FIRST_CHART_DATE, TRACK.PEAK_GLOBAL_RANK, TRACK.TOTAL_WEEKS_ON_CHART FROM TRACK" +
+            "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, TRACK.ARTIST_NAME, " +
+                "TRACK.FIRST_CHART_DATE, TRACK.PEAK_GLOBAL_RANK, TRACK.TOTAL_WEEKS_ON_CHART FROM TRACK" +
                 " JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID",
         )
         if (!alphabetical) {

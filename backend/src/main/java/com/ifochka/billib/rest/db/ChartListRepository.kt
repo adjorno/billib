@@ -25,7 +25,8 @@ interface ChartListRepository : CrudRepository<ChartList, Long> {
     ): Page<ChartList>
 
     @Query(
-        value = "select cl from ChartList cl inner join cl.week w where cl.chart = ?1 and w.date > ?2 order by w.date asc",
+        value = "select cl from ChartList cl inner join cl.week w " +
+            "where cl.chart = ?1 and w.date > ?2 order by w.date asc",
     )
     fun findAfter(
         chart: Chart,
