@@ -1,0 +1,26 @@
+name: Deploy Web to Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/composeApp/src/commonMain/**'
+      - 'frontend/composeApp/src/wasmJsMain/**'
+      - 'frontend/composeApp/build.gradle.kts'
+      - '.github/workflows/template-compute-ci-version.yml'
+      - '.github/workflows/template-web-build-and-deploy.yml'
+      - '.github/workflows/deploy-web-test.yml'
+
+jobs:
+  version:
+    uses: ./.github/workflows/template-compute-ci-version.yml
+
+  deploy:
+    name: Deploy to Cloudflare Pages (Test)
+    needs: version
+    uses: ./.github/workflows/template-web-build-and-deploy.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      cloudflare_project_name: 'billib-test'
+    secrets: inherit

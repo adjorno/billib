@@ -49,23 +49,33 @@ subprojects {
         plugins.withId("com.codingfeline.buildkonfig") {
             configure<com.codingfeline.buildkonfig.gradle.BuildKonfigExtension> {
                 packageName = "com.ifochka.billib"
-                val apiBaseUrl = System.getenv("API_BASE_URL")
+                val apiBaseUrl = getPropertyOrEnv(
+                    key = "API_BASE_URL",
+                    fallback = "https://billib-production.up.railway.app",
+                )
+
+                val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")
 
                 defaultConfigs {
                     buildConfigField(
-                        com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
-                        "VERSION_NAME",
-                        "1.0.0"
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "VERSION_NAME",
+                        value = versionName,
                     )
 
                     buildConfigField(
-                        com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
-                        "API_BASE_URL",
-                        apiBaseUrl ?: "https://billib-production.up.railway.app"
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "API_BASE_URL",
+                        value = apiBaseUrl,
                     )
                 }
-
             }
         }
     }
+}
+
+fun Project.getPropertyOrEnv(key: String, fallback: String): String {
+    return System.getenv(key)
+        ?: findProperty(key)?.toString()
+        ?: fallback
 }
