@@ -223,8 +223,8 @@ Shall I start with Iteration 1?
 
 **✅ GOOD - Stop Gradle after testing:**
 ```bash
-# Run tests
-./gradlew :frontend:composeApp:wasmJsBrowserDistribution -PVERSION_NAME=1.0.0.test
+# Run tests (no -PVERSION_NAME needed - uses "local build" fallback)
+./gradlew :frontend:composeApp:wasmJsBrowserDistribution
 
 # Verify output
 ls frontend/composeApp/build/dist/wasmJs/productionExecutable/
@@ -242,11 +242,24 @@ ls frontend/composeApp/build/dist/wasmJs/productionExecutable/
 # Gradle daemon continues consuming resources
 ```
 
+### Important: Avoid Unnecessary Gradle Properties
+
+**Do NOT use `-PVERSION_NAME` during local builds:**
+- ❌ `./gradlew build -PVERSION_NAME=1.0.0.test` (invalidates cache, slows build)
+- ✅ `./gradlew build` (uses "local build" fallback, preserves cache)
+
+**Why:**
+- Gradle properties invalidate the build cache
+- VERSION_NAME has a fallback value ("local build") in build.gradle.kts
+- Only CI/CD should set VERSION_NAME (for production builds)
+- Local builds are faster without extra properties
+
 ### Benefits
 - ✅ Frees up memory and CPU resources
 - ✅ Prevents daemon conflicts on subsequent builds
 - ✅ Cleaner system state for other development work
 - ✅ Reduces IDE performance impact
+- ✅ Preserves build cache for faster incremental builds
 
 ---
 
