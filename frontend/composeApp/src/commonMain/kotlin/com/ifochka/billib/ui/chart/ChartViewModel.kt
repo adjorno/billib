@@ -17,6 +17,27 @@ class ChartViewModel(
 
     init {
         loadCharts()
+        observeChartUpdates()
+    }
+
+    /**
+     * Observe artwork updates and reactively update UI state.
+     */
+    private fun observeChartUpdates() {
+        viewModelScope.launch {
+            repository.chartUpdates.collect { updatedChartList ->
+                val currentState = _uiState.value
+                if (currentState is ChartUiState.Success) {
+                    // Only update if we're viewing the same chart
+                    if (currentState.chartList.id == updatedChartList.id) {
+                        _uiState.value =
+                            currentState.copy(
+                                chartList = updatedChartList,
+                            )
+                    }
+                }
+            }
+        }
     }
 
     fun loadCharts() {

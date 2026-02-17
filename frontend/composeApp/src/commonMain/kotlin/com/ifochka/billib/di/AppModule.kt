@@ -18,6 +18,7 @@ import com.ifochka.billib.ui.chart.ChartViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.factoryOf
@@ -28,12 +29,14 @@ val appModule = module {
     single {
         HttpClient {
             install(ContentNegotiation) {
-                json(
+                // iTunes API returns text/javascript instead of application/json
+                val jsonConfig =
                     Json {
                         ignoreUnknownKeys = true
                         isLenient = true
-                    },
-                )
+                    }
+                json(jsonConfig, contentType = ContentType.Application.Json)
+                json(jsonConfig, contentType = ContentType.Text.JavaScript)
             }
             defaultRequest {
                 url(BuildKonfig.API_BASE_URL)
