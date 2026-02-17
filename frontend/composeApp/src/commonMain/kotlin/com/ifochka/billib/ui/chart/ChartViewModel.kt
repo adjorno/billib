@@ -24,26 +24,34 @@ class ChartViewModel(
      * Observe artwork updates and reactively update UI state.
      */
     private fun observeChartUpdates() {
+        println("[VM] 🔧 Setting up observeChartUpdates()")
         viewModelScope.launch {
+            println("[VM] 👂 Started collecting from repository.chartUpdates SharedFlow")
             repository.chartUpdates.collect { updatedChartList ->
-                println("[VM] Received chart update: ${updatedChartList.id}")
+                println("[VM] 📬 Received chart update: ${updatedChartList.id}")
                 val currentState = _uiState.value
+                println("[VM] 📊 Current UI state: ${currentState::class.simpleName}")
+
                 if (currentState is ChartUiState.Success) {
                     // Only update if we're viewing the same chart
                     if (currentState.chartList.id == updatedChartList.id) {
-                        println("[VM] ✓ Updating UI with new artwork")
+                        val trackCount = updatedChartList.chartTracks?.size ?: 0
+                        val artworkCount = updatedChartList.chartTracks?.count { !it.track?.artworkUrl.isNullOrBlank() } ?: 0
+                        println("[VM] ✅ Updating UI with new artwork ($artworkCount/$trackCount tracks have artwork)")
                         _uiState.value =
                             currentState.copy(
                                 chartList = updatedChartList,
                             )
+                        println("[VM] ✅ UI state updated")
                     } else {
-                        println("[VM] ⊘ Skipping update (different chart)")
+                        println("[VM] ⊘ Skipping update (different chart: current=${currentState.chartList.id}, received=${updatedChartList.id})")
                     }
                 } else {
-                    println("[VM] ⊘ Skipping update (not in Success state)")
+                    println("[VM] ⊘ Skipping update (not in Success state, current state is ${currentState::class.simpleName})")
                 }
             }
         }
+        println("[VM] 🔧 observeChartUpdates() setup complete (collecting in background)")
     }
 
     fun loadCharts() {

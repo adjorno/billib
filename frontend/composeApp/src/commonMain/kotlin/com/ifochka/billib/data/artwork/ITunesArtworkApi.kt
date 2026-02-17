@@ -43,13 +43,19 @@ class ITunesArtworkApi(
         artist: String,
         title: String,
     ): String? {
+        println("[ITUNES-API] 🌐 searchArtwork called - artist='$artist', title='$title'")
+
         return try {
             val searchTerm = "$artist $title"
             var lastException: Exception? = null
 
+            println("[ITUNES-API] 📡 Search term: '$searchTerm'")
+
             // Retry with exponential backoff on 403 (rate limit)
             repeat(MAX_RETRIES) { attempt ->
                 try {
+                    println("[ITUNES-API] 🔄 Attempt ${attempt + 1}/$MAX_RETRIES - Making HTTP GET to $ITUNES_SEARCH_URL")
+
                     val response =
                         httpClient.get(ITUNES_SEARCH_URL) {
                             parameter("term", searchTerm)
@@ -57,40 +63,55 @@ class ITunesArtworkApi(
                             parameter("limit", LIMIT)
                         }
 
+                    println("[ITUNES-API] 📥 HTTP Response: ${response.status}")
+
                     // Handle 403 Forbidden (rate limit exceeded)
                     if (response.status == HttpStatusCode.Forbidden) {
                         val backoffMs = INITIAL_BACKOFF_MS * (1 shl attempt) // Exponential: 1s, 2s, 4s
-                        println("[ARTWORK] Rate limit hit (403), retrying in ${backoffMs}ms (attempt ${attempt + 1}/$MAX_RETRIES)")
+                        println("[ITUNES-API] ⚠️ Rate limit hit (403), retrying in ${backoffMs}ms (attempt ${attempt + 1}/$MAX_RETRIES)")
                         delay(backoffMs)
                         return@repeat // Try again
                     }
 
                     if (!response.status.isSuccess()) {
+                        println("[ITUNES-API] ❌ Non-success status: ${response.status}")
                         return null
                     }
 
+                    println("[ITUNES-API] 🔄 Parsing response body...")
                     val searchResponse: ITunesSearchResponse = response.body()
 
+                    println("[ITUNES-API] 📊 Found ${searchResponse.results.size} results")
+
                     // Get the first result's artwork URL and upgrade to 600x600
-                    return searchResponse.results.firstOrNull()?.artworkUrl100?.let { url ->
-                        upgradeArtworkUrl(url)
+                    val result = searchResponse.results.firstOrNull()?.artworkUrl100?.let { url ->
+                        println("[ITUNES-API] 🎨 Original artwork URL: $url")
+                        val upgraded = upgradeArtworkUrl(url)
+                        println("[ITUNES-API] ✨ Upgraded artwork URL: $upgraded")
+                        upgraded
                     }
+
+                    println("[ITUNES-API] ✅ Returning result: $result")
+                    return result
                 } catch (e: Exception) {
+                    println("[ITUNES-API] ❌ Exception on attempt ${attempt + 1}: ${e::class.simpleName} - ${e.message}")
+                    e.printStackTrace()
                     lastException = e
                     if (attempt < MAX_RETRIES - 1) {
                         val backoffMs = INITIAL_BACKOFF_MS * (1 shl attempt)
-                        println("[ARTWORK] Request failed, retrying in ${backoffMs}ms: ${e.message}")
+                        println("[ITUNES-API] 🔄 Request failed, retrying in ${backoffMs}ms")
                         delay(backoffMs)
                     }
                 }
             }
 
             // All retries exhausted
-            println("[ARTWORK] Failed to fetch artwork after $MAX_RETRIES attempts: ${lastException?.message}")
+            println("[ITUNES-API] ❌ Failed to fetch artwork after $MAX_RETRIES attempts: ${lastException?.message}")
             null
         } catch (e: Exception) {
             // Log error but don't crash - gracefully degrade to no artwork
-            println("[ARTWORK] Error fetching artwork from iTunes API: ${e.message}")
+            println("[ITUNES-API] ❌ Error fetching artwork from iTunes API: ${e::class.simpleName} - ${e.message}")
+            e.printStackTrace()
             null
         }
     }

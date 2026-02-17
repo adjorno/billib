@@ -85,6 +85,7 @@ class CachedChartRepository(
             println("[CACHE] ✓ Cached chart list (chart=$chartId, date=$effectiveDate, tracks=$trackCount)")
 
             // Fetch artwork for tracks in the background
+            println("[CACHE] → Starting background artwork fetch...")
             fetchArtworkForTracks(chartList)
         }.recoverCatching { networkError ->
             val fallbackChartList = database.getChartListByDate(chartId, effectiveDate)
@@ -104,27 +105,51 @@ class CachedChartRepository(
      * UI updates reactively as artwork URLs are fetched.
      */
     private fun fetchArtworkForTracks(chartList: ChartList) {
-        artworkScope.launch {
-            val tracks = chartList.chartTracks?.mapNotNull { it.track } ?: return@launch
+        println("[ARTWORK] 1️⃣ fetchArtworkForTracks CALLED for chart ${chartList.id}")
+        println("[ARTWORK] 1️⃣ artworkScope context: ${artworkScope.coroutineContext}")
 
-            println("[ARTWORK] Starting background fetch for ${tracks.size} tracks...")
+        artworkScope.launch {
+            println("[ARTWORK] 2️⃣ Background coroutine LAUNCHED (inside launch block)")
+            println("[ARTWORK] 2️⃣ Coroutine context: ${coroutineContext}")
+
+            val tracks = chartList.chartTracks?.mapNotNull { it.track } ?: run {
+                println("[ARTWORK] ❌ No tracks found in chart list")
+                return@launch
+            }
+
+            println("[ARTWORK] 3️⃣ Found ${tracks.size} tracks to process")
 
             // Keep track of updated chart list
             var updatedChartList = chartList
+            var processedCount = 0
 
             // Fetch artwork for each track individually
-            tracks.forEach { track ->
-                val trackId = track.id ?: return@forEach
+            tracks.forEachIndexed { index, track ->
+                val trackId = track.id
+                println("[ARTWORK] 4️⃣ Processing track [$index/${tracks.size}]: ${track.artistName} - ${track.title} (id=$trackId)")
+
+                if (trackId == null) {
+                    println("[ARTWORK] ⊘ Skipping track (no ID)")
+                    return@forEachIndexed
+                }
 
                 // Skip if already has artwork
                 if (!track.artworkUrl.isNullOrBlank()) {
-                    return@forEach
+                    println("[ARTWORK] ⊘ Skipping track (already has artwork: ${track.artworkUrl})")
+                    return@forEachIndexed
                 }
+
+                println("[ARTWORK] 5️⃣ Calling artworkRepository.getArtworkUrl()...")
 
                 // Fetch artwork URL
                 val artworkUrl = artworkRepository.getArtworkUrl(track)
 
+                println("[ARTWORK] 6️⃣ Got artwork URL: $artworkUrl")
+
                 if (artworkUrl != null) {
+                    processedCount++
+                    println("[ARTWORK] 7️⃣ Updating track in chart list...")
+
                     // Update this track in the chart list
                     val updatedTrack = track.copy(artworkUrl = artworkUrl)
                     updatedChartList =
@@ -139,18 +164,24 @@ class CachedChartRepository(
                                 },
                         )
 
+                    println("[ARTWORK] 8️⃣ Inserting updated chart list to database...")
                     // Update database (no-op on wasmJs)
                     database.insertChartList(updatedChartList)
 
+                    println("[ARTWORK] 9️⃣ Emitting update via SharedFlow...")
                     // Emit update to UI
                     _chartUpdates.emit(updatedChartList)
 
-                    println("[ARTWORK] ✓ Updated track: ${track.artistName} - ${track.title}")
-                    println("[ARTWORK] → Emitted update via SharedFlow")
+                    println("[ARTWORK] ✓ Track $processedCount: ${track.artistName} - ${track.title}")
+                    println("[ARTWORK] ✓ SharedFlow emit complete")
+                } else {
+                    println("[ARTWORK] ⊘ No artwork URL returned for: ${track.artistName} - ${track.title}")
                 }
             }
 
-            println("[ARTWORK] ✓ Background artwork fetch complete")
+            println("[ARTWORK] 🏁 Background artwork fetch COMPLETE (processed $processedCount/${tracks.size})")
         }
+
+        println("[ARTWORK] 🔄 fetchArtworkForTracks returned (launch is async)")
     }
 }
