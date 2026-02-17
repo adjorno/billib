@@ -24,6 +24,7 @@ class CachedChartRepository(
     // Flow that emits when a track's artwork is updated
     private val _chartUpdates = MutableSharedFlow<ChartList>(replay = 0)
     val chartUpdates: SharedFlow<ChartList> = _chartUpdates.asSharedFlow()
+
     suspend fun getAllCharts(): Result<List<Chart>> {
         val cachedCharts = database.getAllCharts()
 
@@ -110,7 +111,7 @@ class CachedChartRepository(
 
         artworkScope.launch {
             println("[ARTWORK] 2️⃣ Background coroutine LAUNCHED (inside launch block)")
-            println("[ARTWORK] 2️⃣ Coroutine context: ${coroutineContext}")
+            println("[ARTWORK] 2️⃣ Coroutine context: $coroutineContext")
 
             val tracks = chartList.chartTracks?.mapNotNull { it.track } ?: run {
                 println("[ARTWORK] ❌ No tracks found in chart list")
@@ -126,7 +127,9 @@ class CachedChartRepository(
             // Fetch artwork for each track individually
             tracks.forEachIndexed { index, track ->
                 val trackId = track.id
-                println("[ARTWORK] 4️⃣ Processing track [$index/${tracks.size}]: ${track.artistName} - ${track.title} (id=$trackId)")
+                println(
+                    "[ARTWORK] 4️⃣ Processing track [$index/${tracks.size}]: ${track.artistName} - ${track.title} (id=$trackId)",
+                )
 
                 if (trackId == null) {
                     println("[ARTWORK] ⊘ Skipping track (no ID)")

@@ -36,7 +36,8 @@ class ChartViewModel(
                     // Only update if we're viewing the same chart
                     if (currentState.chartList.id == updatedChartList.id) {
                         val trackCount = updatedChartList.chartTracks?.size ?: 0
-                        val artworkCount = updatedChartList.chartTracks?.count { !it.track?.artworkUrl.isNullOrBlank() } ?: 0
+                        val artworkCount =
+                            updatedChartList.chartTracks?.count { !it.track?.artworkUrl.isNullOrBlank() } ?: 0
                         println("[VM] ✅ Updating UI with new artwork ($artworkCount/$trackCount tracks have artwork)")
                         _uiState.value =
                             currentState.copy(
@@ -44,10 +45,14 @@ class ChartViewModel(
                             )
                         println("[VM] ✅ UI state updated")
                     } else {
-                        println("[VM] ⊘ Skipping update (different chart: current=${currentState.chartList.id}, received=${updatedChartList.id})")
+                        println(
+                            "[VM] ⊘ Skipping update (different chart: current=${currentState.chartList.id}, received=${updatedChartList.id})",
+                        )
                     }
                 } else {
-                    println("[VM] ⊘ Skipping update (not in Success state, current state is ${currentState::class.simpleName})")
+                    println(
+                        "[VM] ⊘ Skipping update (not in Success state, current state is ${currentState::class.simpleName})",
+                    )
                 }
             }
         }

@@ -54,7 +54,9 @@ class ITunesArtworkApi(
             // Retry with exponential backoff on 403 (rate limit)
             repeat(MAX_RETRIES) { attempt ->
                 try {
-                    println("[ITUNES-API] 🔄 Attempt ${attempt + 1}/$MAX_RETRIES - Making HTTP GET to $ITUNES_SEARCH_URL")
+                    println(
+                        "[ITUNES-API] 🔄 Attempt ${attempt + 1}/$MAX_RETRIES - Making HTTP GET to $ITUNES_SEARCH_URL",
+                    )
 
                     val response =
                         httpClient.get(ITUNES_SEARCH_URL) {
@@ -68,7 +70,9 @@ class ITunesArtworkApi(
                     // Handle 403 Forbidden (rate limit exceeded)
                     if (response.status == HttpStatusCode.Forbidden) {
                         val backoffMs = INITIAL_BACKOFF_MS * (1 shl attempt) // Exponential: 1s, 2s, 4s
-                        println("[ITUNES-API] ⚠️ Rate limit hit (403), retrying in ${backoffMs}ms (attempt ${attempt + 1}/$MAX_RETRIES)")
+                        println(
+                            "[ITUNES-API] ⚠️ Rate limit hit (403), retrying in ${backoffMs}ms (attempt ${attempt + 1}/$MAX_RETRIES)",
+                        )
                         delay(backoffMs)
                         return@repeat // Try again
                     }
