@@ -1,13 +1,17 @@
 package com.ifochka.billib.data.repository
 
+import com.ifochka.billib.data.artwork.ArtworkRepository
 import com.ifochka.billib.data.db.CachePolicy
 import com.ifochka.billib.data.db.ChartDatabaseRepository
 import com.ifochka.billib.data.model.Chart
 import com.ifochka.billib.data.model.ChartList
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class CachedChartRepository(
     private val database: ChartDatabaseRepository,
     private val network: NetworkChartRepository,
+    private val artworkRepository: ArtworkRepository,
 ) {
     suspend fun getAllCharts(): Result<List<Chart>> {
         val cachedCharts = database.getAllCharts()
@@ -68,6 +72,9 @@ class CachedChartRepository(
             database.insertChartList(listToCache)
             val trackCount = chartList.chartTracks?.size ?: 0
             println("[CACHE] ✓ Cached chart list (chart=$chartId, date=$effectiveDate, tracks=$trackCount)")
+
+            // Fetch artwork for tracks in the background
+            fetchArtworkForTracks(chartList)
         }.recoverCatching { networkError ->
             val fallbackChartList = database.getChartListByDate(chartId, effectiveDate)
             if (fallbackChartList != null) {
@@ -79,4 +86,44 @@ class CachedChartRepository(
             }
         }
     }
+
+    /**
+     * Fetch artwork URLs for all tracks in a chart list.
+     * Runs asynchronously to avoid blocking chart display.
+     */
+    private suspend fun fetchArtworkForTracks(chartList: ChartList) =
+        coroutineScope {
+            async {
+                val tracks = chartList.chartTracks?.mapNotNull { it.track } ?: return@async
+
+                println("[ARTWORK] Fetching artwork for ${tracks.size} tracks...")
+                val artworkUrls = artworkRepository.getArtworkUrls(tracks)
+
+                // Update tracks with artwork URLs
+                artworkUrls.forEach { (trackId, artworkUrl) ->
+                    if (artworkUrl != null) {
+                        val track = tracks.find { it.id == trackId }
+                        if (track != null) {
+                            val updatedTrack = track.copy(artworkUrl = artworkUrl)
+                            // Re-insert track to update artwork_url in database
+                            database.insertChartList(
+                                chartList.copy(
+                                    chartTracks =
+                                        chartList.chartTracks.map { chartTrack ->
+                                            if (chartTrack.track?.id == trackId) {
+                                                chartTrack.copy(track = updatedTrack)
+                                            } else {
+                                                chartTrack
+                                            }
+                                        },
+                                ),
+                            )
+                        }
+                    }
+                }
+
+                val fetchedCount = artworkUrls.values.count { it != null }
+                println("[ARTWORK] ✓ Fetched $fetchedCount/${tracks.size} artwork URLs")
+            }
+        }
 }
