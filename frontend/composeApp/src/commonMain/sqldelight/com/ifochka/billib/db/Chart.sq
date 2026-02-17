@@ -1,15 +1,15 @@
-CREATE TABLE artist (
+CREATE TABLE IF NOT EXISTS artist (
     id INTEGER PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     name_normalized TEXT
 );
 
-CREATE TABLE journal (
+CREATE TABLE IF NOT EXISTS journal (
     id INTEGER PRIMARY KEY NOT NULL,
     name TEXT NOT NULL
 );
 
-CREATE TABLE chart (
+CREATE TABLE IF NOT EXISTS chart (
     id INTEGER PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     journal_id INTEGER NOT NULL,
@@ -20,12 +20,12 @@ CREATE TABLE chart (
     FOREIGN KEY (journal_id) REFERENCES journal(id)
 );
 
-CREATE TABLE week (
+CREATE TABLE IF NOT EXISTS week (
     id INTEGER PRIMARY KEY NOT NULL,
     date TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE chart_list (
+CREATE TABLE IF NOT EXISTS chart_list (
     id INTEGER PRIMARY KEY NOT NULL,
     chart_id INTEGER NOT NULL,
     week_id INTEGER NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE chart_list (
     UNIQUE(chart_id, week_id)
 );
 
-CREATE TABLE track (
+CREATE TABLE IF NOT EXISTS track (
     id INTEGER PRIMARY KEY NOT NULL,
     title TEXT NOT NULL,
     artist_id INTEGER,
@@ -46,7 +46,7 @@ CREATE TABLE track (
     FOREIGN KEY (artist_id) REFERENCES artist(id)
 );
 
-CREATE TABLE chart_track (
+CREATE TABLE IF NOT EXISTS chart_track (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     chart_list_id INTEGER NOT NULL,
     track_id INTEGER NOT NULL,
@@ -57,9 +57,9 @@ CREATE TABLE chart_track (
     UNIQUE(chart_list_id, track_id)
 );
 
-CREATE INDEX idx_chart_list_chart_id ON chart_list(chart_id);
-CREATE INDEX idx_chart_track_list_id ON chart_track(chart_list_id);
-CREATE INDEX idx_track_artist_id ON track(artist_id);
+CREATE INDEX IF NOT EXISTS idx_chart_list_chart_id ON chart_list(chart_id);
+CREATE INDEX IF NOT EXISTS idx_chart_track_list_id ON chart_track(chart_list_id);
+CREATE INDEX IF NOT EXISTS idx_track_artist_id ON track(artist_id);
 
 -- Artist Queries
 selectAllArtists:
@@ -93,6 +93,12 @@ SELECT * FROM chart WHERE id = ?;
 insertChart:
 INSERT OR REPLACE INTO chart (id, name, journal_id, list_size, start_date, end_date, cached_at)
 VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteAllCharts:
+DELETE FROM chart;
+
+deleteAllJournals:
+DELETE FROM journal;
 
 -- Week Queries
 selectAllWeeks:
@@ -136,6 +142,26 @@ VALUES (?, ?, ?, ?, ?, ?, ?);
 -- ChartTrack Queries
 selectChartTracksByListId:
 SELECT * FROM chart_track WHERE chart_list_id = ?;
+
+selectChartTracksWithDetailsById:
+SELECT
+    ct.id AS chart_track_id,
+    ct.rank,
+    ct.last_week_rank,
+    t.id AS track_id,
+    t.title AS track_title,
+    t.artist_name AS track_artist_name,
+    t.first_chart_date,
+    t.peak_global_rank,
+    t.total_weeks_on_chart,
+    a.id AS artist_id,
+    a.name AS artist_name,
+    a.name_normalized AS artist_name_normalized
+FROM chart_track ct
+JOIN track t ON ct.track_id = t.id
+LEFT JOIN artist a ON t.artist_id = a.id
+WHERE ct.chart_list_id = ?
+ORDER BY ct.rank;
 
 insertChartTrack:
 INSERT OR REPLACE INTO chart_track (chart_list_id, track_id, rank, last_week_rank)

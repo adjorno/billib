@@ -2,8 +2,11 @@ package com.ifochka.billib.data.db
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
+import com.ifochka.billib.data.model.Artist
 import com.ifochka.billib.data.model.Chart
 import com.ifochka.billib.data.model.ChartList
+import com.ifochka.billib.data.model.ChartTrack
+import com.ifochka.billib.data.model.Track
 import com.ifochka.billib.db.BillibDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,6 +17,8 @@ interface ChartDatabaseRepository {
     suspend fun getChartById(id: Long): Chart?
 
     suspend fun insertCharts(charts: List<Chart>)
+
+    suspend fun clearCharts()
 
     suspend fun getChartListByDate(
         chartId: Long,
@@ -57,15 +62,20 @@ class SqlDelightChartDatabase(
         withContext(Dispatchers.Default) {
             database.transaction {
                 charts.forEach { chart ->
+                    val chartId = chart.id ?: return@forEach
+                    val chartName = chart.name ?: return@forEach
+
                     chart.journal?.let { journal ->
+                        val journalId = journal.id ?: return@let
+                        val journalName = journal.name ?: return@let
                         database.chartQueries.insertJournal(
-                            id = journal.id ?: 0,
-                            name = journal.name ?: "",
+                            id = journalId,
+                            name = journalName,
                         )
                     }
                     database.chartQueries.insertChart(
-                        id = chart.id ?: 0,
-                        name = chart.name ?: "",
+                        id = chartId,
+                        name = chartName,
                         journal_id = chart.journal?.id ?: 0,
                         list_size = chart.listSize?.toLong(),
                         start_date = chart.startDate,
@@ -88,16 +98,31 @@ class SqlDelightChartDatabase(
 
             val chart = getChartById(chartId)
             val chartTracks =
-                database.chartQueries.selectChartTracksByListId(chartList.id)
-                    .awaitAsList().map { dbChartTrack ->
-                        val track =
-                            database.chartQueries.selectTrackById(dbChartTrack.track_id)
-                                .awaitAsOneOrNull()
+                database.chartQueries.selectChartTracksWithDetailsById(chartList.id)
+                    .awaitAsList().map { row ->
                         val artist =
-                            track?.artist_id?.let {
-                                database.chartQueries.selectArtistById(it).awaitAsOneOrNull()
-                            }?.toDomain()
-                        dbChartTrack.toDomain(track?.toDomain(artist))
+                            row.artist_id?.let {
+                                Artist(
+                                    id = it,
+                                    name = row.artist_name,
+                                    nameNormalized = row.artist_name_normalized,
+                                )
+                            }
+                        val track =
+                            Track(
+                                id = row.track_id,
+                                title = row.track_title,
+                                artist = artist,
+                                artistName = row.track_artist_name,
+                                firstChartDate = row.first_chart_date,
+                                peakGlobalRank = row.peak_global_rank?.toInt(),
+                                totalWeeksOnChart = row.total_weeks_on_chart?.toInt() ?: 0,
+                            )
+                        ChartTrack(
+                            track = track,
+                            rank = row.rank.toInt(),
+                            lastWeekRank = row.last_week_rank?.toInt() ?: 0,
+                        )
                     }
 
             ChartList(
@@ -110,24 +135,33 @@ class SqlDelightChartDatabase(
 
     override suspend fun insertChartList(chartList: ChartList) =
         withContext(Dispatchers.Default) {
+            // Validate required fields first
+            val chartListId = chartList.id ?: return@withContext
+            val chartId = chartList.chart?.id ?: return@withContext
+            val weekId = chartList.week?.id ?: return@withContext
+
             database.transaction {
-                chartList.week?.let { week ->
+                chartList.week.let { week ->
+                    val weekDate = week.date ?: return@let
                     database.chartQueries.insertWeek(
-                        id = week.id ?: 0,
-                        date = week.date ?: "",
+                        id = weekId,
+                        date = weekDate,
                     )
                 }
 
-                chartList.chart?.let { chart ->
+                chartList.chart.let { chart ->
+                    val chartName = chart.name ?: return@let
                     chart.journal?.let { journal ->
+                        val journalId = journal.id ?: return@let
+                        val journalName = journal.name ?: return@let
                         database.chartQueries.insertJournal(
-                            id = journal.id ?: 0,
-                            name = journal.name ?: "",
+                            id = journalId,
+                            name = journalName,
                         )
                     }
                     database.chartQueries.insertChart(
-                        id = chart.id ?: 0,
-                        name = chart.name ?: "",
+                        id = chartId,
+                        name = chartName,
                         journal_id = chart.journal?.id ?: 0,
                         list_size = chart.listSize?.toLong(),
                         start_date = chart.startDate,
@@ -137,24 +171,29 @@ class SqlDelightChartDatabase(
                 }
 
                 database.chartQueries.insertChartList(
-                    id = chartList.id ?: 0,
-                    chart_id = chartList.chart?.id ?: 0,
-                    week_id = chartList.week?.id ?: 0,
+                    id = chartListId,
+                    chart_id = chartId,
+                    week_id = weekId,
                     cached_at = currentTimeMillis(),
                 )
 
                 chartList.chartTracks?.forEach { chartTrack ->
                     chartTrack.track?.let { track ->
+                        val trackId = track.id ?: return@forEach
+                        val trackTitle = track.title ?: return@forEach
+
                         track.artist?.let { artist ->
+                            val artistId = artist.id ?: return@let
+                            val artistName = artist.name ?: return@let
                             database.chartQueries.insertArtist(
-                                id = artist.id ?: 0,
-                                name = artist.name ?: "",
+                                id = artistId,
+                                name = artistName,
                                 name_normalized = artist.nameNormalized,
                             )
                         }
                         database.chartQueries.insertTrack(
-                            id = track.id ?: 0,
-                            title = track.title ?: "",
+                            id = trackId,
+                            title = trackTitle,
                             artist_id = track.artist?.id,
                             artist_name = track.artistName,
                             first_chart_date = track.firstChartDate,
@@ -162,13 +201,21 @@ class SqlDelightChartDatabase(
                             total_weeks_on_chart = track.totalWeeksOnChart.toLong(),
                         )
                         database.chartQueries.insertChartTrack(
-                            chart_list_id = chartList.id ?: 0,
-                            track_id = track.id ?: 0,
+                            chart_list_id = chartListId,
+                            track_id = trackId,
                             rank = chartTrack.rank.toLong(),
                             last_week_rank = chartTrack.lastWeekRank.toLong(),
                         )
                     }
                 }
+            }
+        }
+
+    override suspend fun clearCharts() =
+        withContext(Dispatchers.Default) {
+            database.transaction {
+                database.chartQueries.deleteAllCharts()
+                database.chartQueries.deleteAllJournals()
             }
         }
 

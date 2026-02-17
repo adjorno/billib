@@ -1,5 +1,6 @@
 package com.ifochka.billib.data.db
 
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.ifochka.billib.db.BillibDatabase
@@ -12,6 +13,6 @@ actual fun createDatabaseDriver(): SqlDriver {
     }
     val databasePath = File(databaseDir, "billib.db")
     val driver = JdbcSqliteDriver("jdbc:sqlite:${databasePath.absolutePath}")
-    BillibDatabase.Schema.create(driver)
+    BillibDatabase.Schema.synchronous().create(driver)
     return driver
 }

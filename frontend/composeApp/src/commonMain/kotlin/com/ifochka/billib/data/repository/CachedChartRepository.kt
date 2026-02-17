@@ -23,6 +23,7 @@ class CachedChartRepository(
         println("[CACHE] ↓ Fetching charts from network...")
         return network.getAllCharts().onSuccess { charts ->
             val limitedCharts = charts.take(CachePolicy.MAX_CHARTS_COUNT)
+            database.clearCharts()
             database.insertCharts(limitedCharts)
             println("[CACHE] ✓ Cached ${limitedCharts.size} charts (capped at ${CachePolicy.MAX_CHARTS_COUNT})")
         }.recoverCatching { networkError ->
@@ -40,7 +41,6 @@ class CachedChartRepository(
         chartId: Long,
         date: String?,
     ): Result<ChartList> {
-        val isLatestChart = date == null
         val effectiveDate = date ?: "latest"
 
         val cachedTimestamp = database.getChartListCachedAt(chartId, effectiveDate)
