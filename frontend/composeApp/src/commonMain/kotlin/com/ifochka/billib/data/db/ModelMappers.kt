@@ -2,14 +2,12 @@ package com.ifochka.billib.data.db
 
 import com.ifochka.billib.data.model.Artist
 import com.ifochka.billib.data.model.Chart
-import com.ifochka.billib.data.model.ChartList
 import com.ifochka.billib.data.model.ChartTrack
 import com.ifochka.billib.data.model.Journal
 import com.ifochka.billib.data.model.Track
 import com.ifochka.billib.data.model.Week
 import com.ifochka.billib.db.Artist as DbArtist
 import com.ifochka.billib.db.Chart as DbChart
-import com.ifochka.billib.db.Chart_list as DbChartList
 import com.ifochka.billib.db.Chart_track as DbChartTrack
 import com.ifochka.billib.db.Journal as DbJournal
 import com.ifochka.billib.db.Track as DbTrack
