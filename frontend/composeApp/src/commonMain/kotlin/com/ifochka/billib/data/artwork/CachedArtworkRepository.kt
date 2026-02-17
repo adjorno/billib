@@ -12,6 +12,7 @@ import kotlin.time.Duration.Companion.days
  * - Storage: SQLDelight (artwork_url column in track table)
  * - Rate limiting: Reactive retry on 403 errors with exponential backoff
  */
+@Suppress("UnusedPrivateProperty")
 class CachedArtworkRepository(
     private val artworkApi: ArtworkApi,
     private val database: ChartDatabaseRepository,
@@ -20,6 +21,7 @@ class CachedArtworkRepository(
         private val ARTWORK_CACHE_TTL_MS = 30.days.inWholeMilliseconds
     }
 
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override suspend fun getArtworkUrl(track: Track): String? {
         println("[ARTWORK-REPO] 🔍 getArtworkUrl called for: ${track.artistName} - ${track.title}")
 
@@ -51,7 +53,6 @@ class CachedArtworkRepository(
         } catch (e: Exception) {
             println("[ARTWORK-REPO] ❌ Failed to fetch artwork for '$artistName - $trackTitle': ${e.message}")
             println("[ARTWORK-REPO] ❌ Exception: ${e::class.simpleName}")
-            e.printStackTrace()
             null
         }
     }

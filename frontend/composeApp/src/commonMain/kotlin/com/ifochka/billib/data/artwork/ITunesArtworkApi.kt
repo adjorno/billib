@@ -39,6 +39,7 @@ class ITunesArtworkApi(
             )
     }
 
+    @Suppress("LongMethod", "TooGenericExceptionCaught", "ReturnCount")
     override suspend fun searchArtwork(
         artist: String,
         title: String,
@@ -99,7 +100,6 @@ class ITunesArtworkApi(
                     return result
                 } catch (e: Exception) {
                     println("[ITUNES-API] ❌ Exception on attempt ${attempt + 1}: ${e::class.simpleName} - ${e.message}")
-                    e.printStackTrace()
                     lastException = e
                     if (attempt < MAX_RETRIES - 1) {
                         val backoffMs = INITIAL_BACKOFF_MS * (1 shl attempt)
@@ -115,7 +115,6 @@ class ITunesArtworkApi(
         } catch (e: Exception) {
             // Log error but don't crash - gracefully degrade to no artwork
             println("[ITUNES-API] ❌ Error fetching artwork from iTunes API: ${e::class.simpleName} - ${e.message}")
-            e.printStackTrace()
             null
         }
     }
