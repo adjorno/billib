@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions") // Model mapping requires many conversion functions
+
 package com.ifochka.billib.data.db
 
 import com.ifochka.billib.data.model.Artist
