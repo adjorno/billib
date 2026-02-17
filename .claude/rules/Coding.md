@@ -163,6 +163,65 @@ data class User(
 val updatedUser = user.copy(name = "New Name")
 ```
 
+## Function Call Conventions
+
+### Named Arguments for 3+ Parameters
+- **MUST use named arguments** when calling functions with 3 or more parameters
+- Makes code self-documenting and prevents argument order mistakes
+- Improves readability and maintainability
+- **Note:** No ktlint rule enforces this - relies on code review
+
+**Examples:**
+
+```kotlin
+// ❌ BAD: Positional arguments for 3+ params
+createUser("John", "john@example.com", true, "admin")
+
+// ✅ GOOD: Named arguments
+createUser(
+    name = "John",
+    email = "john@example.com",
+    isActive = true,
+    role = "admin",
+)
+
+// ✅ OK: 2 parameters - named arguments optional but recommended for clarity
+val point = Point(x = 10, y = 20)
+
+// ✅ OK: Single parameter - no need for named argument
+repository.getUser(userId)
+```
+
+### Trailing Commas
+- **Enforced by ktlint** via `trailing-comma-on-call-site` and `trailing-comma-on-declaration-site`
+- When arguments/parameters are on separate lines, last one MUST end with a comma
+- Benefits: cleaner diffs, easier reordering, fewer merge conflicts
+
+**Examples:**
+
+```kotlin
+// ✅ GOOD: Trailing comma on last argument
+createUser(
+    name = "John",
+    email = "john@example.com",
+    isActive = true,
+    role = "admin", // <- trailing comma required
+)
+
+// ✅ GOOD: Trailing comma on last parameter
+fun createUser(
+    name: String,
+    email: String,
+    isActive: Boolean,
+    role: String, // <- trailing comma required
+) {
+    // ...
+}
+
+// ✅ OK: Single line - no trailing comma needed
+createUser(name = "John", email = "john@example.com", isActive = true, role = "admin")
+```
+
 ## Rationale
 
 These rules ensure:
