@@ -107,6 +107,7 @@ class SqlDelightChartDatabase(
                                         firstChartDate = row.first_chart_date,
                                         peakGlobalRank = row.peak_global_rank?.toInt(),
                                         totalWeeksOnChart = row.total_weeks_on_chart?.toInt() ?: 0,
+                                        artworkUrl = row.artwork_url,
                                     )
                                 ChartTrack(
                                     track = track,
@@ -217,6 +218,7 @@ class SqlDelightChartDatabase(
                 first_chart_date = track.firstChartDate,
                 peak_global_rank = track.peakGlobalRank?.toLong(),
                 total_weeks_on_chart = track.totalWeeksOnChart.toLong(),
+                artwork_url = track.artworkUrl,
             )
 
             database.chartQueries.insertChartTrack(

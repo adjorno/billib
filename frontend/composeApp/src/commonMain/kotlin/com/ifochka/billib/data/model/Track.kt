@@ -11,4 +11,5 @@ data class Track(
     val firstChartDate: String? = null,
     val peakGlobalRank: Int? = null,
     val totalWeeksOnChart: Int = 0,
+    val artworkUrl: String? = null,
 )

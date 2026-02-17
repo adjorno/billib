@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS track (
     first_chart_date TEXT,
     peak_global_rank INTEGER,
     total_weeks_on_chart INTEGER DEFAULT 0,
+    artwork_url TEXT,
     FOREIGN KEY (artist_id) REFERENCES artist(id)
 );
 
@@ -151,8 +152,8 @@ selectTrackById:
 SELECT * FROM track WHERE id = ?;
 
 insertTrack:
-INSERT OR REPLACE INTO track (id, title, artist_id, artist_name, first_chart_date, peak_global_rank, total_weeks_on_chart)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO track (id, title, artist_id, artist_name, first_chart_date, peak_global_rank, total_weeks_on_chart, artwork_url)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 -- ChartTrack Queries
 selectChartTracksByListId:
@@ -169,6 +170,7 @@ SELECT
     t.first_chart_date,
     t.peak_global_rank,
     t.total_weeks_on_chart,
+    t.artwork_url,
     a.id AS artist_id,
     a.name AS artist_name,
     a.name_normalized AS artist_name_normalized
