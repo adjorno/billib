@@ -51,7 +51,7 @@ val appModule = module {
 
     // Artwork dependencies (platform-specific: JVM uses HTTP, wasmJs uses JSONP)
     single<ArtworkApi> { createArtworkApi(get()) }
-    single<ArtworkRepository> { CachedArtworkRepository(get(), get()) }
+    single<ArtworkRepository> { CachedArtworkRepository(get()) }
 
     // Repositories
     singleOf(::NetworkChartRepository)

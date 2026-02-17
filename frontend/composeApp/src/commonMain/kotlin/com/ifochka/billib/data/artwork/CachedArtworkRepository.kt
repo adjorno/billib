@@ -1,46 +1,49 @@
 package com.ifochka.billib.data.artwork
 
-import com.ifochka.billib.data.db.ChartDatabaseRepository
 import com.ifochka.billib.data.model.Track
-import kotlin.time.Duration.Companion.days
 
 /**
- * Cached artwork repository that fetches from iTunes API and caches results.
+ * Cached artwork repository that fetches from iTunes API.
  *
- * Caching strategy:
- * - TTL: 30 days (album art rarely changes)
- * - Storage: SQLDelight (artwork_url column in track table)
- * - Rate limiting: Reactive retry on 403 errors with exponential backoff
+ * Note: Database caching will be implemented in a future iteration.
+ * Currently fetches directly from iTunes API with in-memory caching via Track.artworkUrl.
  */
-@Suppress("UnusedPrivateProperty")
 class CachedArtworkRepository(
     private val artworkApi: ArtworkApi,
-    private val database: ChartDatabaseRepository,
 ) : ArtworkRepository {
-    companion object {
-        private val ARTWORK_CACHE_TTL_MS = 30.days.inWholeMilliseconds
-    }
-
-    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionCaught") // Graceful degradation requires catching all exceptions
     override suspend fun getArtworkUrl(track: Track): String? {
         println("[ARTWORK-REPO] 🔍 getArtworkUrl called for: ${track.artistName} - ${track.title}")
 
-        // If track already has artwork URL, return it
-        if (!track.artworkUrl.isNullOrBlank()) {
-            println("[ARTWORK-REPO] ⊘ Track already has artwork: ${track.artworkUrl}")
-            return track.artworkUrl
+        // Check in-memory cache first
+        val cachedUrl = track.artworkUrl?.takeIf { it.isNotBlank() }
+        if (cachedUrl != null) {
+            println("[ARTWORK-REPO] ⊘ Track already has artwork: $cachedUrl")
+            return cachedUrl
         }
 
-        // Try to fetch from API
-        val artistName = track.artistName ?: track.artist?.name ?: run {
-            println("[ARTWORK-REPO] ❌ No artist name available")
-            return null
-        }
-        val trackTitle = track.title ?: run {
-            println("[ARTWORK-REPO] ❌ No track title available")
-            return null
+        // Extract and validate required fields
+        val artistName = track.artistName ?: track.artist?.name
+        val trackTitle = track.title
+        val result = when {
+            artistName == null || trackTitle == null -> {
+                println("[ARTWORK-REPO] ❌ Missing required fields - artist: $artistName, title: $trackTitle")
+                null
+            }
+            else -> fetchArtworkFromApi(artistName, trackTitle)
         }
 
+        return result
+    }
+
+    /**
+     * Fetch artwork from iTunes API with error handling.
+     */
+    @Suppress("TooGenericExceptionCaught") // Need to catch all exceptions for graceful degradation
+    private suspend fun fetchArtworkFromApi(
+        artistName: String,
+        trackTitle: String,
+    ): String? {
         println("[ARTWORK-REPO] 📡 Calling iTunes API for: '$artistName' - '$trackTitle'")
 
         return try {
