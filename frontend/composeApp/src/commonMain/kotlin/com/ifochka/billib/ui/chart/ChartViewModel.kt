@@ -26,15 +26,21 @@ class ChartViewModel(
     private fun observeChartUpdates() {
         viewModelScope.launch {
             repository.chartUpdates.collect { updatedChartList ->
+                println("[VM] Received chart update: ${updatedChartList.id}")
                 val currentState = _uiState.value
                 if (currentState is ChartUiState.Success) {
                     // Only update if we're viewing the same chart
                     if (currentState.chartList.id == updatedChartList.id) {
+                        println("[VM] ✓ Updating UI with new artwork")
                         _uiState.value =
                             currentState.copy(
                                 chartList = updatedChartList,
                             )
+                    } else {
+                        println("[VM] ⊘ Skipping update (different chart)")
                     }
+                } else {
+                    println("[VM] ⊘ Skipping update (not in Success state)")
                 }
             }
         }

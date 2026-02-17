@@ -12,7 +12,17 @@ actual fun createDatabaseDriver(): SqlDriver {
         databaseDir.mkdirs()
     }
     val databasePath = File(databaseDir, "billib.db")
+
+    // DEV MODE: Delete database on startup to handle schema changes
+    // TODO: Remove for production and implement proper migrations
+    if (databasePath.exists()) {
+        println("[DB] 🗑️  Deleting old database (dev mode)")
+        databasePath.delete()
+    }
+
+    // Create fresh database
     val driver = JdbcSqliteDriver("jdbc:sqlite:${databasePath.absolutePath}")
     BillibDatabase.Schema.synchronous().create(driver)
+
     return driver
 }

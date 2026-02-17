@@ -139,13 +139,14 @@ class CachedChartRepository(
                                 },
                         )
 
-                    // Update database
+                    // Update database (no-op on wasmJs)
                     database.insertChartList(updatedChartList)
 
                     // Emit update to UI
                     _chartUpdates.emit(updatedChartList)
 
                     println("[ARTWORK] ✓ Updated track: ${track.artistName} - ${track.title}")
+                    println("[ARTWORK] → Emitted update via SharedFlow")
                 }
             }
 
