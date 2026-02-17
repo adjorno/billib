@@ -2,8 +2,10 @@ package com.ifochka.billib.di
 
 import com.ifochka.billib.BuildKonfig
 import com.ifochka.billib.data.api.BillibApi
-import com.ifochka.billib.data.api.BillibApiImpl
+import com.ifochka.billib.data.api.KtorBillibApi
+import com.ifochka.billib.data.db.createDatabaseDriver
 import com.ifochka.billib.data.repository.ChartRepository
+import com.ifochka.billib.db.BillibDatabase
 import com.ifochka.billib.ui.chart.ChartViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -31,7 +33,9 @@ val appModule = module {
         }
     }
 
-    single<BillibApi> { BillibApiImpl(get()) }
+    single { createDatabaseDriver() }
+    single { BillibDatabase(get()) }
+    single<BillibApi> { KtorBillibApi(get()) }
     singleOf(::ChartRepository)
     factoryOf(::ChartViewModel)
 }

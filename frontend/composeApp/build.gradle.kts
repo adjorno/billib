@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.buildkonfig)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -35,6 +36,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.startup.runtime)
             implementation(libs.koin.android)
+            implementation(libs.sqldelight.android.driver)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -56,6 +58,8 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines.extensions)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -64,9 +68,11 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.cio)
+            implementation(libs.sqldelight.sqlite.driver)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
+            implementation(libs.sqldelight.web.worker.driver)
         }
     }
 }
@@ -95,6 +101,14 @@ compose.desktop {
             linux {
                 iconFile.set(project.file("icons/icon.png"))
             }
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("BillibDatabase") {
+            packageName.set("com.ifochka.billib.db")
         }
     }
 }
