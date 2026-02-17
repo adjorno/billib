@@ -3,6 +3,8 @@ package com.ifochka.billib.di
 import com.ifochka.billib.BuildKonfig
 import com.ifochka.billib.data.api.BillibApi
 import com.ifochka.billib.data.api.KtorBillibApi
+import com.ifochka.billib.data.db.ChartDatabaseRepository
+import com.ifochka.billib.data.db.SqlDelightChartDatabase
 import com.ifochka.billib.data.db.createDatabaseDriver
 import com.ifochka.billib.data.repository.ChartRepository
 import com.ifochka.billib.db.BillibDatabase
@@ -35,6 +37,7 @@ val appModule = module {
 
     single { createDatabaseDriver() }
     single { BillibDatabase(get()) }
+    single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
     single<BillibApi> { KtorBillibApi(get()) }
     singleOf(::ChartRepository)
     factoryOf(::ChartViewModel)

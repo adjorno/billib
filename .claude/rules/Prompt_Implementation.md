@@ -205,6 +205,51 @@ Shall I start with Iteration 1?
 
 ---
 
+## 3. Gradle Cleanup After Testing
+
+### Rule
+**After running Gradle tasks for testing or building, ALWAYS stop Gradle daemon processes to free up system resources.**
+
+### Guidelines
+- Run `./gradlew --stop` after completing test runs or builds
+- This prevents Gradle daemons from consuming memory and CPU in the background
+- Particularly important after:
+  - Running tests (`./gradlew test`, `./gradlew check`)
+  - Building distributions (`./gradlew wasmJsBrowserDistribution`)
+  - Running ktlint or detekt checks
+  - Any gradle command that spawns daemon processes
+
+### Example Workflow
+
+**✅ GOOD - Stop Gradle after testing:**
+```bash
+# Run tests
+./gradlew :frontend:composeApp:wasmJsBrowserDistribution -PVERSION_NAME=1.0.0.test
+
+# Verify output
+ls frontend/composeApp/build/dist/wasmJs/productionExecutable/
+
+# Clean up Gradle daemons
+./gradlew --stop
+```
+
+**❌ BAD - Leave Gradle running:**
+```bash
+# Run tests
+./gradlew test
+
+# User continues work without cleanup
+# Gradle daemon continues consuming resources
+```
+
+### Benefits
+- ✅ Frees up memory and CPU resources
+- ✅ Prevents daemon conflicts on subsequent builds
+- ✅ Cleaner system state for other development work
+- ✅ Reduces IDE performance impact
+
+---
+
 ## Benefits
 
 ### No Assumptions Rule
