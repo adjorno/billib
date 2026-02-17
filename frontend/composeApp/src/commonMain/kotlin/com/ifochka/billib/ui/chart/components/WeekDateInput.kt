@@ -31,11 +31,6 @@ fun WeekDateInput(
     val initialDate = DateUtils.parseChartDate(currentWeek)
     val initialMillis = initialDate?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds()
 
-    // Parse chart boundaries
-    val chartStart = chartStartDate?.let { DateUtils.parseChartDate(it) }
-    val chartStartMillis = chartStart?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds()
-    val todayMillis = DateUtils.getToday().atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
-
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialMillis,
     )

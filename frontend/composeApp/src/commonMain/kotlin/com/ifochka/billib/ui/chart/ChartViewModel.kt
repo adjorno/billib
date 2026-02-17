@@ -168,7 +168,8 @@ class ChartViewModel(
         if (currentState !is ChartUiState.Success) return
 
         val currentDate = DateUtils.parseChartDate(currentState.selectedWeek)
-            ?: return
+        val chartId = currentState.selectedChart.id
+        if (currentDate == null || chartId == null) return
 
         val newDate = when (direction) {
             WeekDirection.PREVIOUS -> DateUtils.getPreviousWeek(currentDate)
@@ -181,10 +182,7 @@ class ChartViewModel(
                 currentState.selectedChart.endDate,
             )
         ) {
-            selectWeek(
-                currentState.selectedChart.id ?: return,
-                DateUtils.formatChartDate(newDate),
-            )
+            selectWeek(chartId, DateUtils.formatChartDate(newDate))
         }
     }
 }

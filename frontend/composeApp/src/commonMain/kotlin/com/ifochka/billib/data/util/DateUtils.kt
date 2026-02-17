@@ -17,6 +17,16 @@ internal expect fun currentDate(): LocalDate
  * All dates are in "yyyy-MM-dd" format (ISO-8601).
  */
 object DateUtils {
+    private const val DAYS_IN_WEEK = 7
+    private const val DAYS_TO_SUNDAY = 6
+    private const val MONTH_ABBREVIATION_LENGTH = 3
+    private const val DAYS_FROM_MONDAY_TO_TUESDAY = 1
+    private const val DAYS_FROM_MONDAY_TO_WEDNESDAY = 2
+    private const val DAYS_FROM_MONDAY_TO_THURSDAY = 3
+    private const val DAYS_FROM_MONDAY_TO_FRIDAY = 4
+    private const val DAYS_FROM_MONDAY_TO_SATURDAY = 5
+    private const val DAYS_FROM_MONDAY_TO_SUNDAY = 6
+
     /**
      * Find Monday of the week containing the given date.
      * If date is already Monday, returns the same date.
@@ -25,12 +35,12 @@ object DateUtils {
         val dayOfWeek = date.dayOfWeek
         val daysFromMonday = when (dayOfWeek) {
             DayOfWeek.MONDAY -> 0
-            DayOfWeek.TUESDAY -> 1
-            DayOfWeek.WEDNESDAY -> 2
-            DayOfWeek.THURSDAY -> 3
-            DayOfWeek.FRIDAY -> 4
-            DayOfWeek.SATURDAY -> 5
-            DayOfWeek.SUNDAY -> 6
+            DayOfWeek.TUESDAY -> DAYS_FROM_MONDAY_TO_TUESDAY
+            DayOfWeek.WEDNESDAY -> DAYS_FROM_MONDAY_TO_WEDNESDAY
+            DayOfWeek.THURSDAY -> DAYS_FROM_MONDAY_TO_THURSDAY
+            DayOfWeek.FRIDAY -> DAYS_FROM_MONDAY_TO_FRIDAY
+            DayOfWeek.SATURDAY -> DAYS_FROM_MONDAY_TO_SATURDAY
+            DayOfWeek.SUNDAY -> DAYS_FROM_MONDAY_TO_SUNDAY
             else -> 0
         }
         return date.minus(daysFromMonday, DateTimeUnit.DAY)
@@ -40,10 +50,12 @@ object DateUtils {
      * Parse "yyyy-MM-dd" string to LocalDate.
      * Returns null if parsing fails.
      */
+    @Suppress("SwallowedException")
     fun parseChartDate(dateString: String): LocalDate? =
         try {
             LocalDate.parse(dateString)
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
+            // Invalid date format - return null as expected behavior
             null
         }
 
@@ -55,12 +67,12 @@ object DateUtils {
     /**
      * Get previous Monday (7 days back from current date).
      */
-    fun getPreviousWeek(date: LocalDate): LocalDate = date.minus(7, DateTimeUnit.DAY)
+    fun getPreviousWeek(date: LocalDate): LocalDate = date.minus(DAYS_IN_WEEK, DateTimeUnit.DAY)
 
     /**
      * Get next Monday (7 days forward from current date).
      */
-    fun getNextWeek(date: LocalDate): LocalDate = date.plus(7, DateTimeUnit.DAY)
+    fun getNextWeek(date: LocalDate): LocalDate = date.plus(DAYS_IN_WEEK, DateTimeUnit.DAY)
 
     /**
      * Validate date is within allowed range.
@@ -96,10 +108,14 @@ object DateUtils {
      * @return Formatted week range string
      */
     fun formatWeekRange(mondayDate: LocalDate): String {
-        val sunday = mondayDate.plus(6, DateTimeUnit.DAY)
+        val sunday = mondayDate.plus(DAYS_TO_SUNDAY, DateTimeUnit.DAY)
 
-        val startMonth = mondayDate.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
-        val endMonth = sunday.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+        val startMonth = mondayDate.month.name.lowercase()
+            .replaceFirstChar { it.uppercase() }
+            .take(MONTH_ABBREVIATION_LENGTH)
+        val endMonth = sunday.month.name.lowercase()
+            .replaceFirstChar { it.uppercase() }
+            .take(MONTH_ABBREVIATION_LENGTH)
 
         return if (mondayDate.month == sunday.month) {
             "$startMonth ${mondayDate.dayOfMonth}-${sunday.dayOfMonth}, ${mondayDate.year}"
