@@ -6,7 +6,9 @@ import com.ifochka.billib.data.api.KtorBillibApi
 import com.ifochka.billib.data.db.ChartDatabaseRepository
 import com.ifochka.billib.data.db.SqlDelightChartDatabase
 import com.ifochka.billib.data.db.createDatabaseDriver
+import com.ifochka.billib.data.repository.CachedChartRepository
 import com.ifochka.billib.data.repository.ChartRepository
+import com.ifochka.billib.data.repository.NetworkChartRepository
 import com.ifochka.billib.db.BillibDatabase
 import com.ifochka.billib.ui.chart.ChartViewModel
 import io.ktor.client.HttpClient
@@ -39,6 +41,8 @@ val appModule = module {
     single { BillibDatabase(get()) }
     single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
     single<BillibApi> { KtorBillibApi(get()) }
+    singleOf(::NetworkChartRepository)
+    singleOf(::CachedChartRepository)
     singleOf(::ChartRepository)
     factoryOf(::ChartViewModel)
 }

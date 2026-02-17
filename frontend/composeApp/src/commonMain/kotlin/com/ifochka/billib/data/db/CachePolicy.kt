@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.minutes
 expect fun currentTimeMillis(): Long
 
 object CachePolicy {
-    val CHARTS_TTL_MS = 24.hours.inWholeMilliseconds
+    const val MAX_CHARTS_COUNT = 50
     val CHART_LIST_TTL_MS = 7.days.inWholeMilliseconds
     val LATEST_CHART_TTL_MS = 5.minutes.inWholeMilliseconds
 
