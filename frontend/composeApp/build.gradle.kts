@@ -72,7 +72,6 @@ kotlin {
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
-            implementation(libs.sqldelight.web.worker.driver)
         }
     }
 }
@@ -109,6 +108,7 @@ sqldelight {
     databases {
         create("BillibDatabase") {
             packageName.set("com.ifochka.billib.db")
+            generateAsync.set(true)
         }
     }
 }

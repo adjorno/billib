@@ -1,5 +1,7 @@
 package com.ifochka.billib.data.db
 
+import app.cash.sqldelight.async.coroutines.awaitAsList
+import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import com.ifochka.billib.data.model.Chart
 import com.ifochka.billib.data.model.ChartList
 import com.ifochka.billib.db.BillibDatabase
@@ -33,20 +35,20 @@ class SqlDelightChartDatabase(
 ) : ChartDatabaseRepository {
     override suspend fun getAllCharts(): List<Chart> =
         withContext(Dispatchers.Default) {
-            database.chartQueries.selectAllCharts().executeAsList().map { dbChart ->
+            database.chartQueries.selectAllCharts().awaitAsList().map { dbChart ->
                 val journal =
                     database.chartQueries.selectJournalById(dbChart.journal_id)
-                        .executeAsOneOrNull()?.toDomain()
+                        .awaitAsOneOrNull()?.toDomain()
                 dbChart.toDomain(journal)
             }
         }
 
     override suspend fun getChartById(id: Long): Chart? =
         withContext(Dispatchers.Default) {
-            database.chartQueries.selectChartById(id).executeAsOneOrNull()?.let { dbChart ->
+            database.chartQueries.selectChartById(id).awaitAsOneOrNull()?.let { dbChart ->
                 val journal =
                     database.chartQueries.selectJournalById(dbChart.journal_id)
-                        .executeAsOneOrNull()?.toDomain()
+                        .awaitAsOneOrNull()?.toDomain()
                 dbChart.toDomain(journal)
             }
         }
@@ -79,21 +81,21 @@ class SqlDelightChartDatabase(
         weekDate: String,
     ): ChartList? =
         withContext(Dispatchers.Default) {
-            val week = database.chartQueries.selectWeekByDate(weekDate).executeAsOneOrNull() ?: return@withContext null
+            val week = database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull() ?: return@withContext null
             val chartList =
                 database.chartQueries.selectChartListByChartAndWeek(chartId, week.id)
-                    .executeAsOneOrNull() ?: return@withContext null
+                    .awaitAsOneOrNull() ?: return@withContext null
 
             val chart = getChartById(chartId)
             val chartTracks =
                 database.chartQueries.selectChartTracksByListId(chartList.id)
-                    .executeAsList().map { dbChartTrack ->
+                    .awaitAsList().map { dbChartTrack ->
                         val track =
                             database.chartQueries.selectTrackById(dbChartTrack.track_id)
-                                .executeAsOneOrNull()
+                                .awaitAsOneOrNull()
                         val artist =
                             track?.artist_id?.let {
-                                database.chartQueries.selectArtistById(it).executeAsOneOrNull()
+                                database.chartQueries.selectArtistById(it).awaitAsOneOrNull()
                             }?.toDomain()
                         dbChartTrack.toDomain(track?.toDomain(artist))
                     }
@@ -172,7 +174,7 @@ class SqlDelightChartDatabase(
 
     override suspend fun getChartsCachedAt(): Long? =
         withContext(Dispatchers.Default) {
-            database.chartQueries.selectAllCharts().executeAsList()
+            database.chartQueries.selectAllCharts().awaitAsList()
                 .minOfOrNull { it.cached_at }
         }
 
@@ -181,8 +183,8 @@ class SqlDelightChartDatabase(
         weekDate: String,
     ): Long? =
         withContext(Dispatchers.Default) {
-            val week = database.chartQueries.selectWeekByDate(weekDate).executeAsOneOrNull() ?: return@withContext null
+            val week = database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull() ?: return@withContext null
             database.chartQueries.selectChartListByChartAndWeek(chartId, week.id)
-                .executeAsOneOrNull()?.cached_at
+                .awaitAsOneOrNull()?.cached_at
         }
 }

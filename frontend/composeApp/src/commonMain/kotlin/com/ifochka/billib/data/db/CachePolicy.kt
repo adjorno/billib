@@ -1,15 +1,12 @@
 package com.ifochka.billib.data.db
 
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 expect fun currentTimeMillis(): Long
 
 object CachePolicy {
     const val MAX_CHARTS_COUNT = 50
-    val CHART_LIST_TTL_MS = 7.days.inWholeMilliseconds
-    val LATEST_CHART_TTL_MS = 5.minutes.inWholeMilliseconds
+    val CACHE_TTL_MS = 7.days.inWholeMilliseconds
 
     fun isCacheStale(
         cachedAt: Long,
