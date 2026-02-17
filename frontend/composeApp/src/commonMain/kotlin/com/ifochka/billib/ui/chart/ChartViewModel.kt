@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifochka.billib.data.error.ErrorMapper
 import com.ifochka.billib.data.repository.ChartRepository
+import com.ifochka.billib.data.util.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -126,4 +127,67 @@ class ChartViewModel(
     fun retry() {
         loadCharts()
     }
+
+    /**
+     * Navigate to a specific week for the current chart.
+     * @param chartId The chart to navigate
+     * @param weekDate Monday date in "yyyy-MM-dd" format
+     */
+    fun selectWeek(
+        chartId: Long,
+        weekDate: String,
+    ) {
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            if (currentState !is ChartUiState.Success) return@launch
+
+            // Validate date format
+            val date = DateUtils.parseChartDate(weekDate) ?: return@launch
+
+            // Validate date is within chart range
+            val mondayDate = DateUtils.getMondayOfWeek(date)
+            if (!DateUtils.isDateInRange(
+                    mondayDate,
+                    currentState.selectedChart.startDate,
+                    currentState.selectedChart.endDate,
+                )
+            ) {
+                return@launch
+            }
+
+            // Navigate to the week
+            selectChart(chartId, DateUtils.formatChartDate(mondayDate))
+        }
+    }
+
+    /**
+     * Navigate to previous or next week from current selection.
+     */
+    fun navigateWeek(direction: WeekDirection) {
+        val currentState = _uiState.value
+        if (currentState !is ChartUiState.Success) return
+
+        val currentDate = DateUtils.parseChartDate(currentState.selectedWeek)
+        val chartId = currentState.selectedChart.id
+        if (currentDate == null || chartId == null) return
+
+        val newDate = when (direction) {
+            WeekDirection.PREVIOUS -> DateUtils.getPreviousWeek(currentDate)
+            WeekDirection.NEXT -> DateUtils.getNextWeek(currentDate)
+        }
+
+        if (DateUtils.isDateInRange(
+                newDate,
+                currentState.selectedChart.startDate,
+                currentState.selectedChart.endDate,
+            )
+        ) {
+            selectWeek(chartId, DateUtils.formatChartDate(newDate))
+        }
+    }
+}
+
+enum class WeekDirection {
+    PREVIOUS,
+    NEXT,
 }
