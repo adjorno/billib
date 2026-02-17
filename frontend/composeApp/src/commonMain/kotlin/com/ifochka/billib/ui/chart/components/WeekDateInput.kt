@@ -12,13 +12,14 @@ import com.ifochka.billib.data.util.DateUtils
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 /**
  * Date picker dialog for selecting a chart week.
  * Uses Material3 DatePicker which works across all platforms.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun WeekDateInput(
     currentWeek: String,

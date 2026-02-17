@@ -41,7 +41,6 @@ object DateUtils {
             DayOfWeek.FRIDAY -> DAYS_FROM_MONDAY_TO_FRIDAY
             DayOfWeek.SATURDAY -> DAYS_FROM_MONDAY_TO_SATURDAY
             DayOfWeek.SUNDAY -> DAYS_FROM_MONDAY_TO_SUNDAY
-            else -> 0
         }
         return date.minus(daysFromMonday, DateTimeUnit.DAY)
     }
