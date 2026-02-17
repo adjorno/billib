@@ -53,6 +53,15 @@ fun ChartScreen(viewModel: ChartViewModel = koinViewModel()) {
                         onChartSelected = { chartId ->
                             viewModel.selectChart(chartId)
                         },
+                        onWeekNavigate = { direction ->
+                            viewModel.navigateWeek(direction)
+                        },
+                        onWeekSelect = { weekDate ->
+                            viewModel.selectWeek(
+                                chartId = state.selectedChart.id ?: return@ChartTopBar,
+                                weekDate = weekDate,
+                            )
+                        },
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
