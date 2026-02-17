@@ -53,6 +53,7 @@ fun DbTrack.toDomain(artist: Artist?): Track =
         firstChartDate = first_chart_date,
         peakGlobalRank = peak_global_rank?.toInt(),
         totalWeeksOnChart = total_weeks_on_chart?.toInt() ?: 0,
+        artworkUrl = artwork_url,
     )
 
 fun DbChartTrack.toDomain(track: Track?): ChartTrack =
@@ -101,4 +102,5 @@ fun Track.toDb(): DbTrack =
         first_chart_date = firstChartDate,
         peak_global_rank = peakGlobalRank?.toLong(),
         total_weeks_on_chart = totalWeeksOnChart.toLong(),
+        artwork_url = artworkUrl,
     )
