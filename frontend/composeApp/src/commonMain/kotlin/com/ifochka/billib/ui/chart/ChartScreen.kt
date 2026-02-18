@@ -67,7 +67,10 @@ fun ChartScreen(viewModel: ChartViewModel = koinViewModel()) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     state.chartList.chartTracks?.let { tracks ->
-                        ChartTrackList(chartTracks = tracks)
+                        ChartTrackList(
+                            chartTracks = tracks,
+                            onArtworkNeeded = viewModel::loadArtworkForTrack,
+                        )
                     }
                 }
             }

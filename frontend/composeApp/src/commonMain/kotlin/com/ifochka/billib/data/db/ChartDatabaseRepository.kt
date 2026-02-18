@@ -31,6 +31,11 @@ interface ChartDatabaseRepository {
         chartId: Long,
         weekDate: String,
     ): Long?
+
+    suspend fun updateTrackArtwork(
+        trackId: Long,
+        artworkUrl: String,
+    )
 }
 
 @Suppress("TooManyFunctions") // Repository pattern requires many data access functions
@@ -253,5 +258,15 @@ class SqlDelightChartDatabase(
         val week = database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull() ?: return null
         return database.chartQueries.selectChartListByChartAndWeek(chartId, week.id)
             .awaitAsOneOrNull()?.cached_at
+    }
+
+    override suspend fun updateTrackArtwork(
+        trackId: Long,
+        artworkUrl: String,
+    ) {
+        database.chartQueries.updateTrackArtworkUrl(
+            artwork_url = artworkUrl,
+            id = trackId,
+        )
     }
 }

@@ -11,19 +11,28 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ifochka.billib.data.model.ChartTrack
+import com.ifochka.billib.data.model.Track
 
 @Composable
 fun ChartTrackItem(
     chartTrack: ChartTrack,
+    onArtworkNeeded: suspend (Track) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val track = chartTrack.track ?: return
+
+    LaunchedEffect(track.id) {
+        if (track.artworkUrl.isNullOrBlank()) {
+            onArtworkNeeded(track)
+        }
+    }
 
     Row(
         modifier = modifier

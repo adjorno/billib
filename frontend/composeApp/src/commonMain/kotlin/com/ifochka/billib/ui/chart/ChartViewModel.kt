@@ -3,11 +3,13 @@ package com.ifochka.billib.ui.chart
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifochka.billib.data.error.ErrorMapper
+import com.ifochka.billib.data.model.Track
 import com.ifochka.billib.data.repository.ChartRepository
 import com.ifochka.billib.data.util.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ChartViewModel(
@@ -18,46 +20,26 @@ class ChartViewModel(
 
     init {
         loadCharts()
-        observeChartUpdates()
     }
 
-    /**
-     * Observe artwork updates and reactively update UI state.
-     */
-    private fun observeChartUpdates() {
-        println("[VM] 🔧 Setting up observeChartUpdates()")
-        viewModelScope.launch {
-            println("[VM] 👂 Started collecting from repository.chartUpdates SharedFlow")
-            repository.chartUpdates.collect { updatedChartList ->
-                println("[VM] 📬 Received chart update: ${updatedChartList.id}")
-                val currentState = _uiState.value
-                println("[VM] 📊 Current UI state: ${currentState::class.simpleName}")
-
-                if (currentState is ChartUiState.Success) {
-                    // Only update if we're viewing the same chart
-                    if (currentState.chartList.id == updatedChartList.id) {
-                        val trackCount = updatedChartList.chartTracks?.size ?: 0
-                        val artworkCount =
-                            updatedChartList.chartTracks?.count { !it.track?.artworkUrl.isNullOrBlank() } ?: 0
-                        println("[VM] ✅ Updating UI with new artwork ($artworkCount/$trackCount tracks have artwork)")
-                        _uiState.value =
-                            currentState.copy(
-                                chartList = updatedChartList,
-                            )
-                        println("[VM] ✅ UI state updated")
-                    } else {
-                        println(
-                            "[VM] ⊘ Skipping update (different chart: current=${currentState.chartList.id}, received=${updatedChartList.id})",
-                        )
+    suspend fun loadArtworkForTrack(track: Track) {
+        val trackId = track.id ?: return
+        repository.getArtworkUrl(track)?.let { artworkUrl ->
+            _uiState.update { currentState ->
+                (currentState as? ChartUiState.Success)?.let { successState ->
+                    val updatedTracks = successState.chartList.chartTracks?.map { chartTrack ->
+                        if (chartTrack.track?.id == trackId) {
+                            chartTrack.copy(track = chartTrack.track.copy(artworkUrl = artworkUrl))
+                        } else {
+                            chartTrack
+                        }
                     }
-                } else {
-                    println(
-                        "[VM] ⊘ Skipping update (not in Success state, current state is ${currentState::class.simpleName})",
+                    successState.copy(
+                        chartList = successState.chartList.copy(chartTracks = updatedTracks),
                     )
-                }
+                } ?: currentState
             }
         }
-        println("[VM] 🔧 observeChartUpdates() setup complete (collecting in background)")
     }
 
     fun loadCharts() {
