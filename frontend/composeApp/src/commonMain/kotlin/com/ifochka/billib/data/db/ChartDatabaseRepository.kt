@@ -223,7 +223,6 @@ class SqlDelightChartDatabase(
                 first_chart_date = track.firstChartDate,
                 peak_global_rank = track.peakGlobalRank?.toLong(),
                 total_weeks_on_chart = track.totalWeeksOnChart.toLong(),
-                artwork_url = track.artworkUrl,
             )
 
             database.chartQueries.insertChartTrack(
@@ -240,7 +239,9 @@ class SqlDelightChartDatabase(
             // Delete in order that respects foreign key constraints
             database.chartQueries.deleteAllChartTracks()
             database.chartQueries.deleteAllChartLists()
+            database.chartQueries.deleteAllTrackArtworks()
             database.chartQueries.deleteAllTracks()
+            database.chartQueries.deleteAllArtworks()
             database.chartQueries.deleteAllArtists()
             database.chartQueries.deleteAllWeeks()
             database.chartQueries.deleteAllCharts()
@@ -264,9 +265,12 @@ class SqlDelightChartDatabase(
         trackId: Long,
         artworkUrl: String,
     ) {
-        database.chartQueries.updateTrackArtworkUrl(
-            artwork_url = artworkUrl,
-            id = trackId,
+        database.chartQueries.insertArtwork(url = artworkUrl)
+        val artwork = database.chartQueries.selectArtworkByUrl(url = artworkUrl)
+            .awaitAsOneOrNull() ?: return
+        database.chartQueries.insertTrackArtwork(
+            track_id = trackId,
+            artwork_id = artwork.id,
         )
     }
 }

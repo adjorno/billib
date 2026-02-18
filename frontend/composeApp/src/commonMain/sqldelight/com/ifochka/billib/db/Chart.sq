@@ -43,8 +43,19 @@ CREATE TABLE IF NOT EXISTS track (
     first_chart_date TEXT,
     peak_global_rank INTEGER,
     total_weeks_on_chart INTEGER DEFAULT 0,
-    artwork_url TEXT,
     FOREIGN KEY (artist_id) REFERENCES artist(id)
+);
+
+CREATE TABLE IF NOT EXISTS artwork (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS track_artwork (
+    track_id INTEGER PRIMARY KEY NOT NULL,
+    artwork_id INTEGER NOT NULL,
+    FOREIGN KEY (track_id) REFERENCES track(id),
+    FOREIGN KEY (artwork_id) REFERENCES artwork(id)
 );
 
 CREATE TABLE IF NOT EXISTS chart_track (
@@ -116,6 +127,12 @@ DELETE FROM artist;
 deleteAllChartTracks:
 DELETE FROM chart_track;
 
+deleteAllArtworks:
+DELETE FROM artwork;
+
+deleteAllTrackArtworks:
+DELETE FROM track_artwork;
+
 -- Week Queries
 selectAllWeeks:
 SELECT * FROM week;
@@ -152,8 +169,20 @@ selectTrackById:
 SELECT * FROM track WHERE id = ?;
 
 insertTrack:
-INSERT OR REPLACE INTO track (id, title, artist_id, artist_name, first_chart_date, peak_global_rank, total_weeks_on_chart, artwork_url)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO track (id, title, artist_id, artist_name, first_chart_date, peak_global_rank, total_weeks_on_chart)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+-- Artwork Queries
+insertArtwork:
+INSERT OR IGNORE INTO artwork (url)
+VALUES (?);
+
+selectArtworkByUrl:
+SELECT * FROM artwork WHERE url = ?;
+
+insertTrackArtwork:
+INSERT OR REPLACE INTO track_artwork (track_id, artwork_id)
+VALUES (?, ?);
 
 -- ChartTrack Queries
 selectChartTracksByListId:
@@ -170,19 +199,18 @@ SELECT
     t.first_chart_date,
     t.peak_global_rank,
     t.total_weeks_on_chart,
-    t.artwork_url,
     a.id AS artist_id,
     a.name AS artist_name,
-    a.name_normalized AS artist_name_normalized
+    a.name_normalized AS artist_name_normalized,
+    aw.url AS artwork_url
 FROM chart_track ct
 JOIN track t ON ct.track_id = t.id
 LEFT JOIN artist a ON t.artist_id = a.id
+LEFT JOIN track_artwork ta ON t.id = ta.track_id
+LEFT JOIN artwork aw ON ta.artwork_id = aw.id
 WHERE ct.chart_list_id = ?
 ORDER BY ct.rank;
 
 insertChartTrack:
 INSERT OR REPLACE INTO chart_track (chart_list_id, track_id, rank, last_week_rank)
 VALUES (?, ?, ?, ?);
-
-updateTrackArtworkUrl:
-UPDATE track SET artwork_url = ? WHERE id = ?;
