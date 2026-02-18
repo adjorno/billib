@@ -117,9 +117,9 @@ object DateUtils {
             .take(MONTH_ABBREVIATION_LENGTH)
 
         return if (mondayDate.month == sunday.month) {
-            "$startMonth ${mondayDate.dayOfMonth}-${sunday.dayOfMonth}, ${mondayDate.year}"
+            "$startMonth ${mondayDate.day}-${sunday.day}, ${mondayDate.year}"
         } else {
-            "$startMonth ${mondayDate.dayOfMonth} - $endMonth ${sunday.dayOfMonth}, ${mondayDate.year}"
+            "$startMonth ${mondayDate.day} - $endMonth ${sunday.day}, ${mondayDate.year}"
         }
     }
 }
