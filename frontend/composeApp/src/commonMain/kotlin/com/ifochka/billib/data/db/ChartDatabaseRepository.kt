@@ -265,12 +265,14 @@ class SqlDelightChartDatabase(
         trackId: Long,
         artworkUrl: String,
     ) {
-        database.chartQueries.insertArtwork(url = artworkUrl)
-        val artwork = database.chartQueries.selectArtworkByUrl(url = artworkUrl)
-            .awaitAsOneOrNull() ?: return
-        database.chartQueries.insertTrackArtwork(
-            track_id = trackId,
-            artwork_id = artwork.id,
-        )
+        database.transaction {
+            database.chartQueries.insertArtwork(url = artworkUrl)
+            val artwork = database.chartQueries.selectArtworkByUrl(url = artworkUrl)
+                .awaitAsOneOrNull() ?: return@transaction
+            database.chartQueries.insertTrackArtwork(
+                track_id = trackId,
+                artwork_id = artwork.id,
+            )
+        }
     }
 }
