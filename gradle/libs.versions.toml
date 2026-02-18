@@ -42,6 +42,8 @@ ktor = "3.3.3"
 coil = "3.3.0"
 koin-bom = "4.1.1"
 sqldelight = "2.2.1"
+sqljs = "1.11.0"
+webpack = "9.1.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }

@@ -6,8 +6,17 @@ import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlCursor
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlPreparedStatement
+import app.cash.sqldelight.driver.worker.WebWorkerDriver
+import org.w3c.dom.Worker
 
-actual fun createDatabaseDriver(): SqlDriver = NoOpSqlDriver()
+actual fun createDatabaseDriver(): SqlDriver {
+    // return NoOpSqlDriver()
+    return WebWorkerDriver(jsWorker())
+}
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun jsWorker(): Worker =
+    js("""new Worker(new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url))""")
 
 private class NoOpSqlDriver : SqlDriver {
     override fun close() {}
