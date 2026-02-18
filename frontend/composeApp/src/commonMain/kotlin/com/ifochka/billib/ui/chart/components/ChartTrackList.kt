@@ -12,7 +12,7 @@ import com.ifochka.billib.data.model.Track
 @Composable
 fun ChartTrackList(
     chartTracks: List<ChartTrack>,
-    onArtworkNeeded: (Track) -> Unit,
+    onArtworkNeeded: suspend (Track) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(

@@ -3,7 +3,6 @@ package com.ifochka.billib.data.artwork
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * External declaration for static iTunes JSONP dispatcher (defined in index.html).
@@ -99,11 +98,10 @@ class ITunesJsonpApi : ArtworkApi {
             searchItunesInternal(searchTerm) { jsonString ->
                 if (jsonString != null) {
                     println("[ITUNES-JSONP] ✅ Received response from bridge")
-                    continuation.resume(jsonString)
                 } else {
                     println("[ITUNES-JSONP] ❌ Bridge returned null (error)")
-                    continuation.resumeWithException(Exception("iTunes JSONP request failed"))
                 }
+                continuation.resume(jsonString)
             }
 
             continuation.invokeOnCancellation {

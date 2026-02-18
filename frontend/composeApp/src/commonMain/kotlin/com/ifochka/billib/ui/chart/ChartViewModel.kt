@@ -21,11 +21,10 @@ class ChartViewModel(
         loadCharts()
     }
 
-    fun loadArtworkForTrack(track: Track) {
+    suspend fun loadArtworkForTrack(track: Track) {
         val trackId = track.id ?: return
-        viewModelScope.launch {
-            val artworkUrl = repository.getArtworkUrl(track) ?: return@launch
-            val currentState = _uiState.value as? ChartUiState.Success ?: return@launch
+        repository.getArtworkUrl(track)?.let { artworkUrl ->
+            val currentState = _uiState.value as? ChartUiState.Success ?: return@let
             val updatedTracks = currentState.chartList.chartTracks?.map { chartTrack ->
                 if (chartTrack.track?.id == trackId) {
                     chartTrack.copy(track = chartTrack.track.copy(artworkUrl = artworkUrl))
