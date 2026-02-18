@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -66,11 +67,13 @@ fun ChartScreen(viewModel: ChartViewModel = koinViewModel()) {
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    state.chartList.chartTracks?.let { tracks ->
-                        ChartTrackList(
-                            chartTracks = tracks,
-                            onArtworkNeeded = viewModel::loadArtworkForTrack,
-                        )
+                    key(state.selectedChart.id, state.selectedWeek) {
+                        state.chartList.chartTracks?.let { tracks ->
+                            ChartTrackList(
+                                chartTracks = tracks,
+                                onArtworkNeeded = viewModel::loadArtworkForTrack,
+                            )
+                        }
                     }
                 }
             }

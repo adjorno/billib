@@ -63,14 +63,14 @@ class CachedChartRepository(
         }
 
         println("[CACHE] ↓ Fetching chart list from network (chart=$chartId, date=$effectiveDate)...")
-        return network.getChartByDate(chartId, date).onSuccess { chartList ->
-            val listToCache =
-                chartList.copy(
-                    week = chartList.week?.copy(date = effectiveDate),
-                )
+        return network.getChartByDate(chartId, date).mapCatching { networkChartList ->
+            val listToCache = networkChartList.copy(
+                week = networkChartList.week?.copy(date = effectiveDate),
+            )
             database.insertChartList(listToCache)
-            val trackCount = chartList.chartTracks?.size ?: 0
+            val trackCount = networkChartList.chartTracks?.size ?: 0
             println("[CACHE] ✓ Cached chart list (chart=$chartId, date=$effectiveDate, tracks=$trackCount)")
+            database.getChartListByDate(chartId, effectiveDate) ?: networkChartList
         }.recoverCatching { networkError ->
             val fallbackChartList = database.getChartListByDate(chartId, effectiveDate)
             if (fallbackChartList != null) {
