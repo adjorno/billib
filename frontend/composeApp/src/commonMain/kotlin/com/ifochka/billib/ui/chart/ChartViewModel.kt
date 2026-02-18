@@ -9,6 +9,7 @@ import com.ifochka.billib.data.util.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ChartViewModel(
@@ -24,17 +25,20 @@ class ChartViewModel(
     suspend fun loadArtworkForTrack(track: Track) {
         val trackId = track.id ?: return
         repository.getArtworkUrl(track)?.let { artworkUrl ->
-            val currentState = _uiState.value as? ChartUiState.Success ?: return@let
-            val updatedTracks = currentState.chartList.chartTracks?.map { chartTrack ->
-                if (chartTrack.track?.id == trackId) {
-                    chartTrack.copy(track = chartTrack.track.copy(artworkUrl = artworkUrl))
-                } else {
-                    chartTrack
-                }
+            _uiState.update { currentState ->
+                (currentState as? ChartUiState.Success)?.let { successState ->
+                    val updatedTracks = successState.chartList.chartTracks?.map { chartTrack ->
+                        if (chartTrack.track?.id == trackId) {
+                            chartTrack.copy(track = chartTrack.track.copy(artworkUrl = artworkUrl))
+                        } else {
+                            chartTrack
+                        }
+                    }
+                    successState.copy(
+                        chartList = successState.chartList.copy(chartTracks = updatedTracks),
+                    )
+                } ?: currentState
             }
-            _uiState.value = currentState.copy(
-                chartList = currentState.chartList.copy(chartTracks = updatedTracks),
-            )
         }
     }
 
