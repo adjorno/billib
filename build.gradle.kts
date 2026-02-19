@@ -51,7 +51,7 @@ subprojects {
                 packageName = "com.ifochka.m14n"
                 val apiBaseUrl = getPropertyOrEnv(
                     key = "API_BASE_URL",
-                    fallback = "https://m14n-production.up.railway.app",
+                    fallback = "https://api.m14n.com",
                 )
 
                 val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")

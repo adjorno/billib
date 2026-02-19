@@ -98,7 +98,7 @@ All exceptions mapped to typed errors via `ErrorMapper`:
 
 **Access Swagger UI:**
 - Local: `http://localhost:8080/swagger-ui.html` (when backend running)
-- Production: `https://m14n-production.up.railway.app/swagger-ui.html`
+- Production: `https://api.m14n.com/swagger-ui.html`
 
 All API endpoints, request/response schemas, and examples are in the OpenAPI spec.
 

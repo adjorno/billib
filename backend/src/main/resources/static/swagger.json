@@ -970,10 +970,6 @@
       "url" : "https://api.m14n.com"
     },
     {
-      "description" : "Prod Railway",
-      "url" : "https://m14n-production.up.railway.app"
-    },
-    {
       "description" : "Local",
       "url" : "http://localhost:8080"
     }
