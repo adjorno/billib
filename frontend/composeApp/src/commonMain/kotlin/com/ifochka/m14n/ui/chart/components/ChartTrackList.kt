@@ -13,6 +13,8 @@ import com.ifochka.m14n.data.model.Track
 fun ChartTrackList(
     chartTracks: List<ChartTrack>,
     onArtworkNeeded: suspend (Track) -> Unit,
+    onTrackLongPress: (ChartTrack) -> Unit,
+    onTrackShare: ((ChartTrack) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -23,7 +25,12 @@ fun ChartTrackList(
             key = { it.track?.id ?: it.rank },
             contentType = { "track" },
         ) { chartTrack ->
-            ChartTrackItem(chartTrack = chartTrack, onArtworkNeeded = onArtworkNeeded)
+            ChartTrackItem(
+                chartTrack = chartTrack,
+                onArtworkNeeded = onArtworkNeeded,
+                onLongPress = { onTrackLongPress(chartTrack) },
+                onShare = onTrackShare?.let { { it(chartTrack) } },
+            )
             HorizontalDivider()
         }
     }
