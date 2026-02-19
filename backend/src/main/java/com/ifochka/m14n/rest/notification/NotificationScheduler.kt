@@ -36,7 +36,8 @@ class NotificationScheduler(
 
     @Scheduled(cron = "0 0 */3 * * *", zone = "UTC")
     fun checkAndNotifyNewCharts() {
-        val newCharts = chartUpdateService.checkForNewCharts()
+        val result = chartUpdateService.checkForNewCharts()
+        val newCharts = result.newCharts
         if (newCharts.isEmpty()) return
         val count = newCharts.size
         fcmService.sendToTopic(

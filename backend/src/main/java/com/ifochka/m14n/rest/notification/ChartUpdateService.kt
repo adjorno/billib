@@ -43,16 +43,37 @@ class ChartUpdateService(
     private val tracksParser = defaultChartListParser()
     private val metadata: BBJournalMetadata by lazy { loadMetadata() }
 
-    fun checkForNewCharts(): List<String> {
-        val newCharts = metadata.charts
-            .filter { it.endDate == null }
-            .mapNotNull { chartMeta ->
-                runCatching { transactionTemplate.execute { importChart(chartMeta) } }
-                    .onFailure { logger.error("Failed to import '${chartMeta.name}': ${it.message}") }
-                    .getOrNull()
-            }
+    fun checkForNewCharts(): ChartUpdateResult {
+        val charts = metadata.charts.filter { it.endDate == null }
+        logger.info("Starting chart update check for ${charts.size} charts")
+        val newCharts = mutableListOf<String>()
+        val skippedCharts = mutableListOf<String>()
+        val failedCharts = mutableMapOf<String, String>()
+        charts.forEach { chartMeta ->
+            logger.info("Checking: ${chartMeta.name}")
+            runCatching { transactionTemplate.execute { importChart(chartMeta) } }
+                .onSuccess { name ->
+                    if (name != null) newCharts.add(name) else skippedCharts.add(chartMeta.name)
+                }
+                .onFailure { error ->
+                    val errorType = when {
+                        error is java.io.IOException || error.cause is java.io.IOException -> "Network"
+                        error.message?.contains("429") == true -> "RateLimit"
+                        else -> error.javaClass.simpleName
+                    }
+                    logger.error("[$errorType] Failed '${chartMeta.name}': ${error.message}")
+                    failedCharts[chartMeta.name] = "[$errorType] ${error.message}"
+                }
+        }
+        logger.info(
+            "Chart update done — new: ${newCharts.size}, skipped: ${skippedCharts.size}, failed: ${failedCharts.size}",
+        )
         if (newCharts.isNotEmpty()) refreshGlobalRankings()
-        return newCharts
+        return ChartUpdateResult(
+            newCharts = newCharts,
+            skippedCharts = skippedCharts,
+            failedCharts = failedCharts,
+        )
     }
 
     @Transactional
@@ -62,16 +83,24 @@ class ChartUpdateService(
     }
 
     private fun importChart(chartMeta: BBChartMetadata): String? {
-        val chart = chartRepository.findByName(chartMeta.name) ?: return null
+        val chart = chartRepository.findByName(chartMeta.name) ?: run {
+            logger.warn("'${chartMeta.name}' not found in DB, skipping")
+            return null
+        }
         val document = BBHtmlParser.getChartDocument(
             metadata = metadata,
             chart = chartMeta,
         )
         val dateStr = BB.CHART_DATE_FORMAT.format(dateParser.parse(document))
         val week = weekRepository.findByDate(dateStr) ?: weekRepository.save(Week(date = dateStr))
-        if (chartListRepository.findByChartAndWeek(chart, week) != null) return null
+        if (chartListRepository.findByChartAndWeek(chart, week) != null) {
+            logger.info("'${chartMeta.name}' already up to date ($dateStr), skipping")
+            return null
+        }
         val chartList = chartListRepository.save(ChartList(chart = chart, week = week))
-        tracksParser.parse(document).forEach { bbTrack ->
+        val tracks = tracksParser.parse(document)
+        logger.info("'${chartMeta.name}' — new week $dateStr, importing ${tracks.size} tracks")
+        tracks.forEach { bbTrack ->
             val artist = artistRepository.findByName(bbTrack.artist.trim())
                 ?: artistRepository.save(Artist(name = bbTrack.artist.trim()))
             val track = trackRepository.findByTitleAndArtist(bbTrack.title.trim(), artist)
@@ -91,7 +120,7 @@ class ChartUpdateService(
                 ),
             )
         }
-        logger.info("Imported new chart: ${chartMeta.name} ($dateStr, ${chartList.id})")
+        logger.info("Imported '${chartMeta.name}' ($dateStr, chartListId=${chartList.id})")
         return chartMeta.name
     }
 
@@ -100,3 +129,9 @@ class ChartUpdateService(
         return Json.decodeFromString(json)
     }
 }
+
+data class ChartUpdateResult(
+    val newCharts: List<String>,
+    val skippedCharts: List<String>,
+    val failedCharts: Map<String, String>,
+)

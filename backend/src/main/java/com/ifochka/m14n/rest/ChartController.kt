@@ -2,17 +2,20 @@ package com.ifochka.m14n.rest
 
 import com.ifochka.m14n.rest.db.Chart
 import com.ifochka.m14n.rest.db.ChartRepository
-import org.springframework.beans.factory.annotation.Autowired
+import com.ifochka.m14n.rest.notification.ChartUpdateResult
+import com.ifochka.m14n.rest.notification.ChartUpdateService
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class ChartController {
-    @Autowired
-    private lateinit var chartRepository: ChartRepository
+class ChartController(
+    private val chartRepository: ChartRepository,
+    private val chartUpdateService: ChartUpdateService,
+) {
+    @RequestMapping(value = ["/chart/all"], method = [RequestMethod.GET])
+    fun allCharts(): Iterable<Chart> = chartRepository.findAll()
 
-    @get:RequestMapping(value = ["/chart/all"], method = [RequestMethod.GET])
-    val allCharts: Iterable<Chart>
-        get() = chartRepository.findAll()
+    @RequestMapping(value = ["/chart/forceUpdate"], method = [RequestMethod.POST])
+    fun forceUpdate(): ChartUpdateResult = chartUpdateService.checkForNewCharts()
 }
