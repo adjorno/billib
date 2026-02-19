@@ -34,7 +34,6 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)
-    implementation(libs.gson)
     implementation(libs.postgresql)
     implementation(libs.jsoup)
 

@@ -17,7 +17,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.postgresql)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.gson)
 }
 
 application {

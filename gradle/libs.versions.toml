@@ -2,7 +2,6 @@
 kotlin = "2.3.0"
 springBoot = "3.5.0"
 springDependencyManagement = "1.1.7"
-gson = "2.11.0"
 postgreSQL = "42.7.5"
 jsoup = "1.18.3"
 kotlinxSerializationJson = "1.6.3"
@@ -26,7 +25,6 @@ androidx-lifecycle = "2.9.6"
 androidx-startup = "1.2.0"
 composeHotReload = "1.0.0"
 composeMultiplatform = "1.9.3"
-kamel = "1.0.8"
 ktlint = "14.0.1"
 detekt = "1.23.8"
 buildkonfig = "0.17.1"
@@ -43,7 +41,6 @@ spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter",
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }
 spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "springBoot" }
-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgreSQL" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
@@ -76,7 +73,6 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 # Image loading
-kamel-image-default = { module = "media.kamel:kamel-image-default", version.ref = "kamel" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
