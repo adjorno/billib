@@ -88,6 +88,7 @@ sqldelight-web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
