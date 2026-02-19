@@ -1,6 +1,5 @@
 package com.ifochka.m14n.importer
 
-import com.google.gson.Gson
 import com.ifochka.m14n.importer.db.ArtistImporter
 import com.ifochka.m14n.importer.db.ChartImporter
 import com.ifochka.m14n.importer.db.ChartListImporter
@@ -11,6 +10,7 @@ import com.ifochka.m14n.importer.model.BBChart
 import com.ifochka.m14n.importer.model.BBJournalMetadata
 import com.ifochka.m14n.importer.util.DatabaseConnection
 import com.ifochka.m14n.importer.util.ProgressTracker
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.sql.Connection
 
@@ -18,7 +18,6 @@ class BillboardImporter(
     private val config: ImportConfig,
 ) {
     private val progress = ProgressTracker(config.enableProgressTracking)
-    private val gson = Gson()
 
     fun import() {
         progress.section("Billboard Chart Data Importer")
@@ -67,7 +66,7 @@ class BillboardImporter(
         if (!metadataFile.exists()) {
             throw RuntimeException("Metadata file not found: ${metadataFile.absolutePath}")
         }
-        return gson.fromJson(metadataFile.readText(), BBJournalMetadata::class.java)
+        return Json.decodeFromString<BBJournalMetadata>(metadataFile.readText())
     }
 
     private fun scanChartFiles(metadata: BBJournalMetadata): List<BBChart> {
@@ -82,7 +81,7 @@ class BillboardImporter(
 
                 jsonFiles?.forEach { file ->
                     try {
-                        val chart = gson.fromJson(file.readText(), BBChart::class.java)
+                        val chart = Json.decodeFromString<BBChart>(file.readText())
                         allCharts.add(chart)
                     } catch (e: Exception) {
                         progress.log("WARNING: Failed to parse ${file.name}: ${e.message}")

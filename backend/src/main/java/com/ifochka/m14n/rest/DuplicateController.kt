@@ -17,7 +17,6 @@ import com.ifochka.m14n.rest.db.Track
 import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.db.TrendTrackRepository
 import com.ifochka.m14n.rest.model.MergeOperation
-import com.m14n.ex.Ex
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -53,9 +52,9 @@ class DuplicateController(
                 for (t2 in (t1 + 1) until theTracks.size) {
                     val theTrack2 = theTracks[t2]
                     if (theTrack1.id != theTrack2.id) {
-                        if (Ex.equalsValued(theTrack1.title, theTrack2.title)) {
-                            val l1 = Ex.getValuedLength(theTrack1.title)
-                            val l2 = Ex.getValuedLength(theTrack2.title)
+                        if (equalsValued(theTrack1.title, theTrack2.title)) {
+                            val l1 = getValuedLength(theTrack1.title)
+                            val l2 = getValuedLength(theTrack2.title)
                             when {
                                 l1 > l2 -> {
                                     removeDuplicateTrack(theTrack1.id!!, theTrack2.id!!)
@@ -97,9 +96,9 @@ class DuplicateController(
             val theArtist1 = theArtists[i]
             for (j in (i + 1) until theArtists.size) {
                 val theArtist2 = theArtists[j]
-                if (Ex.equalsValued(theArtist1.name, theArtist2.name)) {
-                    val l1 = Ex.getValuedLength(theArtist1.name)
-                    val l2 = Ex.getValuedLength(theArtist2.name)
+                if (equalsValued(theArtist1.name, theArtist2.name)) {
+                    val l1 = getValuedLength(theArtist1.name)
+                    val l2 = getValuedLength(theArtist2.name)
                     when {
                         l1 > l2 -> {
                             removeDuplicateArtist(theArtist1.id!!, theArtist2.id!!)
@@ -144,7 +143,7 @@ class DuplicateController(
         @RequestParam(name = "duplicateArtistId") duplicateId: Long,
     ): List<MergeOperation<*>>? {
         val theMergeOperations = removeDuplicateArtist(originalId, duplicateId)
-        if (Ex.isNotEmpty(theMergeOperations)) {
+        if (!theMergeOperations.isNullOrEmpty()) {
             return theMergeOperations
         } else {
             throw ArtistNotFoundException()
@@ -242,10 +241,10 @@ class DuplicateController(
             if (thePreviousChartList == null) {
                 thePreviousChartList = mChartListRepository.findById(theChartList.previousChartListId!!).orElse(null)
             }
-            if (Ex.isEmpty(thePreviousChartTracks) && thePreviousChartList != null) {
+            if (thePreviousChartTracks.isEmpty() && thePreviousChartList != null) {
                 thePreviousChartTracks = mChartTrackRepository.findByChartList(thePreviousChartList).toMutableList()
             }
-            if (Ex.isNotEmpty(thePreviousChartTracks)) {
+            if (thePreviousChartTracks.isNotEmpty()) {
                 for (theChartTrack in theChartTracks) {
                     val theLastWeekRank = theChartTrack.lastWeekRank
                     if (theLastWeekRank != 0 && theLastWeekRank <= theChartList.chart!!.listSize!!) {
@@ -261,7 +260,7 @@ class DuplicateController(
                             }
                         }
                         if (!found) {
-                            if (Ex.isEmpty(theSameRankTracks)) {
+                            if (theSameRankTracks.isEmpty()) {
                                 // try to find the same track in previous list
                                 val theSameTrack = mChartTrackRepository
                                     .findByTrackAndChartList(theChartTrack.track!!, thePreviousChartList!!)
@@ -288,8 +287,8 @@ class DuplicateController(
                                 if (theSameRankTracks.size == 1) {
                                     val theDuplicate = theSameRankTracks[0]
                                     if (theDuplicate.track?.artist?.id == theChartTrack.track?.artist?.id) {
-                                        val l1 = Ex.getValuedLength(theDuplicate.track!!.title)
-                                        val l2 = Ex.getValuedLength(theChartTrack.track!!.title)
+                                        val l1 = getValuedLength(theDuplicate.track!!.title)
+                                        val l2 = getValuedLength(theChartTrack.track!!.title)
                                         val original = if (l1 >= l2) theDuplicate.track else theChartTrack.track
                                         val duplicate = if (l1 >= l2) theChartTrack.track else theDuplicate.track
                                         val theTrackMergeOperation =
@@ -304,13 +303,13 @@ class DuplicateController(
                                         )
                                         continue
                                     } else {
-                                        if (Ex.equalsValued(
+                                        if (equalsValued(
                                                 theDuplicate.track?.title,
                                                 theChartTrack.track?.title,
                                             )
                                         ) {
-                                            val l1 = Ex.getValuedLength(theDuplicate.track!!.artist?.name)
-                                            val l2 = Ex.getValuedLength(theChartTrack.track!!.artist?.name)
+                                            val l1 = getValuedLength(theDuplicate.track!!.artist?.name)
+                                            val l2 = getValuedLength(theChartTrack.track!!.artist?.name)
                                             val original =
                                                 if (l1 >= l2) theDuplicate.track else theChartTrack.track
                                             val duplicate =
@@ -451,4 +450,15 @@ class DuplicateController(
             println("$thePrevious ${thePrevious.track?.id}")
         }
     }
+
+    private fun equalsValued(
+        s1: String?,
+        s2: String?,
+    ): Boolean {
+        val v1 = (s1 ?: "").replace(Regex("[^\\w]"), "")
+        val v2 = (s2 ?: "").replace(Regex("[^\\w]"), "")
+        return v1.equals(v2, ignoreCase = true)
+    }
+
+    private fun getValuedLength(s: String?): Int = (s ?: "").replace(Regex("\\s"), "").length
 }

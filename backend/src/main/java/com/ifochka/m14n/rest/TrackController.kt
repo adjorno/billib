@@ -12,8 +12,6 @@ import com.ifochka.m14n.rest.db.Track
 import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.db.TrackUtils
 import com.ifochka.m14n.rest.model.TrackInfo
-import com.m14n.billib.data.BB
-import com.m14n.ex.Ex
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
@@ -65,9 +63,9 @@ class TrackController(
     @RequestMapping(value = ["track/best"], method = [RequestMethod.GET])
     fun bestTracks(
         @RequestParam(name = "chart_id") chartId: Long,
-        @RequestParam(value = "from", required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING)
+        @RequestParam(value = "from", required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING)
         from: String?,
-        @RequestParam(value = "to", required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING)
+        @RequestParam(value = "to", required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING)
         to: String?,
         @RequestParam(value = "size", required = false, defaultValue = "100") size: Int,
     ): Iterable<Track> {
@@ -96,9 +94,9 @@ class TrackController(
 
     @RequestMapping(value = ["/track/day"], method = [RequestMethod.GET])
     fun dayTrack(
-        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?,
+        @RequestParam(required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String?,
     ): DayTrack {
-        val theOne = if (Ex.isNotEmpty(date)) {
+        val theOne = if (!date.isNullOrEmpty()) {
             mDayTrackRepository.findById(java.sql.Date.valueOf(date)).orElse(null)
         } else {
             mDayTrackRepository.findLast(PageRequest.of(0, 1)).content.firstOrNull()
@@ -110,7 +108,7 @@ class TrackController(
     @Transactional
     @RequestMapping(value = ["/track/day"], method = [RequestMethod.POST])
     fun dayTrack(
-        @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String,
+        @RequestParam() @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String,
     ) {
         updateDayTrack(date)
     }
@@ -128,7 +126,7 @@ class TrackController(
         val theTrack = mTrackRepository.findById(id).orElse(null)
             ?: throw TrackNotFoundException()
         val theRequestedChart = chartId?.let {
-            if (Ex.isPositive(it)) mChartRepository.findById(it).orElse(null) else null
+            if (it > 0L) mChartRepository.findById(it).orElse(null) else null
         }
         val theCharts: Iterable<Chart> =
             if (theRequestedChart == null) mChartRepository.findAll() else listOf(theRequestedChart)

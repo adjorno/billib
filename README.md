@@ -1,8 +1,10 @@
-# Billboard Charts REST API
+# M14N
 
-REST API for accessing historical Billboard chart data (1958-present).
+Historical Billboard chart data — backend API, web app, and mobile apps.
 
-**Production API**: https://billib-production.up.railway.app/
+- **Web**: https://m14n.com
+- **API**: https://api.m14n.com ([Swagger](https://api.m14n.com))
+- **iOS / Android**: coming to app stores
 
 ## Quick Start
 
@@ -13,62 +15,24 @@ REST API for accessing historical Billboard chart data (1958-present).
 
 ```bash
 # 1. Setup database
-createdb billibdb
-psql billibdb < m14n-importer/src/main/resources/db/schema.sql
+createdb m14ndb
+psql m14ndb < m14n-importer/src/main/resources/db/schema.sql
 
 # 2. Import data
-cd m14n-importer
-./gradlew run --args="--data-path=/path/to/billibdata/data --db-url=jdbc:postgresql://localhost:5432/billibdb --db-user=YOUR_USER"
+./gradlew :libraries:m14n-importer:import \
+  --args="--data-path=/path/to/m14ndata/data --db-url=jdbc:postgresql://localhost:5432/m14ndb --db-user=YOUR_USER"
 
 # 3. Run API
-cd ..
-./gradlew bootRun -Dspring.profiles.active=postgres
+SPRING_PROFILES_ACTIVE=local ./gradlew :backend:bootRun
 ```
-
-### Production Deployment
-See [m14n-importer/DEPLOYMENT.md](m14n-importer/DEPLOYMENT.md) for Railway deployment guide.
-
-## API Endpoints
-
-**Base URL**: https://billib-production.up.railway.app
-
-- `GET /chart/all` - List all charts
-- `GET /chartList/getByDate?chart={name}&date={YYYY-MM-DD}` - Chart for specific date
-- `GET /track/{id}/history` - Track chart history
-- `GET /artist/{id}/tracks` - Artist's tracks
-- `GET /search?q={query}` - Search artists and tracks
-
-## Database
-
-- **35,947 artists** - 1958-present
-- **108,823 tracks** - Full-text search enabled
-- **1,692,356 chart positions** - Denormalized for performance
-- **Query performance**: < 10ms for most queries
-
-## Documentation
-
-- 📐 [**Architecture**](docs/ARCHITECTURE.md) - MVVM pattern, data flow, DI setup
-- 🎨 [**UI Components**](docs/COMPONENTS.md) - Reusable Compose components
-- 🧪 [**Testing**](docs/TESTING.md) - Testing strategy and examples
-- 📡 [**API Reference**](https://billib-production.up.railway.app/swagger-ui.html) - Interactive Swagger UI
-
-## Technology
-
-- Kotlin 2.3.0 + Spring Boot 3.5.0
-- PostgreSQL 15 with JPA/Hibernate
-- Railway (PostgreSQL + API hosting)
-- Gradle 9.2.1, Java 21
 
 ## License
 
-MIT License - See LICENSE file for details.
+MIT License — See LICENSE file for details.
 
 ## Contributing
 
 **Pull requests are not accepted** due to the growth of agentic AIs.
 
-For bugs, feature requests, or questions:
-- Open an issue on GitHub
-- Contact via personal message
-
+For bugs, feature requests, or questions open an issue or contact via personal message.
 All contributions will be reviewed and implemented by the maintainer.

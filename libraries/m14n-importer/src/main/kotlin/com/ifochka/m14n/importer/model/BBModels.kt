@@ -1,31 +1,36 @@
 package com.ifochka.m14n.importer.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class BBJournalMetadata(
     val name: String,
     val url: String,
     val charts: List<BBChartMetadata>,
 )
 
+@Serializable
 data class BBChartMetadata(
     val name: String,
     val folder: String,
     val size: Int,
-    @SerializedName("start_date")
+    @SerialName("start_date")
     val startDate: String,
-    @SerializedName("end_date")
+    @SerialName("end_date")
     val endDate: String? = null,
     val prefix: String,
 )
 
+@Serializable
 data class BBChart(
     val name: String,
-    @SerializedName("chart_date")
+    @SerialName("chart_date")
     val date: String,
     val tracks: List<BBTrack>,
 )
 
+@Serializable
 data class BBTrack(
     val rank: Int,
     val title: String,
@@ -33,11 +38,12 @@ data class BBTrack(
     val position: BBPositionInfo? = null,
 )
 
+@Serializable
 data class BBPositionInfo(
-    @SerializedName("Last Week")
+    @SerialName("Last Week")
     val lastWeek: String? = null,
-    @SerializedName("Peak Position")
+    @SerialName("Peak Position")
     val peakPosition: Int = 0,
-    @SerializedName("Wks on Chart")
+    @SerialName("Wks on Chart")
     val wksOnChart: Int = 0,
 )

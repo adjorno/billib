@@ -10,7 +10,7 @@ import org.koin.core.component.inject
 
 actual fun createDatabaseDriver(): SqlDriver {
     val context = DatabaseDriverContext.context
-    val driver = AndroidSqliteDriver(M14nDatabase.Schema.synchronous(), context, "billib.db")
+    val driver = AndroidSqliteDriver(M14nDatabase.Schema.synchronous(), context, "m14n.db")
     return driver
 }
 

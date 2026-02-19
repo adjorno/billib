@@ -31,10 +31,10 @@ Before scaffolding, clarify:
 
 ## Architecture Pattern
 
-Based on existing code (`frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/`):
+Based on existing code (`frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/ui/`):
 
 ```
-frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/
+frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/ui/<feature>/
 ├── <Feature>Screen.kt      # Composable UI
 ├── <Feature>UiState.kt     # Sealed interface for state
 ├── <Feature>ViewModel.kt   # Business logic & state management
@@ -44,7 +44,7 @@ frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/
 
 ## Template: UI State
 
-**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/<Feature>UiState.kt`
+**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/ui/<feature>/<Feature>UiState.kt`
 
 ```kotlin
 package com.ifochka.m14n.ui.<feature>
@@ -73,7 +73,7 @@ sealed interface <Feature>UiState {
 
 ## Template: ViewModel
 
-**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/<Feature>ViewModel.kt`
+**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/ui/<feature>/<Feature>ViewModel.kt`
 
 ```kotlin
 package com.ifochka.m14n.ui.<feature>
@@ -128,7 +128,7 @@ class <Feature>ViewModel(
 
 ## Template: Screen
 
-**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/<Feature>Screen.kt`
+**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/ui/<feature>/<Feature>Screen.kt`
 
 ```kotlin
 package com.ifochka.m14n.ui.<feature>
@@ -250,7 +250,7 @@ private fun ErrorState(
 
 Don't forget to register the ViewModel in Koin module:
 
-**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/di/AppModule.kt`
+**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/di/AppModule.kt`
 
 ```kotlin
 import org.koin.core.module.dsl.viewModel
@@ -266,7 +266,7 @@ val appModule = module {
 
 If this screen requires navigation, update the navigation graph:
 
-**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/navigation/NavGraph.kt`
+**Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/m14n/navigation/NavGraph.kt`
 
 ```kotlin
 // Add route

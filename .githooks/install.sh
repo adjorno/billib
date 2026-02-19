@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install git hooks for the billib project
+# Install git hooks for the m14n project
 
 HOOKS_DIR=".githooks"
 GIT_HOOKS_DIR=".git/hooks"

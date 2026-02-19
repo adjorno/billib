@@ -24,10 +24,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.rome)
     implementation(libs.jsoup)
-    implementation(libs.httpclient)
-    implementation(libs.m14n.ex)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization.json)
 }

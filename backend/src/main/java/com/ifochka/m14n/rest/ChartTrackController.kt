@@ -6,7 +6,6 @@ import com.ifochka.m14n.rest.db.ChartTrack
 import com.ifochka.m14n.rest.db.ChartTrackRepository
 import com.ifochka.m14n.rest.db.Track
 import com.ifochka.m14n.rest.db.TrackRepository
-import com.m14n.ex.Ex
 import org.springframework.data.domain.Sort
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
@@ -56,7 +55,7 @@ class ChartTrackController(
         for (ct in theChartListTracks) {
             val chartTrackId = ct.id ?: continue
             val thePreviousWeekRanks = mChartTrackRepository.findPreviousWeekRank(chartTrackId)
-            val theLast = if (Ex.isEmpty(thePreviousWeekRanks)) 0 else thePreviousWeekRanks[0]
+            val theLast = if (thePreviousWeekRanks.isEmpty()) 0 else thePreviousWeekRanks[0]
             mChartTrackRepository.updateLastWeekRank(ct, theLast)
         }
     }

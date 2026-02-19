@@ -1,12 +1,12 @@
 {
   "openapi" : "3.0.0",
   "info" : {
-    "description" : "This is a RESTful service for BilliB application. It provides data about all charts of Billboard music journal.",
+    "description" : "This is a REST service for M14N application. It provides data about all charts of Billboard music journal.",
     "version" : "1.0.0",
-    "title" : "BilliB RESTful service",
+    "title" : "M14N REST service",
     "contact" : {
       "email" : "adjorno@gmail.com",
-      "url" : "https://github.com/adjorno/billibdata",
+      "url" : "https://github.com/adjorno/m14n",
       "name" : "Mykhailo Dorokhin"
     }
   },
@@ -967,11 +967,15 @@
   "servers" : [
     {
       "description" : "Prod",
-      "url" : "https://billib-production.up.railway.app"
+      "url" : "https://api.m14n.com"
     },
     {
-    "description" : "Local",
-    "url" : "http://localhost:8080"
+      "description" : "Prod Railway",
+      "url" : "https://m14n-production.up.railway.app"
+    },
+    {
+      "description" : "Local",
+      "url" : "http://localhost:8080"
     }
   ]
 }
