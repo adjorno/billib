@@ -52,7 +52,11 @@ class FirebaseFcmService : FcmService {
                     .build(),
             )
             .build()
-        val response = m.send(message)
-        logger.info("FCM sent to topic '$topic': $response")
+        try {
+            val response = m.send(message)
+            logger.info("FCM sent to topic '$topic': $response")
+        } catch (e: Exception) {
+            logger.error("Failed to send FCM message to topic '$topic'", e)
+        }
     }
 }

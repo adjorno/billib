@@ -130,7 +130,7 @@ class ChartUpdateService(
     }
 
     private fun loadMetadata(): BBJournalMetadata {
-        val json = ClassPathResource("metadata_billboard.json").inputStream.bufferedReader().readText()
+        val json = ClassPathResource("metadata_billboard.json").inputStream.use { it.bufferedReader().readText() }
         return Json.decodeFromString(json)
     }
 }
