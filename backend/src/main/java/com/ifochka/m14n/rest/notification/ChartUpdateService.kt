@@ -91,7 +91,12 @@ class ChartUpdateService(
             metadata = metadata,
             chart = chartMeta,
         )
-        val dateStr = BB.CHART_DATE_FORMAT.format(dateParser.parse(document))
+        val dateStr = try {
+            BB.CHART_DATE_FORMAT.format(dateParser.parse(document))
+        } catch (e: NullPointerException) {
+            logger.warn("'${chartMeta.name}' — no date on chart page, likely not available yet, skipping")
+            return null
+        }
         val week = weekRepository.findByDate(dateStr) ?: weekRepository.save(Week(date = dateStr))
         if (chartListRepository.findByChartAndWeek(chart, week) != null) {
             logger.info("'${chartMeta.name}' already up to date ($dateStr), skipping")
