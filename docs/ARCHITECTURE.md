@@ -46,13 +46,13 @@ graph TD
 
 ```kotlin
 single { HttpClient { ... } }         // Ktor HTTP client
-single<BillibApi> { KtorBillibApi }   // API implementation
+single<M14nApi> { KtorM14nApi }       // API implementation
 singleOf(::ChartRepository)             // Repository
 factoryOf(::ChartViewModel)             // ViewModel (new instance per injection)
 ```
 
 **Platform Init:**
-- Android: `BillibApplication.onCreate()`
+- Android: `M14nApplication.onCreate()`
 - Desktop: `Main.kt` before window
 - Web: `Main.kt` before viewport
 

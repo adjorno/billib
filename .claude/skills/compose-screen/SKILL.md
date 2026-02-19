@@ -47,9 +47,9 @@ frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/
 **Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/<Feature>UiState.kt`
 
 ```kotlin
-package com.ifochka.billib.ui.<feature>
+package com.ifochka.m14n.ui.<feature>
 
-import com.ifochka.billib.data.error.<Feature>Error
+import com.ifochka.m14n.data.error.<Feature>Error
 
 sealed interface <Feature>UiState {
     data object Loading : <Feature>UiState
@@ -76,12 +76,12 @@ sealed interface <Feature>UiState {
 **Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/<Feature>ViewModel.kt`
 
 ```kotlin
-package com.ifochka.billib.ui.<feature>
+package com.ifochka.m14n.ui.<feature>
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ifochka.billib.data.error.ErrorMapper
-import com.ifochka.billib.data.repository.<Feature>Repository
+import com.ifochka.m14n.data.error.ErrorMapper
+import com.ifochka.m14n.data.repository.<Feature>Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -131,7 +131,7 @@ class <Feature>ViewModel(
 **Location**: `frontend/composeApp/src/commonMain/kotlin/com/ifochka/billib/ui/<feature>/<Feature>Screen.kt`
 
 ```kotlin
-package com.ifochka.billib.ui.<feature>
+package com.ifochka.m14n.ui.<feature>
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

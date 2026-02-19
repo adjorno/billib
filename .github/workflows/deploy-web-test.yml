@@ -22,5 +22,5 @@ jobs:
     uses: ./.github/workflows/template-web-build-and-deploy.yml
     with:
       version: ${{ needs.version.outputs.version }}
-      cloudflare_project_name: 'billib-test'
+      cloudflare_project_name: 'm14n-test'
     secrets: inherit

@@ -14,10 +14,10 @@ REST API for accessing historical Billboard chart data (1958-present).
 ```bash
 # 1. Setup database
 createdb billibdb
-psql billibdb < billib-importer/src/main/resources/db/schema.sql
+psql billibdb < m14n-importer/src/main/resources/db/schema.sql
 
 # 2. Import data
-cd billib-importer
+cd m14n-importer
 ./gradlew run --args="--data-path=/path/to/billibdata/data --db-url=jdbc:postgresql://localhost:5432/billibdb --db-user=YOUR_USER"
 
 # 3. Run API
@@ -26,7 +26,7 @@ cd ..
 ```
 
 ### Production Deployment
-See [billib-importer/DEPLOYMENT.md](billib-importer/DEPLOYMENT.md) for Railway deployment guide.
+See [m14n-importer/DEPLOYMENT.md](m14n-importer/DEPLOYMENT.md) for Railway deployment guide.
 
 ## API Endpoints
 

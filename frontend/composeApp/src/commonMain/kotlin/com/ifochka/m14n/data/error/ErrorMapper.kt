@@ -1,0 +1,37 @@
+package com.ifochka.m14n.data.error
+
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.http.HttpStatusCode
+import kotlinx.io.IOException
+
+/**
+ * Maps exceptions to typed ChartError.
+ */
+object ErrorMapper {
+    fun mapError(throwable: Throwable): ChartError =
+        when (throwable) {
+            is IOException -> ChartError.NetworkError
+
+            is ClientRequestException -> {
+                when (throwable.response.status) {
+                    HttpStatusCode.NotFound -> ChartError.Unknown("The requested chart data could not be found.")
+                    else -> ChartError.ServerError(
+                        code = throwable.response.status.value,
+                        message = throwable.message,
+                    )
+                }
+            }
+
+            is ServerResponseException -> ChartError.ServerError(
+                code = throwable.response.status.value,
+                message = throwable.message,
+            )
+
+            else -> ChartError.Unknown(throwable.message ?: "Unknown error")
+        }
+
+    fun mapEmptyCharts(): ChartError = ChartError.NoChartsAvailable
+
+    fun mapChartNotFound(chartId: Long): ChartError = ChartError.ChartNotFound(chartId)
+}

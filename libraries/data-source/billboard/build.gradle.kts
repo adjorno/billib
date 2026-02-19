@@ -7,7 +7,7 @@ plugins {
     application
 }
 
-group = "com.m14n.billib"
+group = "com.m14n"
 version = "0.0.6"
 
 repositories {
@@ -34,19 +34,19 @@ dependencies {
 
 application {
     // Default to consistency checker, but can be overridden
-    mainClass.set("com.m14n.billib.data.billboard.html.RefetchInconsistentChartsKt")
+    mainClass.set("com.m14n.data.billboard.html.RefetchInconsistentChartsKt")
 }
 
 tasks.register<JavaExec>("refetch") {
     group = "billboard"
     description = "Refetch inconsistent charts from Billboard"
-    mainClass.set("com.m14n.billib.data.billboard.html.RefetchInconsistentChartsKt")
+    mainClass.set("com.m14n.data.billboard.html.RefetchInconsistentChartsKt")
     classpath = sourceSets["main"].runtimeClasspath
 }
 
 tasks.register<JavaExec>("check-consistency") {
     group = "billboard"
     description = "Check data consistency"
-    mainClass.set("com.m14n.billib.data.billboard.BBChartDataCheckerKt")
+    mainClass.set("com.m14n.data.billboard.BBChartDataCheckerKt")
     classpath = sourceSets["main"].runtimeClasspath
 }

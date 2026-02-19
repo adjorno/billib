@@ -9,10 +9,10 @@ plugins {
 }
 
 application {
-    mainClass.set("com.ifochka.billib.rest.BBRestApplicationKt")
+    mainClass.set("com.ifochka.m14n.rest.BBRestApplicationKt")
 }
 
-group = "com.ifochka.billib.rest"
+group = "com.ifochka.m14n.rest"
 version = "0.0.1"
 
 java {
@@ -52,5 +52,5 @@ tasks.named<Jar>("jar") {
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     archiveClassifier.set("")
-    archiveBaseName.set("BilliBRESTJava")
+    archiveBaseName.set("M14N")
 }

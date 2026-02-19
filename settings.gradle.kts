@@ -1,4 +1,4 @@
-rootProject.name = "BilliBRESTJava"
+rootProject.name = "M14N"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -37,7 +37,7 @@ include("backend")
 // Library modules
 include("libraries:data-source:billboard")
 project(":libraries:data-source:billboard").name = "billboard"
-include("libraries:billib-importer")
+include("libraries:m14n-importer")
 
 // Railway deployment skips frontend (doesn't have Android SDK)
 val isRailwayBuild = System.getenv("RAILWAY_ENVIRONMENT") != null
