@@ -14,6 +14,8 @@ import com.ifochka.m14n.data.repository.CachedChartRepository
 import com.ifochka.m14n.data.repository.ChartRepository
 import com.ifochka.m14n.data.repository.NetworkChartRepository
 import com.ifochka.m14n.db.M14nDatabase
+import com.ifochka.m14n.share.ShareManager
+import com.ifochka.m14n.share.createShareManager
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -52,6 +54,9 @@ val appModule = module {
     // Artwork dependencies (platform-specific: JVM uses HTTP, wasmJs uses JSONP)
     single<ArtworkApi> { createArtworkApi(get()) }
     single<ArtworkRepository> { CachedArtworkRepository(get()) }
+
+    // Share (platform-specific: Android has native share sheet)
+    single<ShareManager> { createShareManager() }
 
     // Repositories
     singleOf(::NetworkChartRepository)
