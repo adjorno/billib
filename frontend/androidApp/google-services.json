@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "167427537491",
+    "project_id": "m14n-41a5a",
+    "storage_bucket": "m14n-41a5a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167427537491:android:3541c68dc4239fb8a764a6",
+        "android_client_info": {
+          "package_name": "com.ifochka.m14n"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR3u0F4DY79zU8X20zSBvGCmqDBQfr_0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

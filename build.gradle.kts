@@ -17,6 +17,7 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.buildkonfig) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.gmsGoogleServices) apply false
 }
 
 // Configure all subprojects with ktlint

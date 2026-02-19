@@ -37,6 +37,8 @@ dependencies {
     implementation(libs.postgresql)
     implementation(libs.jsoup)
 
+    implementation(libs.firebase.admin)
+
     // Project dependencies
     implementation(project(":libraries:data-source:billboard"))
 }
