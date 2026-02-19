@@ -6,7 +6,7 @@ Deploy Billboard Charts database to Railway from raw JSON data.
 
 - Railway PostgreSQL (5GB+ storage recommended)
 - PostgreSQL client tools (`pg_restore`, `psql`)
-- Raw JSON data at `/Users/adjorno/Developer/Sources/billibdata/data/`
+- Raw JSON data at `/Users/adjorno/Developer/Sources/m14ndata/data/`
 
 ## Quick Deploy
 
@@ -22,33 +22,33 @@ Deploy Billboard Charts database to Railway from raw JSON data.
 
 ```bash
 psql "postgresql://postgres:PASSWORD@host:PORT/railway" \
-  -f billib-importer/src/main/resources/db/schema.sql
+  -f m14n-importer/src/main/resources/db/schema.sql
 ```
 
 ### 3. Import Data
 
 **Option A: Direct import to Railway (recommended)**
 ```bash
-cd billib-importer
-railway run ./gradlew run --args="--data-path=/path/to/billibdata/data"
+cd m14n-importer
+railway run ./gradlew run --args="--data-path=/path/to/m14ndata/data"
 ```
 Duration: ~2-3 minutes
 
 **Option B: Via local export**
 ```bash
 # 1. Create local database
-createdb billibdb
-psql billibdb -f billib-importer/src/main/resources/db/schema.sql
+createdb m14ndb
+psql m14ndb -f m14n-importer/src/main/resources/db/schema.sql
 
 # 2. Import data locally
-cd billib-importer
-./gradlew run --args="--data-path=/path/to/data --db-url=jdbc:postgresql://localhost:5432/billibdb --db-user=YOUR_USER"
+cd m14n-importer
+./gradlew run --args="--data-path=/path/to/data --db-url=jdbc:postgresql://localhost:5432/m14ndb --db-user=YOUR_USER"
 
 # 3. Export
-pg_dump -Fc billibdb > billib_export.dump
+pg_dump -Fc m14ndb > m14n_export.dump
 
 # 4. Restore to Railway
-pg_restore -d "postgresql://postgres:PASSWORD@host:PORT/railway" --no-owner --no-acl --verbose --clean --if-exists billib_export.dump
+pg_restore -d "postgresql://postgres:PASSWORD@host:PORT/railway" --no-owner --no-acl --verbose --clean --if-exists m14n_export.dump
 ```
 Duration: ~1-2 minutes for restore
 

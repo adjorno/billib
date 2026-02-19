@@ -185,7 +185,7 @@ import.log
 # Database dumps (too large for git)
 *.dump
 *.sql
-!billib-importer/src/main/resources/db/schema.sql
+!m14n-importer/src/main/resources/db/schema.sql
 !src/main/resources/db/**/*.sql
 
 # Kotlin Multiplatform
