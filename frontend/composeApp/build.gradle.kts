@@ -86,7 +86,7 @@ compose.desktop {
         mainClass = "com.ifochka.billib.MainKt"
 
         nativeDistributions {
-            packageName = "Billib"
+            packageName = "M14N"
             packageVersion = "1.0.0"
 
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

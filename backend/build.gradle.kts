@@ -52,5 +52,5 @@ tasks.named<Jar>("jar") {
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     archiveClassifier.set("")
-    archiveBaseName.set("BilliBRESTJava")
+    archiveBaseName.set("M14N")
 }

@@ -1,4 +1,4 @@
-rootProject.name = "BilliBRESTJava"
+rootProject.name = "M14N"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

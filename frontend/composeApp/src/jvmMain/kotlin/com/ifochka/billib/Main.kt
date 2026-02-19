@@ -16,7 +16,7 @@ fun main() =
 
         Window(
             onCloseRequest = ::exitApplication,
-            title = "Billib",
+            title = "M14N",
             state = rememberWindowState(width = 1300.dp, height = 730.dp),
         ) {
             App()
