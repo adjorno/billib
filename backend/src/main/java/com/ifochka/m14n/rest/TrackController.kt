@@ -156,7 +156,8 @@ class TrackController(
         return theTrackInfo
     }
 
-    @RequestMapping(value = ["/track/random"], method = [RequestMethod.POST])
+    // TODO(#75): Gate with access token before re-enabling
+    // @RequestMapping(value = ["/track/random"], method = [RequestMethod.POST])
     fun sendRandomTrackNotification(): Track {
         val track = mTrackRepository.findRandom() ?: throw TrackNotFoundException()
         val body = "${track.artist?.name ?: track.artistName} — ${track.title}"

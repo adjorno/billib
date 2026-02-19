@@ -18,7 +18,8 @@ class ChartController(
     @RequestMapping(value = ["/chart/all"], method = [RequestMethod.GET])
     fun allCharts(): Iterable<Chart> = chartRepository.findAll()
 
-    @RequestMapping(value = ["/chart/forceUpdate"], method = [RequestMethod.POST])
+    // TODO(#75): Gate with access token before re-enabling
+    // @RequestMapping(value = ["/chart/forceUpdate"], method = [RequestMethod.POST])
     fun forceUpdate(): ChartUpdateResult {
         val result = chartUpdateService.checkForNewCharts()
         val newCharts = result.newCharts
