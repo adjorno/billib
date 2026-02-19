@@ -16,7 +16,7 @@ kotlin {
     jvmToolchain(21) // Match backend JVM version
 
     androidLibrary {
-        namespace = "com.ifochka.billib"
+        namespace = "com.ifochka.m14n"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         androidResources.enable = true
     }
@@ -83,7 +83,7 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "com.ifochka.billib.MainKt"
+        mainClass = "com.ifochka.m14n.MainKt"
 
         nativeDistributions {
             packageName = "M14N"
@@ -92,7 +92,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 
             macOS {
-                bundleID = "com.ifochka.billib"
+                bundleID = "com.ifochka.m14n"
                 iconFile.set(project.file("icons/icon.icns"))
                 appCategory = "public.app-category.utilities"
                 minimumSystemVersion = "12.0"
@@ -112,7 +112,7 @@ compose.desktop {
 sqldelight {
     databases {
         create("BillibDatabase") {
-            packageName.set("com.ifochka.billib.db")
+            packageName.set("com.ifochka.m14n.db")
             generateAsync.set(true)
         }
     }

@@ -48,7 +48,7 @@ subprojects {
 
         plugins.withId("com.codingfeline.buildkonfig") {
             configure<com.codingfeline.buildkonfig.gradle.BuildKonfigExtension> {
-                packageName = "com.ifochka.billib"
+                packageName = "com.ifochka.m14n"
                 val apiBaseUrl = getPropertyOrEnv(
                     key = "API_BASE_URL",
                     fallback = "https://billib-production.up.railway.app",

@@ -1,0 +1,12 @@
+package com.ifochka.m14n
+
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.js.Js
+
+class WasmPlatform : Platform {
+    override val name: String = Platform.WASM
+}
+
+actual fun getPlatform(): Platform = WasmPlatform()
+
+actual fun createHttpClient(): HttpClient = HttpClient(Js)

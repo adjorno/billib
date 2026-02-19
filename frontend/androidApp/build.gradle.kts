@@ -13,11 +13,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.ifochka.billib.app"
+    namespace = "com.ifochka.m14n.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.ifochka.billib"
+        applicationId = "com.ifochka.m14n"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
