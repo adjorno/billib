@@ -7,9 +7,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
-class KtorBillibApi(
+class KtorM14nApi(
     private val httpClient: HttpClient,
-) : BillibApi {
+) : M14nApi {
     override suspend fun getAllCharts(): Result<List<Chart>> =
         runCatching {
             httpClient.get("/chart/all").body()

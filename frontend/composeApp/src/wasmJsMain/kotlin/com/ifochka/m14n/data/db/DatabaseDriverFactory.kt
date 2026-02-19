@@ -2,14 +2,14 @@ package com.ifochka.m14n.data.db
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
-import com.ifochka.m14n.db.BillibDatabase
+import com.ifochka.m14n.db.M14nDatabase
 import org.w3c.dom.Worker
 
 private var initializedDriver: SqlDriver? = null
 
 internal suspend fun initializeDatabaseDriver() {
     val driver = WebWorkerDriver(jsWorker())
-    BillibDatabase.Schema.create(driver).await()
+    M14nDatabase.Schema.create(driver).await()
     initializedDriver = driver
 }
 

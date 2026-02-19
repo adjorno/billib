@@ -111,7 +111,7 @@ compose.desktop {
 
 sqldelight {
     databases {
-        create("BillibDatabase") {
+        create("M14nDatabase") {
             packageName.set("com.ifochka.m14n.db")
             generateAsync.set(true)
         }

@@ -3,7 +3,7 @@ package com.ifochka.m14n.data.db
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.ifochka.m14n.db.BillibDatabase
+import com.ifochka.m14n.db.M14nDatabase
 import java.io.File
 
 actual fun createDatabaseDriver(): SqlDriver {
@@ -22,7 +22,7 @@ actual fun createDatabaseDriver(): SqlDriver {
 
     // Create fresh database
     val driver = JdbcSqliteDriver("jdbc:sqlite:${databasePath.absolutePath}")
-    BillibDatabase.Schema.synchronous().create(driver)
+    M14nDatabase.Schema.synchronous().create(driver)
 
     return driver
 }

@@ -1,8 +1,8 @@
 package com.ifochka.m14n.di
 
 import com.ifochka.m14n.BuildKonfig
-import com.ifochka.m14n.data.api.BillibApi
-import com.ifochka.m14n.data.api.KtorBillibApi
+import com.ifochka.m14n.data.api.KtorM14nApi
+import com.ifochka.m14n.data.api.M14nApi
 import com.ifochka.m14n.data.artwork.ArtworkApi
 import com.ifochka.m14n.data.artwork.ArtworkRepository
 import com.ifochka.m14n.data.artwork.CachedArtworkRepository
@@ -13,7 +13,7 @@ import com.ifochka.m14n.data.db.createDatabaseDriver
 import com.ifochka.m14n.data.repository.CachedChartRepository
 import com.ifochka.m14n.data.repository.ChartRepository
 import com.ifochka.m14n.data.repository.NetworkChartRepository
-import com.ifochka.m14n.db.BillibDatabase
+import com.ifochka.m14n.db.M14nDatabase
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -45,9 +45,9 @@ val appModule = module {
     }
 
     single { createDatabaseDriver() }
-    single { BillibDatabase(get()) }
+    single { M14nDatabase(get()) }
     single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
-    single<BillibApi> { KtorBillibApi(get()) }
+    single<M14nApi> { KtorM14nApi(get()) }
 
     // Artwork dependencies (platform-specific: JVM uses HTTP, wasmJs uses JSONP)
     single<ArtworkApi> { createArtworkApi(get()) }

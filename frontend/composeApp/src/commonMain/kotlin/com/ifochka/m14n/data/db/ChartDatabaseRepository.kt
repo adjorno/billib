@@ -7,7 +7,7 @@ import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.data.model.Track
-import com.ifochka.m14n.db.BillibDatabase
+import com.ifochka.m14n.db.M14nDatabase
 
 interface ChartDatabaseRepository {
     suspend fun getAllCharts(): List<Chart>
@@ -40,7 +40,7 @@ interface ChartDatabaseRepository {
 
 @Suppress("TooManyFunctions") // Repository pattern requires many data access functions
 class SqlDelightChartDatabase(
-    private val database: BillibDatabase,
+    private val database: M14nDatabase,
 ) : ChartDatabaseRepository {
     override suspend fun getAllCharts(): List<Chart> =
         database.chartQueries.selectAllCharts().awaitAsList().map { dbChart ->
