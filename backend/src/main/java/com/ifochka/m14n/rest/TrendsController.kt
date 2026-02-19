@@ -13,7 +13,6 @@ import com.ifochka.m14n.rest.db.Week
 import com.ifochka.m14n.rest.db.WeekRepository
 import com.ifochka.m14n.rest.model.TrendList
 import com.ifochka.m14n.rest.model.Trends
-import com.m14n.billib.data.BB
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.transaction.annotation.Propagation
@@ -100,13 +99,13 @@ class TrendsController(
 
     @RequestMapping(value = ["/trends"], method = [RequestMethod.GET])
     fun getTrendsAPI(
-        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?,
+        @RequestParam(required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String?,
     ): Trends {
         val theWeek = (
             if (date == null) {
                 mChartListRepository.findLast(1L, PageRequest.of(0, 1)).content.firstOrNull()?.week
             } else {
-                mWeekRepository.findByDate(BB.CHART_DATE_FORMAT.format(date))
+                mWeekRepository.findByDate(M14n.CHART_DATE_FORMAT.format(date))
             }
         ) ?: throw IllegalStateException("Week not found for date: $date")
         val theTrendTracks = mTrendTrackRepository.findTrendsOfTheWeek(theWeek) ?: emptyList()
@@ -133,7 +132,7 @@ class TrendsController(
 
     @RequestMapping(value = ["/generateTrends"], method = [RequestMethod.POST])
     fun generateTrendsAPI(
-        @RequestParam() @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) week: String,
+        @RequestParam() @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) week: String,
         @RequestParam(required = false, defaultValue = "0") type: Int,
     ) {
         generateTrends(week, type.toLong())

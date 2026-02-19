@@ -57,8 +57,8 @@ private fun parseArgs(args: Array<String>): ImportConfig {
     }
 
     // Default values
-    val dataPath = argMap["data-path"] ?: "/Users/adjorno/Developer/Sources/billibdata/data"
-    val dbUrl = argMap["db-url"] ?: "jdbc:postgresql://localhost:5432/billibdb"
+    val dataPath = argMap["data-path"] ?: "/Users/adjorno/Developer/Sources/m14ndata/data"
+    val dbUrl = argMap["db-url"] ?: "jdbc:postgresql://localhost:5432/m14ndb"
     val dbUser = argMap["db-user"] ?: "postgres"
     val dbPassword = argMap["db-password"] ?: "postgres"
     val batchSize = argMap["batch-size"]?.toIntOrNull() ?: 5000
@@ -84,10 +84,10 @@ private fun printHelp() {
 
         Options:
           --data-path <path>       Path to JSON data directory
-                                   Default: /Users/adjorno/Developer/Sources/billibdata/data
+                                   Default: /Users/adjorno/Developer/Sources/m14ndata/data
 
           --db-url <url>           PostgreSQL JDBC URL
-                                   Default: jdbc:postgresql://localhost:5432/billibdb
+                                   Default: jdbc:postgresql://localhost:5432/m14ndb
 
           --db-user <user>         Database username
                                    Default: postgres
@@ -106,7 +106,7 @@ private fun printHelp() {
 
           # Import with custom database
           java -jar m14n-importer.jar \\
-            --db-url jdbc:postgresql://db.example.com:5432/billib \\
+            --db-url jdbc:postgresql://db.example.com:5432/m14n \\
             --db-user myuser \\
             --db-password mypass
 

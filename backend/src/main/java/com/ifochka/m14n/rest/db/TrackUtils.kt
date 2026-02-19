@@ -1,7 +1,5 @@
 package com.ifochka.m14n.rest.db
 
-import com.m14n.ex.Ex
-
 object TrackUtils {
     @JvmStatic
     fun asTracks(tracks: List<ChartTrack>): List<Track> = tracks.mapNotNull { it.track }
@@ -31,10 +29,10 @@ object TrackUtils {
                 "INNER JOIN ARTIST ON ARTIST._ID = TRACK.ARTIST_ID " +
                 "WHERE CHART_LIST.CHART_ID = $chartId ",
         )
-        if (!Ex.isEmpty(from)) {
+        if (!from.isNullOrEmpty()) {
             theQueryBuilder.append("AND WEEK.DATE > '").append(from).append("' ")
         }
-        if (!Ex.isEmpty(to)) {
+        if (!to.isNullOrEmpty()) {
             theQueryBuilder.append("AND WEEK.DATE < '").append(to).append("' ")
         }
         theQueryBuilder.append(

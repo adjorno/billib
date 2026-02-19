@@ -7,11 +7,11 @@ import com.ifochka.m14n.db.M14nDatabase
 import java.io.File
 
 actual fun createDatabaseDriver(): SqlDriver {
-    val databaseDir = File(System.getProperty("user.home"), ".billib")
+    val databaseDir = File(System.getProperty("user.home"), ".m14n")
     if (!databaseDir.exists()) {
         databaseDir.mkdirs()
     }
-    val databasePath = File(databaseDir, "billib.db")
+    val databasePath = File(databaseDir, "m14n.db")
 
     // DEV MODE: Delete database on startup to handle schema changes
     // TODO: Remove for production and implement proper migrations

@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @EnableScheduling
 @EnableAsync
 @SpringBootApplication
-open class BBRestApplication {
+open class M14nApplication {
     @Bean
     open fun corsConfigurer(): WebMvcConfigurer =
         object : WebMvcConfigurer {
@@ -22,5 +22,5 @@ open class BBRestApplication {
 }
 
 fun main(args: Array<String>) {
-    SpringApplication.run(BBRestApplication::class.java, *args)
+    SpringApplication.run(M14nApplication::class.java, *args)
 }

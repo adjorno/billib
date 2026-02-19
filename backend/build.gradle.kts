@@ -9,7 +9,7 @@ plugins {
 }
 
 application {
-    mainClass.set("com.ifochka.m14n.rest.BBRestApplicationKt")
+    mainClass.set("com.ifochka.m14n.rest.M14nApplicationKt")
 }
 
 group = "com.ifochka.m14n.rest"
@@ -37,10 +37,6 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.postgresql)
     implementation(libs.jsoup)
-    implementation(libs.m14n.ex)
-    implementation(libs.m14n.billib.data)
-    implementation(libs.jakarta.xml.bind.api)
-    implementation(libs.glassfish.jaxb.runtime)
 
     // Project dependencies
     implementation(project(":libraries:data-source:billboard"))

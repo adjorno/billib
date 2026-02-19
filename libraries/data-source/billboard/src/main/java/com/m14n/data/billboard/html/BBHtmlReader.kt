@@ -4,7 +4,6 @@ import com.m14n.data.billboard.BB
 import com.m14n.data.billboard.model.BBChart
 import com.m14n.data.billboard.model.BBJournalMetadata
 import com.m14n.data.billboard.parser.defaultChartListParser
-import com.m14n.ex.BenchmarkCore
 import defaultDateParser
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -33,19 +32,19 @@ object BBHtmlReader {
         val dateParser = defaultDateParser()
         val tracksParser = defaultChartListParser()
         theMetadata.charts.forEach {
-            val theBenchmark = BenchmarkCore.start(it.folder)
+            val theStart = System.currentTimeMillis()
             val theDocument = BBHtmlParser.getChartDocument(theMetadata, it, null)
             if (theWeekDate == null) {
                 theWeekDate = dateParser.parse(theDocument)
                 theWeekFolder = File(root, "week-" + BB.CHART_DATE_FORMAT.format(theWeekDate))
-                theWeekFolder?.mkdirs()
+                theWeekFolder.mkdirs()
             }
             val theChart = BBChart(
                 name = it.name,
                 date = BB.CHART_DATE_FORMAT.format(theWeekDate),
                 tracks = tracksParser.parse(theDocument),
             )
-            BenchmarkCore.stop(theBenchmark)
+            println("${it.folder}: ${System.currentTimeMillis() - theStart}ms")
             writeChartToFile(
                 theChart,
                 theWeekFolder!!,

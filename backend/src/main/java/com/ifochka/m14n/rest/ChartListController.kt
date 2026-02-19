@@ -6,7 +6,6 @@ import com.ifochka.m14n.rest.db.ChartRepository
 import com.ifochka.m14n.rest.db.ChartTrackRepository
 import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.db.WeekRepository
-import com.m14n.billib.data.BB
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
@@ -48,7 +47,7 @@ class ChartListController {
     @RequestMapping(value = ["/chartList/getByDate"], method = [RequestMethod.GET])
     fun getChartListByDate(
         @RequestParam(name = "chart_id") chartId: Long,
-        @RequestParam(required = false) @DateTimeFormat(pattern = BB.CHART_DATE_FORMAT_STRING) date: String?,
+        @RequestParam(required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String?,
     ): ChartList {
         val theChart = chartRepository.findByIdOrNull(chartId) ?: throw ChartListNotFoundException()
         var theChartList: ChartList? = null
