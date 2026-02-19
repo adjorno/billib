@@ -11,6 +11,7 @@ import java.time.LocalDate
 class NotificationScheduler(
     private val fcmService: FcmService,
     private val dayTrackRepository: DayTrackRepository,
+    private val chartUpdateService: ChartUpdateService,
 ) {
     private val logger = LoggerFactory.getLogger(NotificationScheduler::class.java)
 
@@ -30,6 +31,18 @@ class NotificationScheduler(
             topic = "track-of-day",
             title = "Track of the Day",
             body = body,
+        )
+    }
+
+    @Scheduled(cron = "0 0 */3 * * *", zone = "UTC")
+    fun checkAndNotifyNewCharts() {
+        val newCharts = chartUpdateService.checkForNewCharts()
+        if (newCharts.isEmpty()) return
+        val count = newCharts.size
+        fcmService.sendToTopic(
+            topic = "new-chart",
+            title = "New Chart${if (count > 1) "s" else ""} Available",
+            body = newCharts.joinToString(", "),
         )
     }
 }

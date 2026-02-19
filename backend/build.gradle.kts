@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.jsoup)
 
     implementation(libs.firebase.admin)
+    implementation(libs.kotlinx.serialization.json)
 
     // Project dependencies
     implementation(project(":libraries:data-source:billboard"))
