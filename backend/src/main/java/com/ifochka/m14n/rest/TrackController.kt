@@ -12,6 +12,7 @@ import com.ifochka.m14n.rest.db.Track
 import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.db.TrackUtils
 import com.ifochka.m14n.rest.model.TrackInfo
+import com.ifochka.m14n.rest.notification.FcmService
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
@@ -30,6 +31,7 @@ class TrackController(
     private val mDayTrackRepository: DayTrackRepository,
     private val mArtistRepository: ArtistRepository,
     private val mGlobalRankTrackRepository: GlobalRankTrackRepository,
+    private val mFcmService: FcmService,
 ) : ITrackController {
     @RequestMapping(value = ["/track/getById"], method = [RequestMethod.GET])
     fun track(
@@ -152,6 +154,18 @@ class TrackController(
         theTrackInfo.history = getTrackHistory(id, null)
         theTrackInfo.globalRank = theTrack.id?.let { mGlobalRankTrackRepository.findByTrackId(it)?.rank } ?: 0
         return theTrackInfo
+    }
+
+    @RequestMapping(value = ["/track/random"], method = [RequestMethod.POST])
+    fun sendRandomTrackNotification(): Track {
+        val track = mTrackRepository.findRandom() ?: throw TrackNotFoundException()
+        val body = "${track.artist?.name ?: track.artistName} — ${track.title}"
+        mFcmService.sendToTopic(
+            topic = "track-of-day",
+            title = "Track of the Day",
+            body = body,
+        )
+        return track
     }
 
     @RequestMapping(value = ["/track/global"], method = [RequestMethod.GET])

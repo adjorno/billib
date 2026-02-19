@@ -57,6 +57,9 @@ interface TrackRepository : CrudRepository<Track, Long> {
 
     fun findByArtist(artist: Artist): List<Track>
 
+    @Query(value = "SELECT * FROM TRACK ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
+    fun findRandom(): Track?
+
     @Query(
         value =
             "SELECT TRACK._ID, TRACK.TITLE, TRACK.ARTIST_ID, TRACK.ARTIST_NAME, " +
