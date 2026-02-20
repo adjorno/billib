@@ -83,6 +83,19 @@
         console.log('[iTunes Bridge] Static dispatcher initialized');
     </script>
 
+    <!-- localStorage Bridge for Artwork Persistence -->
+    <script>
+        function jsLocalStorageGet(key) {
+            return localStorage.getItem(key);
+        }
+
+        function jsLocalStorageSet(key, value) {
+            localStorage.setItem(key, value);
+        }
+
+        console.log('[localStorage Bridge] Initialized');
+    </script>
+
     <script src="composeApp.js"></script>
 </body>
 </html>

@@ -211,6 +211,12 @@ LEFT JOIN artwork aw ON ta.artwork_id = aw.id
 WHERE ct.chart_list_id = ?
 ORDER BY ct.rank;
 
+selectArtworkUrlByTrackId:
+SELECT aw.url
+FROM track_artwork ta
+JOIN artwork aw ON ta.artwork_id = aw.id
+WHERE ta.track_id = ?;
+
 insertChartTrack:
 INSERT OR REPLACE INTO chart_track (chart_list_id, track_id, rank, last_week_rank)
 VALUES (?, ?, ?, ?);

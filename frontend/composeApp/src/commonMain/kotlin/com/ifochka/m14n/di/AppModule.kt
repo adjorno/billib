@@ -5,8 +5,10 @@ import com.ifochka.m14n.data.api.KtorM14nApi
 import com.ifochka.m14n.data.api.M14nApi
 import com.ifochka.m14n.data.artwork.ArtworkApi
 import com.ifochka.m14n.data.artwork.ArtworkRepository
+import com.ifochka.m14n.data.artwork.ArtworkUrlPersistence
 import com.ifochka.m14n.data.artwork.CachedArtworkRepository
 import com.ifochka.m14n.data.artwork.createArtworkApi
+import com.ifochka.m14n.data.artwork.createArtworkUrlPersistence
 import com.ifochka.m14n.data.db.ChartDatabaseRepository
 import com.ifochka.m14n.data.db.SqlDelightChartDatabase
 import com.ifochka.m14n.data.db.createDatabaseDriver
@@ -53,7 +55,8 @@ val appModule = module {
 
     // Artwork dependencies (platform-specific: JVM uses HTTP, wasmJs uses JSONP)
     single<ArtworkApi> { createArtworkApi(get()) }
-    single<ArtworkRepository> { CachedArtworkRepository(get()) }
+    single<ArtworkUrlPersistence> { createArtworkUrlPersistence(get()) }
+    single<ArtworkRepository> { CachedArtworkRepository(artworkApi = get(), persistence = get()) }
 
     // Share (platform-specific: Android has native share sheet)
     single<ShareManager> { createShareManager() }
