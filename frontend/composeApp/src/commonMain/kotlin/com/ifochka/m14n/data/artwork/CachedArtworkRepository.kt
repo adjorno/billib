@@ -13,6 +13,7 @@ import kotlinx.coroutines.sync.withLock
  */
 class CachedArtworkRepository(
     private val artworkApi: ArtworkApi,
+    private val persistence: ArtworkUrlPersistence,
     private val requestDelayMs: Long = 1000L,
 ) : ArtworkRepository {
     private val rateLimitMutex = Mutex()
@@ -21,11 +22,23 @@ class CachedArtworkRepository(
     override suspend fun getArtworkUrl(track: Track): String? {
         println("[ARTWORK-REPO] 🔍 getArtworkUrl called for: ${track.artistName} - ${track.title}")
 
-        // Check in-memory cache first
+        // Check in-memory cache first (populated by DB JOIN on native platforms)
         val cachedUrl = track.artworkUrl?.takeIf { it.isNotBlank() }
         if (cachedUrl != null) {
             println("[ARTWORK-REPO] ⊘ Track already has artwork: $cachedUrl")
             return cachedUrl
+        }
+
+        return fetchWithPersistence(track)
+    }
+
+    private suspend fun fetchWithPersistence(track: Track): String? {
+        val trackId = track.id
+
+        // Check persistent storage (localStorage on web, SQLite on native)
+        if (trackId != null) {
+            val persistedUrl = persistence.getArtworkUrl(trackId)
+            if (persistedUrl != null) return persistedUrl
         }
 
         // Extract and validate required fields
@@ -37,6 +50,11 @@ class CachedArtworkRepository(
                 null
             }
             else -> fetchArtworkFromApi(artistName, trackTitle)
+        }
+
+        // Persist the fetched URL for future loads
+        if (result != null && trackId != null) {
+            persistence.saveArtworkUrl(trackId = trackId, url = result)
         }
 
         return result

@@ -84,13 +84,8 @@ class CachedChartRepository(
     }
 
     /**
-     * Fetch artwork URL for a single track and persist it to the database.
-     * Called on-demand when the track becomes visible in the UI.
+     * Fetch artwork URL for a single track.
+     * Persistence is handled by ArtworkRepository via ArtworkUrlPersistence.
      */
-    suspend fun getArtworkUrl(track: Track): String? =
-        track.id?.let { trackId ->
-            artworkRepository.getArtworkUrl(track)?.also { artworkUrl ->
-                database.updateTrackArtwork(trackId = trackId, artworkUrl = artworkUrl)
-            }
-        }
+    suspend fun getArtworkUrl(track: Track): String? = artworkRepository.getArtworkUrl(track)
 }

@@ -32,6 +32,8 @@ interface ChartDatabaseRepository {
         weekDate: String,
     ): Long?
 
+    suspend fun getArtworkUrl(trackId: Long): String?
+
     suspend fun updateTrackArtwork(
         trackId: Long,
         artworkUrl: String,
@@ -260,6 +262,9 @@ class SqlDelightChartDatabase(
         return database.chartQueries.selectChartListByChartAndWeek(chartId, week.id)
             .awaitAsOneOrNull()?.cached_at
     }
+
+    override suspend fun getArtworkUrl(trackId: Long): String? =
+        database.chartQueries.selectArtworkUrlByTrackId(trackId).awaitAsOneOrNull()
 
     override suspend fun updateTrackArtwork(
         trackId: Long,
