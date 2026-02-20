@@ -33,7 +33,7 @@ webpack = "9.1.0"
 
 googleServices = "4.4.4"
 firebase-bom = "34.9.0"
-firebase-admin = "9.4.0"
+firebase-admin = "9.7.1"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
