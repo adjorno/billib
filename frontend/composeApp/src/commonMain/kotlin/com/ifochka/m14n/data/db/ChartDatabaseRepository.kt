@@ -21,7 +21,7 @@ interface ChartDatabaseRepository {
 
     suspend fun getChartListByDate(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): ChartList?
 
     suspend fun getLatestChartList(chartId: Long): ChartList?
@@ -32,7 +32,7 @@ interface ChartDatabaseRepository {
 
     suspend fun getChartListCachedAt(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): Long?
 
     suspend fun getArtworkUrl(trackId: Long): String?
@@ -91,9 +91,9 @@ class SqlDelightChartDatabase(
 
     override suspend fun getChartListByDate(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): ChartList? =
-        if (weekDate == "latest") {
+        if (weekDate == null) {
             getLatestChartList(chartId)
         } else {
             database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull()?.let { week ->
@@ -274,9 +274,9 @@ class SqlDelightChartDatabase(
 
     override suspend fun getChartListCachedAt(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): Long? {
-        val week = if (weekDate == "latest") {
+        val week = if (weekDate == null) {
             database.chartQueries.selectLatestWeekForChart(chartId).awaitAsOneOrNull()
         } else {
             database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull()

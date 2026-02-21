@@ -42,9 +42,13 @@ fun WeekPicker(
     val currentDate = DateUtils.parseChartDate(weekDate)
     val chartStart = chartStartDate?.let { DateUtils.parseChartDate(it) }
     val chartEnd = chartEndDate?.let { DateUtils.parseChartDate(it) }
+    val today = DateUtils.getToday()
+
+    val nextWeek = currentDate?.let { DateUtils.getNextWeek(it) }
 
     val isFirst = currentDate != null && chartStart != null && currentDate <= chartStart
-    val isLatest = (currentDate != null && chartEnd != null && currentDate >= chartEnd) || weekDate == "latest"
+    val isLatest = (currentDate != null && chartEnd != null && currentDate >= chartEnd) ||
+        (nextWeek != null && chartEnd == null && nextWeek > today)
 
     val canGoBack = !isFirst && currentDate != null
     val canGoForward = !isLatest && currentDate != null
@@ -102,7 +106,7 @@ fun WeekPicker(
                     color = if (isLatest) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                     shape = CircleShape,
                     modifier = Modifier
-                        .offset(x = 4.dp, y = (-4).dp),
+                        .offset(x = (-2).dp, y = (-6).dp),
                 ) {
                     Text(
                         text = if (isLatest) "Latest" else "First",
@@ -112,10 +116,10 @@ fun WeekPicker(
                             MaterialTheme.colorScheme.onSecondary
                         },
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                         ),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
                     )
                 }
             }
@@ -158,6 +162,20 @@ fun WeekPickerMiddlePreview() {
     MaterialTheme {
         WeekPicker(
             weekDate = "2024-02-01",
+            chartStartDate = "2024-01-01",
+            chartEndDate = "2024-03-01",
+            onOpenDateInput = {},
+            onNavigate = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+fun WeekPickerLatestStringPreview() {
+    MaterialTheme {
+        WeekPicker(
+            weekDate = "latest",
             chartStartDate = "2024-01-01",
             chartEndDate = "2024-03-01",
             onOpenDateInput = {},
