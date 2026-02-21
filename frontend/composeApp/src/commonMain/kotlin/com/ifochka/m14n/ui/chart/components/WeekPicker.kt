@@ -106,7 +106,7 @@ fun WeekPicker(
                     color = if (isLatest) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                     shape = CircleShape,
                     modifier = Modifier
-                        .offset(x = (-2).dp, y = (-6).dp),
+                        .offset(x = (-8).dp, y = (-2).dp),
                 ) {
                     Text(
                         text = if (isLatest) "Latest" else "First",
@@ -116,7 +116,7 @@ fun WeekPicker(
                             MaterialTheme.colorScheme.onSecondary
                         },
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 9.sp,
+                            fontSize = 8.sp,
                             fontWeight = FontWeight.Bold,
                         ),
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
