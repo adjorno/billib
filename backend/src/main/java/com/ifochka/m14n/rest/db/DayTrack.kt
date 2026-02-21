@@ -2,9 +2,12 @@ package com.ifochka.m14n.rest.db
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
+import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import java.sql.Date
 
@@ -12,11 +15,13 @@ import java.sql.Date
 @Table(name = "DAY_TRACK")
 data class DayTrack(
     @Id
-    @Column(name = "_DAY")
-    var day: Date? = null,
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "day_track_seq")
+    @SequenceGenerator(name = "day_track_seq", sequenceName = "day_track__id_seq", allocationSize = 1)
+    @Column(name = "_id")
+    var id: Long? = null,
     @OneToOne
-    @JoinColumn(name = "TRACK_ID")
+    @JoinColumn(name = "track_id")
     var track: Track? = null,
-    @Column(name = "DESCRIPTION")
-    var desc: String? = null,
+    @Column(name = "date")
+    var day: Date? = null,
 )
