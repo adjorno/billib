@@ -30,6 +30,7 @@ fun ChartTopBar(
         WeekPicker(
             weekDate = weekDate,
             chartStartDate = selectedChart.startDate,
+            chartEndDate = selectedChart.endDate,
             onOpenDateInput = { showDateInput = true },
             onNavigate = onWeekNavigate,
             modifier = Modifier.padding(16.dp),
