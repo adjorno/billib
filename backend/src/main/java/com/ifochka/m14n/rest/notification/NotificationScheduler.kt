@@ -18,7 +18,7 @@ class NotificationScheduler(
     @Scheduled(cron = "0 0 9 * * *", zone = "UTC")
     fun sendTrackOfDayNotification() {
         val today = Date.valueOf(LocalDate.now())
-        val dayTrack = dayTrackRepository.findById(today).orElse(null) ?: run {
+        val dayTrack = dayTrackRepository.findByDay(today) ?: run {
             logger.info("No track of the day set for $today, skipping notification")
             return
         }

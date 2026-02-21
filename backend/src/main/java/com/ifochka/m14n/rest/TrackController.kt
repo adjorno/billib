@@ -99,7 +99,7 @@ class TrackController(
         @RequestParam(required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String?,
     ): DayTrack {
         val theOne = if (!date.isNullOrEmpty()) {
-            mDayTrackRepository.findById(java.sql.Date.valueOf(date)).orElse(null)
+            mDayTrackRepository.findByDay(java.sql.Date.valueOf(date))
         } else {
             mDayTrackRepository.findLast(PageRequest.of(0, 1)).content.firstOrNull()
         }
@@ -181,7 +181,14 @@ class TrackController(
     override fun updateDayTrack(formattedDay: String): Track {
         val theTracksOfTheDay = getTracksOfTheDay(formattedDay, 10)
         val theTrack = theTracksOfTheDay[0]
-        mDayTrackRepository.save(DayTrack(java.sql.Date.valueOf(formattedDay), theTrack, null))
+        val existing = mDayTrackRepository.findByDay(java.sql.Date.valueOf(formattedDay))
+        mDayTrackRepository.save(
+            DayTrack(
+                id = existing?.id,
+                day = java.sql.Date.valueOf(formattedDay),
+                track = theTrack,
+            ),
+        )
         return theTrack
     }
 
