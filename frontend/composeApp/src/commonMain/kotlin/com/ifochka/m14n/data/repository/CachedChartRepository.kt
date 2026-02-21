@@ -44,40 +44,41 @@ class CachedChartRepository(
         chartId: Long,
         date: String?,
     ): Result<ChartList> {
-        val effectiveDate = date ?: "latest"
-
-        val cachedTimestamp = database.getChartListCachedAt(chartId, effectiveDate)
+        val cachedTimestamp = database.getChartListCachedAt(chartId, date)
         val cachedChartList = cachedTimestamp?.let {
             val isStale = CachePolicy.isCacheStale(it, CachePolicy.CACHE_TTL_MS)
             if (!isStale) {
-                database.getChartListByDate(chartId, effectiveDate)
+                database.getChartListByDate(chartId, date)
             } else {
-                println("[CACHE] ⏱ Chart list cache is stale (chart=$chartId, date=$effectiveDate)")
+                println("[CACHE] ⏱ Chart list cache is stale (chart=$chartId, date=$date)")
                 null
             }
         }
 
         if (cachedChartList != null) {
-            println("[CACHE] ✓ Chart list loaded from cache (chart=$chartId, date=$effectiveDate, ttl=7d)")
+            println(
+                "[CACHE] ✓ Chart list loaded from cache (chart=$chartId, date=${cachedChartList.week?.date}, ttl=7d)",
+            )
             return Result.success(cachedChartList)
         }
 
-        println("[CACHE] ↓ Fetching chart list from network (chart=$chartId, date=$effectiveDate)...")
+        println("[CACHE] ↓ Fetching chart list from network (chart=$chartId, date=$date)...")
         return network.getChartByDate(chartId, date).mapCatching { networkChartList ->
-            val listToCache = networkChartList.copy(
-                week = networkChartList.week?.copy(date = effectiveDate),
-            )
-            database.insertChartList(listToCache)
+            database.insertChartList(networkChartList)
             val trackCount = networkChartList.chartTracks?.size ?: 0
-            println("[CACHE] ✓ Cached chart list (chart=$chartId, date=$effectiveDate, tracks=$trackCount)")
-            database.getChartListByDate(chartId, effectiveDate) ?: networkChartList
+            println(
+                "[CACHE] ✓ Cached chart list (chart=$chartId, date=${networkChartList.week?.date}, tracks=$trackCount)",
+            )
+            networkChartList
         }.recoverCatching { networkError ->
-            val fallbackChartList = database.getChartListByDate(chartId, effectiveDate)
+            val fallbackChartList = database.getChartListByDate(chartId, date)
             if (fallbackChartList != null) {
-                println("[CACHE] ⚠ Network failed, using stale cache (chart=$chartId, date=$effectiveDate)")
+                println(
+                    "[CACHE] ⚠ Network failed, using stale cache (chart=$chartId, date=${fallbackChartList.week?.date})",
+                )
                 fallbackChartList
             } else {
-                println("[CACHE] ✗ Network failed, no cache available (chart=$chartId, date=$effectiveDate)")
+                println("[CACHE] ✗ Network failed, no cache available (chart=$chartId, date=$date)")
                 throw networkError
             }
         }

@@ -9,6 +9,7 @@ import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.db.M14nDatabase
 
+@Suppress("TooManyFunctions")
 interface ChartDatabaseRepository {
     suspend fun getAllCharts(): List<Chart>
 
@@ -20,8 +21,10 @@ interface ChartDatabaseRepository {
 
     suspend fun getChartListByDate(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): ChartList?
+
+    suspend fun getLatestChartList(chartId: Long): ChartList?
 
     suspend fun insertChartList(chartList: ChartList)
 
@@ -29,7 +32,7 @@ interface ChartDatabaseRepository {
 
     suspend fun getChartListCachedAt(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): Long?
 
     suspend fun getArtworkUrl(trackId: Long): String?
@@ -88,49 +91,64 @@ class SqlDelightChartDatabase(
 
     override suspend fun getChartListByDate(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): ChartList? =
-        database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull()?.let { week ->
-            database.chartQueries.selectChartListByChartAndWeek(chartId, week.id)
-                .awaitAsOneOrNull()?.let { chartList ->
-                    val chart = getChartById(chartId)
-                    val chartTracks =
-                        database.chartQueries.selectChartTracksWithDetailsById(chartList.id)
-                            .awaitAsList().map { row ->
-                                val artist =
-                                    row.artist_id?.let {
-                                        Artist(
-                                            id = it,
-                                            name = row.artist_name,
-                                            nameNormalized = row.artist_name_normalized,
-                                        )
-                                    }
-                                val track =
-                                    Track(
-                                        id = row.track_id,
-                                        title = row.track_title,
-                                        artist = artist,
-                                        artistName = row.track_artist_name,
-                                        firstChartDate = row.first_chart_date,
-                                        peakGlobalRank = row.peak_global_rank?.toInt(),
-                                        totalWeeksOnChart = row.total_weeks_on_chart?.toInt() ?: 0,
-                                        artworkUrl = row.artwork_url,
-                                    )
-                                ChartTrack(
-                                    track = track,
-                                    rank = row.rank.toInt(),
-                                    lastWeekRank = row.last_week_rank?.toInt() ?: 0,
-                                )
-                            }
-
-                    ChartList(
-                        id = chartList.id,
-                        chart = chart,
-                        week = week.toDomain(),
-                        chartTracks = chartTracks,
-                    )
-                }
+        if (weekDate == null) {
+            getLatestChartList(chartId)
+        } else {
+            database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull()?.let { week ->
+                getChartListForWeek(chartId, week.id)
+            }
         }
+
+    override suspend fun getLatestChartList(chartId: Long): ChartList? =
+        database.chartQueries.selectLatestWeekForChart(chartId).awaitAsOneOrNull()?.let { week ->
+            getChartListForWeek(chartId, week.id)
+        }
+
+    private suspend fun getChartListForWeek(
+        chartId: Long,
+        weekId: Long,
+    ): ChartList? =
+        database.chartQueries.selectChartListByChartAndWeek(chartId, weekId)
+            .awaitAsOneOrNull()?.let { chartList ->
+                val chart = getChartById(chartId)
+                val chartTracks =
+                    database.chartQueries.selectChartTracksWithDetailsById(chartList.id)
+                        .awaitAsList().map { row ->
+                            val artist =
+                                row.artist_id?.let {
+                                    Artist(
+                                        id = it,
+                                        name = row.artist_name,
+                                        nameNormalized = row.artist_name_normalized,
+                                    )
+                                }
+                            val track =
+                                Track(
+                                    id = row.track_id,
+                                    title = row.track_title,
+                                    artist = artist,
+                                    artistName = row.track_artist_name,
+                                    firstChartDate = row.first_chart_date,
+                                    peakGlobalRank = row.peak_global_rank?.toInt(),
+                                    totalWeeksOnChart = row.total_weeks_on_chart?.toInt() ?: 0,
+                                    artworkUrl = row.artwork_url,
+                                )
+                            ChartTrack(
+                                track = track,
+                                rank = row.rank.toInt(),
+                                lastWeekRank = row.last_week_rank?.toInt() ?: 0,
+                            )
+                        }
+
+                ChartList(
+                    id = chartList.id,
+                    chart = chart,
+                    week = database.chartQueries.selectWeekById(weekId).awaitAsOneOrNull()?.toDomain(),
+                    chartTracks = chartTracks,
+                )
+            }
 
     override suspend fun insertChartList(chartList: ChartList) {
         // Validate required fields first
@@ -256,9 +274,14 @@ class SqlDelightChartDatabase(
 
     override suspend fun getChartListCachedAt(
         chartId: Long,
-        weekDate: String,
+        weekDate: String?,
     ): Long? {
-        val week = database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull() ?: return null
+        val week = if (weekDate == null) {
+            database.chartQueries.selectLatestWeekForChart(chartId).awaitAsOneOrNull()
+        } else {
+            database.chartQueries.selectWeekByDate(weekDate).awaitAsOneOrNull()
+        } ?: return null
+
         return database.chartQueries.selectChartListByChartAndWeek(chartId, week.id)
             .awaitAsOneOrNull()?.cached_at
     }

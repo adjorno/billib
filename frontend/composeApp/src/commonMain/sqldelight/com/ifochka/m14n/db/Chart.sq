@@ -157,6 +157,13 @@ SELECT * FROM chart_list WHERE id = ?;
 selectChartListByChartAndWeek:
 SELECT * FROM chart_list WHERE chart_id = ? AND week_id = ?;
 
+selectLatestWeekForChart:
+SELECT week.* FROM week
+JOIN chart_list ON week_id = week.id
+WHERE chart_id = ?
+ORDER BY date DESC
+LIMIT 1;
+
 insertChartList:
 INSERT OR REPLACE INTO chart_list (id, chart_id, week_id, cached_at)
 VALUES (?, ?, ?, ?);
