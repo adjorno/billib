@@ -49,11 +49,17 @@ class ChartUpdateService(
         val newCharts = mutableListOf<String>()
         val skippedCharts = mutableListOf<String>()
         val failedCharts = mutableMapOf<String, String>()
+        val newWeeks = mutableMapOf<String, String>()
         charts.forEach { chartMeta ->
             logger.info("Checking: ${chartMeta.name}")
             runCatching { transactionTemplate.execute { importChart(chartMeta) } }
-                .onSuccess { name ->
-                    if (name != null) newCharts.add(name) else skippedCharts.add(chartMeta.name)
+                .onSuccess { result ->
+                    if (result != null) {
+                        newCharts.add(result.first)
+                        newWeeks[result.first] = result.second
+                    } else {
+                        skippedCharts.add(chartMeta.name)
+                    }
                 }
                 .onFailure { error ->
                     val errorType = when {
@@ -73,6 +79,7 @@ class ChartUpdateService(
             newCharts = newCharts,
             skippedCharts = skippedCharts,
             failedCharts = failedCharts,
+            newWeeks = newWeeks,
         )
     }
 
@@ -82,7 +89,7 @@ class ChartUpdateService(
         logger.info("Global rankings refreshed")
     }
 
-    private fun importChart(chartMeta: BBChartMetadata): String? {
+    private fun importChart(chartMeta: BBChartMetadata): Pair<String, String>? {
         val chart = chartRepository.findByName(chartMeta.name) ?: run {
             logger.warn("'${chartMeta.name}' not found in DB, skipping")
             return null
@@ -126,7 +133,7 @@ class ChartUpdateService(
             )
         }
         logger.info("Imported '${chartMeta.name}' ($dateStr, chartListId=${chartList.id})")
-        return chartMeta.name
+        return chartMeta.name to dateStr
     }
 
     private fun loadMetadata(): BBJournalMetadata {
@@ -139,4 +146,5 @@ data class ChartUpdateResult(
     val newCharts: List<String>,
     val skippedCharts: List<String>,
     val failedCharts: Map<String, String>,
+    val newWeeks: Map<String, String> = emptyMap(),
 )
