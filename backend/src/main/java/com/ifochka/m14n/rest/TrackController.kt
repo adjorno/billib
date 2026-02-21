@@ -2,9 +2,6 @@ package com.ifochka.m14n.rest
 
 import com.ifochka.m14n.rest.db.Artist
 import com.ifochka.m14n.rest.db.ArtistRepository
-import com.ifochka.m14n.rest.db.Chart
-import com.ifochka.m14n.rest.db.ChartRepository
-import com.ifochka.m14n.rest.db.ChartTrackRepository
 import com.ifochka.m14n.rest.db.DayTrack
 import com.ifochka.m14n.rest.db.DayTrackRepository
 import com.ifochka.m14n.rest.db.GlobalRankTrackRepository
@@ -24,14 +21,13 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class TrackController(
-    private val mChartRepository: ChartRepository,
     private val mTrackRepository: TrackRepository,
-    private val mChartTrackRepository: ChartTrackRepository,
     private val mEntityManager: EntityManager,
     private val mDayTrackRepository: DayTrackRepository,
     private val mArtistRepository: ArtistRepository,
     private val mGlobalRankTrackRepository: GlobalRankTrackRepository,
     private val mFcmService: FcmService,
+    private val mTrackService: TrackService,
 ) : ITrackController {
     @RequestMapping(value = ["/track/getById"], method = [RequestMethod.GET])
     fun track(
@@ -124,24 +120,7 @@ class TrackController(
     override fun getTrackHistory(
         id: Long,
         chartId: Long?,
-    ): Map<String, Map<String, Int>> {
-        val theTrack = mTrackRepository.findById(id).orElse(null)
-            ?: throw TrackNotFoundException()
-        val theRequestedChart = chartId?.let {
-            if (it > 0L) mChartRepository.findById(it).orElse(null) else null
-        }
-        val theCharts: Iterable<Chart> =
-            if (theRequestedChart == null) mChartRepository.findAll() else listOf(theRequestedChart)
-        val theFullHistory = mutableMapOf<String, MutableMap<String, Int>>()
-        val theChartTracks = mChartTrackRepository.findByTrackInCharts(theTrack, theCharts)
-        for (theChartTrack in theChartTracks) {
-            val theChartName = theChartTrack.chartList?.chart?.name ?: continue
-            val weekDate = theChartTrack.chartList?.week?.date ?: continue
-            val theChartHistory = theFullHistory.getOrPut(theChartName) { sortedMapOf() }
-            theChartHistory[weekDate] = theChartTrack.rank
-        }
-        return theFullHistory
-    }
+    ): Map<String, Map<String, Int>> = mTrackService.getTrackHistory(id, chartId)
 
     @RequestMapping(value = ["/track/info"], method = [RequestMethod.GET])
     fun getTrackInfo(

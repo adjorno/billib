@@ -1,6 +1,6 @@
 package com.ifochka.m14n.rest.notification
 
-import com.ifochka.m14n.rest.ITrackController
+import com.ifochka.m14n.rest.TrackService
 import com.ifochka.m14n.rest.db.ChartTrack
 import com.ifochka.m14n.rest.db.ChartTrackRepository
 import com.ifochka.m14n.rest.db.TrackRepository
@@ -11,6 +11,7 @@ import com.ifochka.m14n.rest.db.TrendType
 import com.ifochka.m14n.rest.db.TrendTypeRepository
 import com.ifochka.m14n.rest.db.Week
 import com.ifochka.m14n.rest.db.WeekRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -22,21 +23,21 @@ class TrendsService(
     private val weekRepository: WeekRepository,
     private val chartTrackRepository: ChartTrackRepository,
     private val trendTrackRepository: TrendTrackRepository,
-    private val trackController: ITrackController,
+    private val trackService: TrackService,
 ) {
+    private val logger = LoggerFactory.getLogger(TrendsService::class.java)
+
     companion object {
         private const val DB_LIST_SIZE_PER_TYPE = 50
 
         private fun getOrCreateGainerCache(
             trackId: Long,
             cache: MutableMap<Long, Long>,
-            trackController: ITrackController,
+            trackService: TrackService,
             week: Week,
         ): Long {
-            if (cache.containsKey(trackId)) {
-                return cache[trackId]!!
-            }
-            val theTrackHistory = trackController.getTrackHistory(trackId, 0L)
+            cache[trackId]?.let { return it }
+            val theTrackHistory = trackService.getTrackHistory(trackId, 0L)
             var gainerValue = 1L
             for (chartHistory in theTrackHistory.values) {
                 val theSortedHistory = chartHistory.entries.sortedByDescending { it.key }
@@ -53,7 +54,6 @@ class TrendsService(
                 }
             }
             cache[trackId] = gainerValue
-            println("CACHE ${cache.size}: $trackId $gainerValue")
             return gainerValue
         }
 
@@ -65,7 +65,8 @@ class TrendsService(
         private fun filterDebutsByCharts(
             original: List<Array<Any>>,
             blacklisted: List<Long>,
-        ): List<Array<Any>> = original.filter { !blacklisted.contains((it[0] as ChartTrack).chartList?.chart?.id) }
+        ): List<Array<Any>> =
+            original.filter { !blacklisted.contains((it.getOrNull(0) as? ChartTrack)?.chartList?.chart?.id) }
 
         // Blacklisted chart IDs: 13=Japan, 17=Gospel, 18=Christian
         private fun blacklistedCharts(): List<Long> = listOf(13L, 17L, 18L)
@@ -76,18 +77,18 @@ class TrendsService(
         week: String,
         type: Long,
     ) {
-        println("STARTED GENERATING TRENDS $week")
+        logger.info("Started generating trends for week {}", week)
         val theWeek = weekRepository.findByDate(week) ?: return
         if (type == TrendType.TYPE_ALL || type == TrendType.TYPE_GAINERS) generateGainers(theWeek)
         if (type == TrendType.TYPE_ALL || type == TrendType.TYPE_DEBUTS) generateDebuts(theWeek)
         if (type == TrendType.TYPE_ALL || type == TrendType.TYPE_FUTURES) generateFutures(theWeek)
         if (type == TrendType.TYPE_ALL || type == TrendType.TYPE_SENIORS) generateSeniors(theWeek)
-        println("FINISHED GENERATING TRENDS")
+        logger.info("Finished generating trends for week {}", week)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     private fun generateDebuts(week: Week) {
-        println("STARTED GENERATE DEBUTS")
+        logger.info("Generating debuts for week {}", week.date)
         val theBestDebuts = filterDebutsByCharts(
             chartTrackRepository.findDebuts(week.id!!),
             blacklistedCharts(),
@@ -95,20 +96,19 @@ class TrendsService(
         val theDebutsType = trendTypeRepository.findById(TrendType.TYPE_DEBUTS).orElse(null)
         val theDebuts = mutableSetOf<Long>()
         for (obj in theBestDebuts) {
-            val theChartTrack = obj[0] as ChartTrack
+            val theChartTrack = obj.getOrNull(0) as? ChartTrack ?: continue
             val track = theChartTrack.track ?: continue
             val trackId = track.id ?: continue
-            if (!theDebuts.contains(trackId)) {
+            if (theDebuts.add(trackId)) {
                 trendTrackRepository.save(TrendTrack(null, week, track, theDebutsType))
-                theDebuts.add(trackId)
             }
         }
-        println("FINISHED GENERATE DEBUTS")
+        logger.info("Generated {} debuts", theDebuts.size)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     private fun generateFutures(week: Week) {
-        println("STARTED GENERATE FUTURES")
+        logger.info("Generating futures for week {}", week.date)
         val theChartTracks = filterByCharts(
             chartTrackRepository.findByWeek(week),
             blacklistedCharts(),
@@ -127,12 +127,12 @@ class TrendsService(
             if (!seenTracks.add(trackId)) continue
             trendTrackRepository.save(TrendTrack(null, week, chartTrack.track, theFuturesType))
         }
-        println("FINISHED GENERATE FUTURES")
+        logger.info("Generated {} futures", seenTracks.size)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     private fun generateSeniors(week: Week) {
-        println("STARTED GENERATE SENIORS")
+        logger.info("Generating seniors for week {}", week.date)
         val theChartTracks = filterByCharts(chartTrackRepository.findByWeek(week), blacklistedCharts())
         val theTracks = trackRepository
             .sortByGlobalRank(TrackUtils.asTrackIds(TrackUtils.asTracks(theChartTracks)), DB_LIST_SIZE_PER_TYPE)
@@ -140,24 +140,24 @@ class TrendsService(
         for (theTrack in theTracks) {
             trendTrackRepository.save(TrendTrack(null, week, theTrack, theSeniorsType))
         }
-        println("FINISHED GENERATE SENIORS")
+        logger.info("Generated {} seniors", theTracks.size)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     private fun generateGainers(week: Week) {
-        println("STARTED GENERATE GAINERS")
+        logger.info("Generating gainers for week {}", week.date)
         val theGainersType = trendTypeRepository.findById(TrendType.TYPE_GAINERS).orElse(null)
         val theChartTracks = filterByCharts(chartTrackRepository.findByWeek(week), blacklistedCharts())
         val theTracks = TrackUtils.asTracks(theChartTracks)
         val theTrackIds = TrackUtils.asTrackIds(theTracks).toSet().toMutableList()
-        println("UNIQUE TRACKS ${theTrackIds.size}")
+        logger.info("Unique tracks for gainers: {}", theTrackIds.size)
         val theGainerCache = mutableMapOf<Long, Long>()
-        theTrackIds.sortByDescending { getOrCreateGainerCache(it, theGainerCache, trackController, week) }
+        theTrackIds.sortByDescending { getOrCreateGainerCache(it, theGainerCache, trackService, week) }
         for (i in 0 until minOf(DB_LIST_SIZE_PER_TYPE, theTrackIds.size)) {
             val theTrackId = theTrackIds[i]
             trendTrackRepository
                 .save(TrendTrack(null, week, TrackUtils.findTrack(theTracks, theTrackId), theGainersType))
         }
-        println("FINISHED GENERATE GAINERS")
+        logger.info("Generated {} gainers", minOf(DB_LIST_SIZE_PER_TYPE, theTrackIds.size))
     }
 }
