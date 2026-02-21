@@ -15,7 +15,7 @@ data class TrendType(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     @Column(name = "name", nullable = false)
-    var name: String,
+    var name: String = "",
     @Column(name = "description")
     var description: String? = null,
 ) {

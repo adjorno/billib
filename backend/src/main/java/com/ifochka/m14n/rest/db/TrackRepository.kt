@@ -13,7 +13,7 @@ interface TrackRepository : CrudRepository<Track, Long> {
             "    SELECT TRACK_ID, MIN(WEEK.DATE) MINWEEK FROM CHART_TRACK CT2\n" +
             "    INNER JOIN CHART_LIST ON CHART_LIST._ID = CT2.CHART_LIST_ID\n" +
             "    INNER JOIN WEEK ON WEEK.WEEK_ID = CHART_LIST.WEEK_ID\n" + "    GROUP BY TRACK_ID\n" +
-            "  ) T ON CT1.TRACK_ID = T.TRACK_ID AND DATE = T.MINWEEK\n" + "WHERE DATE LIKE CONCAT(\"%-\", ?1)",
+            "  ) T ON CT1.TRACK_ID = T.TRACK_ID AND DATE = T.MINWEEK\n" + "WHERE DATE LIKE CONCAT('%-', ?1)",
         nativeQuery = true,
     )
     fun findDebutsOfTheDay(day: String): List<Long>

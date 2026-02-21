@@ -120,8 +120,12 @@ class TrendsService(
                 .thenBy { it.chartList?.chart?.listSize ?: 0 },
         )
         val theFuturesType = trendTypeRepository.findById(TrendType.TYPE_FUTURES).orElse(null)
-        for (i in 0 until minOf(theChartTracks.size, DB_LIST_SIZE_PER_TYPE)) {
-            trendTrackRepository.save(TrendTrack(null, week, theChartTracks[i].track, theFuturesType))
+        val seenTracks = mutableSetOf<Long>()
+        for (chartTrack in theChartTracks) {
+            if (seenTracks.size >= DB_LIST_SIZE_PER_TYPE) break
+            val trackId = chartTrack.track?.id ?: continue
+            if (!seenTracks.add(trackId)) continue
+            trendTrackRepository.save(TrendTrack(null, week, chartTrack.track, theFuturesType))
         }
         println("FINISHED GENERATE FUTURES")
     }
