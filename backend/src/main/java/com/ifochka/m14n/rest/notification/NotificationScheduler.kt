@@ -1,6 +1,7 @@
 package com.ifochka.m14n.rest.notification
 
 import com.ifochka.m14n.rest.db.DayTrackRepository
+import com.ifochka.m14n.rest.db.TrendType
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -12,6 +13,8 @@ class NotificationScheduler(
     private val fcmService: FcmService,
     private val dayTrackRepository: DayTrackRepository,
     private val chartUpdateService: ChartUpdateService,
+    private val trendsService: TrendsService,
+    private val dayTrackService: DayTrackService,
 ) {
     private val logger = LoggerFactory.getLogger(NotificationScheduler::class.java)
 
@@ -39,6 +42,14 @@ class NotificationScheduler(
         val result = chartUpdateService.checkForNewCharts()
         val newCharts = result.newCharts
         if (newCharts.isEmpty()) return
+
+        val hot100Week = result.newWeeks["Hot 100"]
+        if (hot100Week != null) {
+            logger.info("Hot 100 imported for week $hot100Week — generating trends and filling DayTrack")
+            trendsService.generateTrends(hot100Week, TrendType.TYPE_ALL)
+            dayTrackService.fillNext14Days()
+        }
+
         val count = newCharts.size
         fcmService.sendToTopic(
             topic = "new-chart",
