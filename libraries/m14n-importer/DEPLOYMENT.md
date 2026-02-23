@@ -78,7 +78,7 @@ Start the local Spring app and generate the missing derived data.
 
 # Start on port 8081 (avoids conflict with other services)
 java -Dspring.profiles.active=local -Dserver.port=8081 \
-  -jar backend/build/libs/M14N-0.0.1.jar &
+  -jar backend/build/libs/M14N-*.jar &
 sleep 8  # Wait for startup
 ```
 
