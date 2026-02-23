@@ -34,7 +34,7 @@ fun App() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val topLevelRoutes = setOf(RouteHome, RouteHistory)
+            val topLevelRoutes = remember { setOf(RouteHome, RouteHistory) }
             val navigationState = rememberNavigationState(
                 startRoute = RouteHome,
                 topLevelRoutes = topLevelRoutes,
