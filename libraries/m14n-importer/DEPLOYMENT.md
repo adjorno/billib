@@ -32,7 +32,7 @@ Create and populate a fresh local database.
 dropdb m14ndb 2>/dev/null; createdb m14ndb
 
 # Apply schema
-psql -U adjorno -d m14ndb \
+psql -U YOUR_POSTGRES_USER -d m14ndb \
   -f libraries/m14n-importer/src/main/resources/db/schema.sql
 ```
 
