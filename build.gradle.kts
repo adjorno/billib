@@ -8,7 +8,6 @@ plugins {
     // Frontend plugins (apply false - will be applied in frontend modules)
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.multiplatformLibrary) apply false
-    alias(libs.plugins.composeHotReload) apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false

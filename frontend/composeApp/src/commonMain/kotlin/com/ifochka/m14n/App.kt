@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.ifochka.m14n.navigation.Navigator
@@ -24,7 +25,6 @@ import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
