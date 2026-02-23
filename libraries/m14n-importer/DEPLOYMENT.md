@@ -7,7 +7,7 @@ Deploy Billboard Charts database to Railway from raw JSON data.
 - Railway PostgreSQL service with public proxy URL
 - Railway CLI (`railway`) linked to the project
 - PostgreSQL client tools (`psql`, `pg_dump`)
-- Raw JSON data at `/Users/adjorno/Developer/Sources/m14ndata/data/`
+- Raw JSON data at /path/to/m14ndata/data/
 - Local PostgreSQL running with a `m14ndb` database
 
 ## Overview
