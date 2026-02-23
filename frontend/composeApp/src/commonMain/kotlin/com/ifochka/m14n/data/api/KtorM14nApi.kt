@@ -2,6 +2,8 @@ package com.ifochka.m14n.data.api
 
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
+import com.ifochka.m14n.data.model.DayTrack
+import com.ifochka.m14n.data.model.Trends
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -22,6 +24,20 @@ class KtorM14nApi(
         runCatching {
             httpClient.get("/chartList/getByDate") {
                 parameter("chart_id", chartId)
+                date?.let { parameter("date", it) }
+            }.body()
+        }
+
+    override suspend fun getTrends(date: String?): Result<Trends> =
+        runCatching {
+            httpClient.get("/trends") {
+                date?.let { parameter("date", it) }
+            }.body()
+        }
+
+    override suspend fun getDayTrack(date: String?): Result<DayTrack> =
+        runCatching {
+            httpClient.get("/track/day") {
                 date?.let { parameter("date", it) }
             }.body()
         }

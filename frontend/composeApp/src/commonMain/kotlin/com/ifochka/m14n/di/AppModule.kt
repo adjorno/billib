@@ -19,6 +19,7 @@ import com.ifochka.m14n.db.M14nDatabase
 import com.ifochka.m14n.share.ShareManager
 import com.ifochka.m14n.share.createShareManager
 import com.ifochka.m14n.ui.chart.ChartViewModel
+import com.ifochka.m14n.ui.home.HomeViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -68,4 +69,5 @@ val appModule = module {
 
     // ViewModels
     factoryOf(::ChartViewModel)
+    factoryOf(::HomeViewModel)
 }

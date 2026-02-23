@@ -60,6 +60,7 @@ kotlin {
             implementation(libs.coil.network.ktor3)
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines.extensions)
+            implementation(libs.androidx.nav3.ui)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
