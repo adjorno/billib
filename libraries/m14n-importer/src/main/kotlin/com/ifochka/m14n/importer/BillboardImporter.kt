@@ -18,6 +18,7 @@ class BillboardImporter(
     private val config: ImportConfig,
 ) {
     private val progress = ProgressTracker(config.enableProgressTracking)
+    private val json = Json { ignoreUnknownKeys = true }
 
     fun import() {
         progress.section("Billboard Chart Data Importer")
@@ -66,7 +67,7 @@ class BillboardImporter(
         if (!metadataFile.exists()) {
             throw RuntimeException("Metadata file not found: ${metadataFile.absolutePath}")
         }
-        return Json.decodeFromString<BBJournalMetadata>(metadataFile.readText())
+        return json.decodeFromString<BBJournalMetadata>(metadataFile.readText())
     }
 
     private fun scanChartFiles(metadata: BBJournalMetadata): List<BBChart> {
@@ -81,7 +82,7 @@ class BillboardImporter(
 
                 jsonFiles?.forEach { file ->
                     try {
-                        val chart = Json.decodeFromString<BBChart>(file.readText())
+                        val chart = json.decodeFromString<BBChart>(file.readText())
                         allCharts.add(chart)
                     } catch (e: Exception) {
                         progress.log("WARNING: Failed to parse ${file.name}: ${e.message}")
