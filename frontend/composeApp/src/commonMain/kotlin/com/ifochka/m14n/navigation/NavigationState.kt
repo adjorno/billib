@@ -59,15 +59,17 @@ fun rememberNavigationState(
 }
 
 @Composable
-fun NavigationState.toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): SnapshotStateList<NavEntry<NavKey>> {
-    val decoratedEntries = backStacks.mapValues { (_, stack) ->
+@Composable
+fun NavigationState.toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List<NavEntry<NavKey>> {
+    val decoratedEntries = backStacks.mapValues {
         rememberDecoratedNavEntries(
-            backStack = stack,
+            backStack = it.value,
             entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
             entryProvider = entryProvider,
         )
     }
-    return stacksInUse
-        .flatMap { decoratedEntries[it] ?: emptyList() }
-        .toMutableStateList()
+    return remember(stacksInUse, decoratedEntries) {
+        stacksInUse.flatMap { decoratedEntries[it] ?: emptyList() }
+    }
+}
 }
