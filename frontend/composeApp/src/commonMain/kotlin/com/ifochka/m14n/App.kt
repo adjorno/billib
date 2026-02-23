@@ -62,12 +62,14 @@ fun App() {
             ) { paddingValues ->
                 NavDisplay(
                     entries = navigationState.toEntries(
-                        entryProvider {
-                            entry<RouteHome> {
-                                HomeScreen()
-                            }
-                            entry<RouteHistory> {
-                                ChartScreen()
+                        remember {
+                            entryProvider {
+                                entry<RouteHome> {
+                                    HomeScreen()
+                                }
+                                entry<RouteHistory> {
+                                    ChartScreen()
+                                }
                             }
                         },
                     ),

@@ -3,6 +3,7 @@ package com.ifochka.m14n.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifochka.m14n.data.api.M14nApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,12 +16,15 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private var loadJob: Job? = null
+
     init {
         load()
     }
 
     fun load() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
 
             val dayTrackDeferred = async { api.getDayTrack() }

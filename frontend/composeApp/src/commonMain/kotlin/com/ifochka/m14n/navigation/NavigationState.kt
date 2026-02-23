@@ -7,8 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -59,7 +57,6 @@ fun rememberNavigationState(
 }
 
 @Composable
-@Composable
 fun NavigationState.toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List<NavEntry<NavKey>> {
     val decoratedEntries = backStacks.mapValues {
         rememberDecoratedNavEntries(
@@ -71,5 +68,4 @@ fun NavigationState.toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List
     return remember(stacksInUse, decoratedEntries) {
         stacksInUse.flatMap { decoratedEntries[it] ?: emptyList() }
     }
-}
 }
