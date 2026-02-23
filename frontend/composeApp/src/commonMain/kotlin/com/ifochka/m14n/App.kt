@@ -23,6 +23,7 @@ import com.ifochka.m14n.navigation.RouteHome
 import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
 import com.ifochka.m14n.ui.chart.ChartScreen
+import com.ifochka.m14n.ui.home.HomeScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -63,7 +64,7 @@ fun App() {
                     entries = navigationState.toEntries(
                         entryProvider {
                             entry<RouteHome> {
-                                Text("Home — coming soon")
+                                HomeScreen()
                             }
                             entry<RouteHistory> {
                                 ChartScreen()
