@@ -15,5 +15,5 @@ interface M14nApi {
 
     suspend fun getTrends(date: String? = null): Result<Trends>
 
-    suspend fun getDayTrack(): Result<DayTrack>
+    suspend fun getDayTrack(date: String? = null): Result<DayTrack>
 }

@@ -35,8 +35,10 @@ class KtorM14nApi(
             }.body()
         }
 
-    override suspend fun getDayTrack(): Result<DayTrack> =
+    override suspend fun getDayTrack(date: String?): Result<DayTrack> =
         runCatching {
-            httpClient.get("/track/day").body()
+            httpClient.get("/track/day") {
+                date?.let { parameter("date", it) }
+            }.body()
         }
 }
