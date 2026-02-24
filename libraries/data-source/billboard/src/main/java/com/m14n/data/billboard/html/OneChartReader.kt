@@ -3,12 +3,14 @@ package com.m14n.data.billboard.html
 import com.m14n.data.billboard.model.BBChart
 import com.m14n.data.billboard.model.BBJournalMetadata
 import com.m14n.data.billboard.parser.defaultChartListParser
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileWriter
 import java.util.Properties
 
+@OptIn(ExperimentalSerializationApi::class)
 private val jsonDecoder = Json {
     prettyPrint = true
     prettyPrintIndent = "  "
