@@ -1,6 +1,5 @@
 package com.ifochka.m14n.ui.bestsongs.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.util.DateUtils
 import com.ifochka.m14n.ui.bestsongs.BestSongsFilter
-import com.ifochka.m14n.ui.chart.components.ChartSelectorRow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
@@ -45,21 +43,6 @@ fun BestSongsFilterBar(
     var selectedStyle by remember { mutableIntStateOf(0) }
 
     Column(modifier = modifier) {
-        AnimatedVisibility(visible = selectedStyle == 0) {
-            Column {
-                ChartSelectorRow(
-                    availableCharts = availableCharts,
-                    selectedChart = filter.selectedChart,
-                    onChartSelected = { chartId ->
-                        availableCharts.find { it.id == chartId }?.let {
-                            onFilterChanged(filter.copy(selectedChart = it))
-                        }
-                    },
-                )
-                HorizontalDivider()
-            }
-        }
-
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -84,6 +67,7 @@ fun BestSongsFilterBar(
         Crossfade(targetState = selectedStyle) { style ->
             when (style) {
                 0 -> DateRangeModeSwitcher(
+                    availableCharts = availableCharts,
                     filter = filter,
                     onFilterChanged = onFilterChanged,
                     modifier = Modifier.fillMaxWidth(),

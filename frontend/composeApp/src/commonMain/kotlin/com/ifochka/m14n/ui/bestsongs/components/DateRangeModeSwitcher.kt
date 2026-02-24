@@ -11,8 +11,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,9 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.ui.bestsongs.BestSongsFilter
 import com.ifochka.m14n.ui.bestsongs.DateRange
+import com.ifochka.m14n.ui.chart.components.ChartSelectorRow
 
 private enum class AMode(
     val label: String,
@@ -52,6 +57,7 @@ private val SINCE_PRESETS = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateRangeModeSwitcher(
+    availableCharts: List<Chart>,
     filter: BestSongsFilter,
     onFilterChanged: (BestSongsFilter) -> Unit,
     modifier: Modifier = Modifier,
@@ -69,6 +75,16 @@ fun DateRangeModeSwitcher(
     var showToPicker by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
+        ChartSelectorRow(
+            availableCharts = availableCharts,
+            selectedChart = filter.selectedChart,
+            onChartSelected = { chartId ->
+                availableCharts.find { it.id == chartId }?.let {
+                    onFilterChanged(filter.copy(selectedChart = it))
+                }
+            },
+        )
+        HorizontalDivider()
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -284,5 +300,24 @@ private fun SinceCustomDialog(
             onDateSelected = { fromDate = it },
             onDismiss = { showDatePicker = false },
         )
+    }
+}
+
+@Preview
+@Composable
+fun DateRangeModeSwitcherPreview() {
+    val chart = Chart(id = 1, name = "Billboard Hot 100")
+    val filter = BestSongsFilter(
+        selectedChart = chart,
+        dateRange = DateRange.LastPeriod(years = 1),
+    )
+    androidx.compose.material3.MaterialTheme {
+        Surface {
+            DateRangeModeSwitcher(
+                availableCharts = listOf(chart, Chart(id = 2, name = "UK Singles Chart")),
+                filter = filter,
+                onFilterChanged = {},
+            )
+        }
     }
 }
