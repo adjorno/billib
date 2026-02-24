@@ -32,22 +32,7 @@ class SearchViewModel(
                 if (q.isBlank()) {
                     _uiState.value = SearchUiState.Idle
                 } else {
-                    _uiState.value = SearchUiState.Loading
-                    api.search(query = q).fold(
-                        onSuccess = { result ->
-                            _uiState.value = SearchUiState.Results(
-                                artists = result.artists?.results ?: emptyList(),
-                                artistsTotal = result.artists?.total ?: 0,
-                                tracks = result.tracks?.results ?: emptyList(),
-                                tracksTotal = result.tracks?.total ?: 0,
-                            )
-                        },
-                        onFailure = { error ->
-                            _uiState.value = SearchUiState.Error(
-                                message = error.message ?: "Search failed",
-                            )
-                        },
-                    )
+                    performSearch(q)
                 }
             }
         }
@@ -55,6 +40,32 @@ class SearchViewModel(
 
     fun setQuery(q: String) {
         _query.value = q
+    }
+
+    fun retry() {
+        val q = _query.value
+        if (q.isNotBlank()) {
+            viewModelScope.launch { performSearch(q) }
+        }
+    }
+
+    private suspend fun performSearch(q: String) {
+        _uiState.value = SearchUiState.Loading
+        api.search(query = q).fold(
+            onSuccess = { result ->
+                _uiState.value = SearchUiState.Results(
+                    artists = result.artists?.results ?: emptyList(),
+                    artistsTotal = result.artists?.total ?: 0,
+                    tracks = result.tracks?.results ?: emptyList(),
+                    tracksTotal = result.tracks?.total ?: 0,
+                )
+            },
+            onFailure = { error ->
+                _uiState.value = SearchUiState.Error(
+                    message = error.message ?: "Search failed",
+                )
+            },
+        )
     }
 
     suspend fun loadArtworkForTrack(track: Track) {
