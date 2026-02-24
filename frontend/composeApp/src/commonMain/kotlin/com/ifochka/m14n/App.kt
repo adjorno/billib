@@ -57,7 +57,7 @@ fun App() {
                         NavigationBarItem(
                             selected = navigationState.topLevelRoute == RouteBestSongs,
                             onClick = { navigator.navigate(RouteBestSongs) },
-                            icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Best") },
+                            icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Best Songs") },
                             label = { Text("Best") },
                         )
                         NavigationBarItem(
