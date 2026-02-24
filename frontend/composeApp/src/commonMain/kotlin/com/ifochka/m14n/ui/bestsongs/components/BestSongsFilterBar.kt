@@ -3,7 +3,6 @@ package com.ifochka.m14n.ui.bestsongs.components
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ifochka.m14n.data.model.Chart
@@ -96,12 +94,11 @@ fun BestSongsFilterBar(
                         onFilterChanged = onFilterChanged,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    1 -> Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("Natural language (coming in next iteration)")
-                    }
+                    1 -> DateRangeNaturalLanguage(
+                        filter = filter,
+                        onFilterChanged = onFilterChanged,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                     else -> DateRangePresetPicker(
                         filter = filter,
                         onFilterChanged = onFilterChanged,
