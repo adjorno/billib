@@ -3,6 +3,7 @@ package com.ifochka.m14n.data.api
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
+import com.ifochka.m14n.data.model.MergedSearchResult
 import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.data.model.Trends
 import io.ktor.client.HttpClient
@@ -55,6 +56,19 @@ class KtorM14nApi(
                 from?.let { parameter("from", it) }
                 to?.let { parameter("to", it) }
                 parameter("size", size)
+            }.body()
+        }
+
+    override suspend fun search(
+        query: String,
+        artistsSize: Int,
+        tracksSize: Int,
+    ): Result<MergedSearchResult> =
+        runCatching {
+            httpClient.get("/search") {
+                parameter("query", query)
+                parameter("artists_size", artistsSize)
+                parameter("tracks_size", tracksSize)
             }.body()
         }
 }
