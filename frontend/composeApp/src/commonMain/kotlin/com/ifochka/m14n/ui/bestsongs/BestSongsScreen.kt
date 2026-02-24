@@ -64,7 +64,6 @@ fun BestSongsScreen(viewModel: BestSongsViewModel = koinViewModel()) {
                     ChartTrack(
                         track = track,
                         rank = index + 1,
-                        lastWeekRank = index + 1,
                     )
                 }
                 Column(
