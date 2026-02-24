@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.3.0"
-springBoot = "3.5.0"
+springBoot = "4.0.3"
 springDependencyManagement = "1.1.7"
 postgreSQL = "42.7.10"
 jsoup = "1.22.1"
