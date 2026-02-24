@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,11 +24,13 @@ import com.ifochka.m14n.navigation.Navigator
 import com.ifochka.m14n.navigation.RouteBestSongs
 import com.ifochka.m14n.navigation.RouteHistory
 import com.ifochka.m14n.navigation.RouteHome
+import com.ifochka.m14n.navigation.RouteSearch
 import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
 import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
+import com.ifochka.m14n.ui.search.SearchScreen
 
 @Composable
 @Preview
@@ -37,7 +40,7 @@ fun App() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val topLevelRoutes = remember { setOf(RouteHome, RouteBestSongs, RouteHistory) }
+            val topLevelRoutes = remember { setOf(RouteHome, RouteBestSongs, RouteHistory, RouteSearch) }
             val navigationState = rememberNavigationState(
                 startRoute = RouteHome,
                 topLevelRoutes = topLevelRoutes,
@@ -66,6 +69,12 @@ fun App() {
                             icon = { Icon(imageVector = Icons.Default.BarChart, contentDescription = "History") },
                             label = { Text("History") },
                         )
+                        NavigationBarItem(
+                            selected = navigationState.topLevelRoute == RouteSearch,
+                            onClick = { navigator.navigate(RouteSearch) },
+                            icon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Search") },
+                            label = { Text("Search") },
+                        )
                     }
                 },
             ) { paddingValues ->
@@ -81,6 +90,9 @@ fun App() {
                                 }
                                 entry<RouteHistory> {
                                     ChartScreen()
+                                }
+                                entry<RouteSearch> {
+                                    SearchScreen()
                                 }
                             }
                         },

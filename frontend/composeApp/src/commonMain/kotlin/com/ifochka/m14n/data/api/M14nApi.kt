@@ -3,6 +3,7 @@ package com.ifochka.m14n.data.api
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
+import com.ifochka.m14n.data.model.MergedSearchResult
 import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.data.model.Trends
 
@@ -24,4 +25,10 @@ interface M14nApi {
         to: String? = null,
         size: Int = 100,
     ): Result<List<Track>>
+
+    suspend fun search(
+        query: String,
+        artistsSize: Int = 5,
+        tracksSize: Int = 10,
+    ): Result<MergedSearchResult>
 }
