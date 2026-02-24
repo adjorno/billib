@@ -1,10 +1,9 @@
 package com.ifochka.m14n.ui.bestsongs.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -33,8 +32,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-private val FILTER_CONTENT_HEIGHT = 88.dp
-private const val STYLE_COUNT = 3
+private const val STYLE_COUNT = 2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,17 +45,20 @@ fun BestSongsFilterBar(
     var selectedStyle by remember { mutableIntStateOf(0) }
 
     Column(modifier = modifier) {
-        ChartSelectorRow(
-            availableCharts = availableCharts,
-            selectedChart = filter.selectedChart,
-            onChartSelected = { chartId ->
-                availableCharts.find { it.id == chartId }?.let {
-                    onFilterChanged(filter.copy(selectedChart = it))
-                }
-            },
-        )
-
-        HorizontalDivider()
+        AnimatedVisibility(visible = selectedStyle == 0) {
+            Column {
+                ChartSelectorRow(
+                    availableCharts = availableCharts,
+                    selectedChart = filter.selectedChart,
+                    onChartSelected = { chartId ->
+                        availableCharts.find { it.id == chartId }?.let {
+                            onFilterChanged(filter.copy(selectedChart = it))
+                        }
+                    },
+                )
+                HorizontalDivider()
+            }
+        }
 
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
@@ -76,35 +77,23 @@ fun BestSongsFilterBar(
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = STYLE_COUNT),
                 label = { Text("B") },
             )
-            SegmentedButton(
-                selected = selectedStyle == 2,
-                onClick = { selectedStyle = 2 },
-                shape = SegmentedButtonDefaults.itemShape(index = 2, count = STYLE_COUNT),
-                label = { Text("C") },
-            )
         }
 
         HorizontalDivider()
 
-        Box(modifier = Modifier.height(FILTER_CONTENT_HEIGHT)) {
-            Crossfade(targetState = selectedStyle) { style ->
-                when (style) {
-                    0 -> DateRangeModeSwitcher(
-                        filter = filter,
-                        onFilterChanged = onFilterChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    1 -> DateRangeNaturalLanguage(
-                        filter = filter,
-                        onFilterChanged = onFilterChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    else -> DateRangePresetPicker(
-                        filter = filter,
-                        onFilterChanged = onFilterChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+        Crossfade(targetState = selectedStyle) { style ->
+            when (style) {
+                0 -> DateRangeModeSwitcher(
+                    filter = filter,
+                    onFilterChanged = onFilterChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                else -> DateRangeNaturalLanguage(
+                    availableCharts = availableCharts,
+                    filter = filter,
+                    onFilterChanged = onFilterChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
     }

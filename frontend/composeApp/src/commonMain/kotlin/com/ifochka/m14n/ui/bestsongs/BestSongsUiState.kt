@@ -15,6 +15,7 @@ sealed interface BestSongsUiState {
         val availableCharts: List<Chart>,
         val filter: BestSongsFilter,
         val tracks: List<Track>,
+        val isLoadingTracks: Boolean = false,
     ) : BestSongsUiState
 
     data class Error(

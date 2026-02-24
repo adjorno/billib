@@ -65,7 +65,12 @@ class BestSongsViewModel(
     ) {
         val chartId = filter.selectedChart.id ?: return
         val (from, to) = filter.dateRange.toFromTo()
-        _uiState.value = BestSongsUiState.Loading
+        val current = _uiState.value as? BestSongsUiState.Success
+        if (current != null) {
+            _uiState.value = current.copy(filter = filter, isLoadingTracks = true)
+        } else {
+            _uiState.value = BestSongsUiState.Loading
+        }
         api.getBestTracks(
             chartId = chartId,
             from = from,
@@ -76,6 +81,7 @@ class BestSongsViewModel(
                     availableCharts = charts,
                     filter = filter,
                     tracks = tracks,
+                    isLoadingTracks = false,
                 )
             }
             .onFailure {

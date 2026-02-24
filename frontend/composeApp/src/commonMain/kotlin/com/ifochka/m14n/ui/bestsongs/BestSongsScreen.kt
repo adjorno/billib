@@ -78,19 +78,28 @@ fun BestSongsScreen(viewModel: BestSongsViewModel = koinViewModel()) {
                         onFilterChanged = { viewModel.applyFilter(it) },
                     )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    ChartTrackList(
-                        chartTracks = chartTracks,
-                        onArtworkNeeded = viewModel::loadArtworkForTrack,
-                        onTrackLongPress = { chartTrack ->
-                            buildTrackText(chartTrack)?.let { text ->
-                                clipboardManager.setText(AnnotatedString(text))
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Copied to clipboard")
+                    if (state.isLoadingTracks) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        ChartTrackList(
+                            chartTracks = chartTracks,
+                            onArtworkNeeded = viewModel::loadArtworkForTrack,
+                            onTrackLongPress = { chartTrack ->
+                                buildTrackText(chartTrack)?.let { text ->
+                                    clipboardManager.setText(AnnotatedString(text))
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Copied to clipboard")
+                                    }
                                 }
-                            }
-                        },
-                        onTrackShare = null,
-                    )
+                            },
+                            onTrackShare = null,
+                        )
+                    }
                 }
             }
 

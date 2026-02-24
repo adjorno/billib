@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.ui.bestsongs.BestSongsFilter
 import com.ifochka.m14n.ui.bestsongs.DateRange
 
@@ -70,10 +71,12 @@ private val SINCE_DURATION_OPTIONS = listOf(1 to "1 year", 5 to "5 years", 10 to
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DateRangeNaturalLanguage(
+    availableCharts: List<Chart>,
     filter: BestSongsFilter,
     onFilterChanged: (BestSongsFilter) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showChartMenu by remember { mutableStateOf(false) }
     var showVerbMenu by remember { mutableStateOf(false) }
     var showDurationMenu by remember { mutableStateOf(false) }
     var showSinceFromMenu by remember { mutableStateOf(false) }
@@ -86,7 +89,24 @@ fun DateRangeNaturalLanguage(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(text = "Best songs", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Best", style = MaterialTheme.typography.bodyLarge)
+
+        Box {
+            UnderlineButton(text = filter.selectedChart.name ?: "chart") { showChartMenu = true }
+            DropdownMenu(expanded = showChartMenu, onDismissRequest = { showChartMenu = false }) {
+                availableCharts.forEach { chart ->
+                    DropdownMenuItem(
+                        text = { Text(chart.name ?: "") },
+                        onClick = {
+                            onFilterChanged(filter.copy(selectedChart = chart))
+                            showChartMenu = false
+                        },
+                    )
+                }
+            }
+        }
+
+        Text(text = "songs", style = MaterialTheme.typography.bodyLarge)
 
         Box {
             UnderlineButton(text = verbLabel(filter.dateRange)) { showVerbMenu = true }
