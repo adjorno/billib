@@ -81,7 +81,7 @@ fun DurationPickerDialog(
 }
 
 @Composable
-private fun NumberColumn(
+internal fun NumberColumn(
     label: String,
     value: Int,
     max: Int,
