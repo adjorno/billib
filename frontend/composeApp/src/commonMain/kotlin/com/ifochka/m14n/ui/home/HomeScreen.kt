@@ -51,7 +51,10 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                     DayTrackWidget(dayTrack = state.dayTrack)
                 }
                 items(state.trends.trendLists ?: emptyList()) { trendList ->
-                    TrendSection(trendList = trendList)
+                    TrendSection(
+                        trendList = trendList,
+                        onArtworkNeeded = viewModel::loadArtworkForTrendTrack,
+                    )
                 }
             }
         }
