@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Card
@@ -24,10 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.DayTrack
+import com.ifochka.m14n.data.model.Track
 
 @Composable
 fun DayTrackWidget(
@@ -35,7 +40,7 @@ fun DayTrackWidget(
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.widthIn(max = 480.dp).fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -61,7 +66,7 @@ fun DayTrackWidget(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1f)
+                        .aspectRatio(16f / 9f)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     if (!track.artworkUrl.isNullOrBlank()) {
@@ -90,6 +95,7 @@ fun DayTrackWidget(
                     Text(
                         text = track.title ?: "Unknown Title",
                         style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -114,5 +120,31 @@ fun DayTrackWidget(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun DayTrackWidgetWithTrackPreview() {
+    MaterialTheme {
+        DayTrackWidget(
+            dayTrack = DayTrack(
+                id = 1L,
+                track = Track(
+                    id = 1L,
+                    title = "Blinding Lights",
+                    artist = Artist(name = "The Weeknd"),
+                    artworkUrl = "https://example.com/artwork.jpg",
+                ),
+            ),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun DayTrackWidgetEmptyPreview() {
+    MaterialTheme {
+        DayTrackWidget(dayTrack = DayTrack())
     }
 }

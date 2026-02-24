@@ -13,6 +13,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,6 +39,9 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
         }
 
         is HomeUiState.Success -> {
+            LaunchedEffect(state.dayTrack.track?.id) {
+                viewModel.loadArtworkForDayTrack()
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
@@ -47,7 +51,10 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                     DayTrackWidget(dayTrack = state.dayTrack)
                 }
                 items(state.trends.trendLists ?: emptyList()) { trendList ->
-                    TrendSection(trendList = trendList)
+                    TrendSection(
+                        trendList = trendList,
+                        onArtworkNeeded = viewModel::loadArtworkForTrendTrack,
+                    )
                 }
             }
         }
