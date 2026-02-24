@@ -3,6 +3,7 @@ package com.ifochka.m14n.data.api
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
+import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.data.model.Trends
 
 interface M14nApi {
@@ -16,4 +17,11 @@ interface M14nApi {
     suspend fun getTrends(date: String? = null): Result<Trends>
 
     suspend fun getDayTrack(date: String? = null): Result<DayTrack>
+
+    suspend fun getBestTracks(
+        chartId: Long,
+        from: String? = null,
+        to: String? = null,
+        size: Int = 100,
+    ): Result<List<Track>>
 }
