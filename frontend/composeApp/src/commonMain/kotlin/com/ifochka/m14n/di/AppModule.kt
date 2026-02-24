@@ -18,6 +18,7 @@ import com.ifochka.m14n.data.repository.NetworkChartRepository
 import com.ifochka.m14n.db.M14nDatabase
 import com.ifochka.m14n.share.ShareManager
 import com.ifochka.m14n.share.createShareManager
+import com.ifochka.m14n.ui.bestsongs.BestSongsViewModel
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import com.ifochka.m14n.ui.home.HomeViewModel
 import io.ktor.client.HttpClient
@@ -68,6 +69,7 @@ val appModule = module {
     singleOf(::ChartRepository)
 
     // ViewModels
+    factoryOf(::BestSongsViewModel)
     factoryOf(::ChartViewModel)
     factoryOf(::HomeViewModel)
 }

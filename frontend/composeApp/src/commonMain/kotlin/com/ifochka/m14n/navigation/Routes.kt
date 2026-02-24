@@ -13,11 +13,15 @@ data object RouteHome : NavKey
 @Serializable
 data object RouteHistory : NavKey
 
+@Serializable
+data object RouteBestSongs : NavKey
+
 val navSavedStateConfig = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
             subclass(RouteHome::class, RouteHome.serializer())
             subclass(RouteHistory::class, RouteHistory.serializer())
+            subclass(RouteBestSongs::class, RouteBestSongs.serializer())
         }
     }
 }

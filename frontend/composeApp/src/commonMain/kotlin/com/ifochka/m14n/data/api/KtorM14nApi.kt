@@ -3,6 +3,7 @@ package com.ifochka.m14n.data.api
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
+import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.data.model.Trends
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -39,6 +40,21 @@ class KtorM14nApi(
         runCatching {
             httpClient.get("/track/day") {
                 date?.let { parameter("date", it) }
+            }.body()
+        }
+
+    override suspend fun getBestTracks(
+        chartId: Long,
+        from: String?,
+        to: String?,
+        size: Int,
+    ): Result<List<Track>> =
+        runCatching {
+            httpClient.get("/track/best") {
+                parameter("chart_id", chartId)
+                from?.let { parameter("from", it) }
+                to?.let { parameter("to", it) }
+                parameter("size", size)
             }.body()
         }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -19,10 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.ifochka.m14n.navigation.Navigator
+import com.ifochka.m14n.navigation.RouteBestSongs
 import com.ifochka.m14n.navigation.RouteHistory
 import com.ifochka.m14n.navigation.RouteHome
 import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
+import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
 
@@ -34,7 +37,7 @@ fun App() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val topLevelRoutes = remember { setOf(RouteHome, RouteHistory) }
+            val topLevelRoutes = remember { setOf(RouteHome, RouteBestSongs, RouteHistory) }
             val navigationState = rememberNavigationState(
                 startRoute = RouteHome,
                 topLevelRoutes = topLevelRoutes,
@@ -52,6 +55,12 @@ fun App() {
                             label = { Text("Home") },
                         )
                         NavigationBarItem(
+                            selected = navigationState.topLevelRoute == RouteBestSongs,
+                            onClick = { navigator.navigate(RouteBestSongs) },
+                            icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Best") },
+                            label = { Text("Best") },
+                        )
+                        NavigationBarItem(
                             selected = navigationState.topLevelRoute == RouteHistory,
                             onClick = { navigator.navigate(RouteHistory) },
                             icon = { Icon(imageVector = Icons.Default.BarChart, contentDescription = "History") },
@@ -66,6 +75,9 @@ fun App() {
                             entryProvider {
                                 entry<RouteHome> {
                                     HomeScreen()
+                                }
+                                entry<RouteBestSongs> {
+                                    BestSongsScreen()
                                 }
                                 entry<RouteHistory> {
                                     ChartScreen()
