@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 
 private const val MAX_YEARS = 99
 private const val MAX_MONTHS = 11
+private const val MAX_DAYS = 99
 
 @Composable
 fun DurationPickerDialog(
@@ -61,7 +62,7 @@ fun DurationPickerDialog(
                 NumberColumn(
                     label = "Days",
                     value = d,
-                    max = MAX_YEARS,
+                    max = MAX_DAYS,
                     onValueChange = { d = it },
                 )
             }

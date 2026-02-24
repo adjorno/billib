@@ -222,22 +222,15 @@ fun DateRangeNaturalLanguage(
 
     if (showDurationDialog) {
         val range = filter.dateRange
+        val (initialYears, initialMonths, initialDays) = when (range) {
+            is DateRange.LastPeriod -> Triple(range.years, range.months, range.days)
+            is DateRange.SinceForDuration -> Triple(range.durationYears, range.durationMonths, 0)
+            else -> Triple(0, 0, 0)
+        }
         DurationPickerDialog(
-            years = if (range is DateRange.LastPeriod) {
-                range.years
-            } else if (range is DateRange.SinceForDuration) {
-                range.durationYears
-            } else {
-                0
-            },
-            months = if (range is DateRange.LastPeriod) {
-                range.months
-            } else if (range is DateRange.SinceForDuration) {
-                range.durationMonths
-            } else {
-                0
-            },
-            days = if (range is DateRange.LastPeriod) range.days else 0,
+            years = initialYears,
+            months = initialMonths,
+            days = initialDays,
             onConfirm = { y, m, d ->
                 val newRange = when (range) {
                     is DateRange.LastPeriod -> DateRange.LastPeriod(years = y, months = m, days = d)

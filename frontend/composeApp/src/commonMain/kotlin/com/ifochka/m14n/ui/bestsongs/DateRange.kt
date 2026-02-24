@@ -34,8 +34,12 @@ fun DateRange.toFromTo(): Pair<String?, String?> {
         is DateRange.LastPeriod ->
             today.minus(DatePeriod(years, months, days)).toString() to today.toString()
         is DateRange.SinceForDuration -> {
-            val from = LocalDate.parse(fromDate)
-            fromDate to from.plus(DatePeriod(durationYears, durationMonths)).toString()
+            val from = runCatching { LocalDate.parse(fromDate) }.getOrNull()
+            if (from == null) {
+                null to null
+            } else {
+                fromDate to from.plus(DatePeriod(durationYears, durationMonths)).toString()
+            }
         }
         is DateRange.CustomRange -> from to to
     }
