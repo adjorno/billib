@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ifochka.m14n.data.model.ChartTrack
+import com.ifochka.m14n.ui.bestsongs.components.BestSongsFilterBar
 import com.ifochka.m14n.ui.chart.components.ChartTrackList
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -70,6 +72,12 @@ fun BestSongsScreen(viewModel: BestSongsViewModel = koinViewModel()) {
                         .fillMaxSize()
                         .padding(paddingValues),
                 ) {
+                    BestSongsFilterBar(
+                        availableCharts = state.availableCharts,
+                        filter = state.filter,
+                        onFilterChanged = { viewModel.applyFilter(it) },
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     ChartTrackList(
                         chartTracks = chartTracks,
                         onArtworkNeeded = viewModel::loadArtworkForTrack,
