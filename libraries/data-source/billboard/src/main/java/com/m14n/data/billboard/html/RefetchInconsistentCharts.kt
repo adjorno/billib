@@ -3,6 +3,7 @@ package com.m14n.data.billboard.html
 import com.m14n.data.billboard.model.BBChart
 import com.m14n.data.billboard.model.BBJournalMetadata
 import com.m14n.data.billboard.parser.defaultChartListParser
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -16,6 +17,7 @@ val INCONSISTENT_DATES = listOf(
     "2025-06-14",
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 private val jsonDecoder = Json {
     prettyPrint = true
     prettyPrintIndent = "  "

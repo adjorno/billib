@@ -50,7 +50,7 @@ private fun checkTheWholeChart(
             theChart = json.decodeFromString<BBChart>(theFile.readText())
             if (thePreviousChart != null) {
                 val chartConsistencyResult = defaultChartConsistencyChecker.check(
-                    previousChart = thePreviousChart!!,
+                    previousChart = thePreviousChart,
                     chart = theChart,
                 )
                 if (chartConsistencyResult.inconsistencies.isNotEmpty()) {

@@ -8,6 +8,7 @@ import com.m14n.data.billboard.model.BBTrack
 import com.m14n.data.billboard.parser.CurrentChartListParser
 import com.m14n.data.billboard.parser.dateParser
 import com.m14n.data.billboard.toChartDate
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -18,6 +19,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Properties
 
+@OptIn(ExperimentalSerializationApi::class)
 private val jsonDecoder = Json {
     prettyPrint = true
     prettyPrintIndent = "  "
