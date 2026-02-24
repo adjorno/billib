@@ -5,7 +5,7 @@ import com.ifochka.m14n.data.model.Track
 
 data class BestSongsFilter(
     val selectedChart: Chart,
-    val datePreset: DatePreset = DatePreset.AllTime,
+    val dateRange: DateRange = DateRange.AllTime,
 )
 
 sealed interface BestSongsUiState {

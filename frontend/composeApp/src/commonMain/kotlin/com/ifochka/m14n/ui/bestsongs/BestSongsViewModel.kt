@@ -64,7 +64,7 @@ class BestSongsViewModel(
         filter: BestSongsFilter,
     ) {
         val chartId = filter.selectedChart.id ?: return
-        val (from, to) = filter.datePreset.toFromTo()
+        val (from, to) = filter.dateRange.toFromTo()
         _uiState.value = BestSongsUiState.Loading
         api.getBestTracks(
             chartId = chartId,

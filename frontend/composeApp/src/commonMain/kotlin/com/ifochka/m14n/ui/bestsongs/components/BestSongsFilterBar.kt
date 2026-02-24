@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.util.DateUtils
 import com.ifochka.m14n.ui.bestsongs.BestSongsFilter
-import com.ifochka.m14n.ui.bestsongs.DatePreset
+import com.ifochka.m14n.ui.bestsongs.DateRange
 import com.ifochka.m14n.ui.chart.components.ChartSelectorRow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -35,18 +35,14 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-private const val DECADE_2000S = 2000
-private const val DECADE_2010S = 2010
-private const val DECADE_2020S = 2020
-
-private val DATE_PRESETS = listOf(
-    DatePreset.AllTime to "All Time",
-    DatePreset.Last3Months to "Last 3M",
-    DatePreset.LastYear to "Last Year",
-    DatePreset.Decade(startYear = DECADE_2000S) to "2000s",
-    DatePreset.Decade(startYear = DECADE_2010S) to "2010s",
-    DatePreset.Decade(startYear = DECADE_2020S) to "2020s",
-    DatePreset.Custom(from = null, to = null) to "Custom",
+private val DATE_RANGES = listOf(
+    DateRange.AllTime to "All Time",
+    DateRange.LastPeriod(months = 3) to "Last 3M",
+    DateRange.LastPeriod(years = 1) to "Last Year",
+    DateRange.SinceForDuration(fromDate = "2000-01-01", durationYears = 10) to "2000s",
+    DateRange.SinceForDuration(fromDate = "2010-01-01", durationYears = 10) to "2010s",
+    DateRange.SinceForDuration(fromDate = "2020-01-01", durationYears = 5) to "2020s",
+    DateRange.CustomRange(from = null, to = null) to "Custom",
 )
 
 @Composable
@@ -76,25 +72,23 @@ fun BestSongsFilterBar(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(items = DATE_PRESETS, key = { (_, label) -> label }) { (preset, label) ->
+            items(items = DATE_RANGES, key = { (_, label) -> label }) { (range, label) ->
                 val isSelected = when {
-                    preset is DatePreset.Custom -> filter.datePreset is DatePreset.Custom
-                    preset is DatePreset.Decade && filter.datePreset is DatePreset.Decade ->
-                        preset.startYear == (filter.datePreset as DatePreset.Decade).startYear
-                    else -> preset == filter.datePreset
+                    range is DateRange.CustomRange -> filter.dateRange is DateRange.CustomRange
+                    else -> range == filter.dateRange
                 }
                 FilterChip(
                     selected = isSelected,
                     onClick = {
-                        val newPreset = if (preset is DatePreset.Custom) {
-                            (filter.datePreset as? DatePreset.Custom) ?: DatePreset.Custom(
+                        val newRange = if (range is DateRange.CustomRange) {
+                            (filter.dateRange as? DateRange.CustomRange) ?: DateRange.CustomRange(
                                 from = null,
                                 to = null,
                             )
                         } else {
-                            preset
+                            range
                         }
-                        onFilterChanged(filter.copy(datePreset = newPreset))
+                        onFilterChanged(filter.copy(dateRange = newRange))
                     },
                     label = { Text(label) },
                     modifier = Modifier.padding(vertical = 4.dp),
@@ -102,8 +96,8 @@ fun BestSongsFilterBar(
             }
         }
 
-        if (filter.datePreset is DatePreset.Custom) {
-            val custom = filter.datePreset
+        if (filter.dateRange is DateRange.CustomRange) {
+            val custom = filter.dateRange
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,10 +116,11 @@ fun BestSongsFilterBar(
 
     if (showFromPicker) {
         BestSongsDatePicker(
-            currentDate = (filter.datePreset as? DatePreset.Custom)?.from,
+            currentDate = (filter.dateRange as? DateRange.CustomRange)?.from,
             onDateSelected = { date ->
-                val current = filter.datePreset as? DatePreset.Custom ?: DatePreset.Custom(null, null)
-                onFilterChanged(filter.copy(datePreset = current.copy(from = date)))
+                val current = filter.dateRange as? DateRange.CustomRange
+                    ?: DateRange.CustomRange(from = null, to = null)
+                onFilterChanged(filter.copy(dateRange = current.copy(from = date)))
                 showFromPicker = false
             },
             onDismiss = { showFromPicker = false },
@@ -134,10 +129,11 @@ fun BestSongsFilterBar(
 
     if (showToPicker) {
         BestSongsDatePicker(
-            currentDate = (filter.datePreset as? DatePreset.Custom)?.to,
+            currentDate = (filter.dateRange as? DateRange.CustomRange)?.to,
             onDateSelected = { date ->
-                val current = filter.datePreset as? DatePreset.Custom ?: DatePreset.Custom(null, null)
-                onFilterChanged(filter.copy(datePreset = current.copy(to = date)))
+                val current = filter.dateRange as? DateRange.CustomRange
+                    ?: DateRange.CustomRange(from = null, to = null)
+                onFilterChanged(filter.copy(dateRange = current.copy(to = date)))
                 showToPicker = false
             },
             onDismiss = { showToPicker = false },
@@ -147,7 +143,7 @@ fun BestSongsFilterBar(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
-private fun BestSongsDatePicker(
+internal fun BestSongsDatePicker(
     currentDate: String?,
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
