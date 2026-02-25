@@ -1,5 +1,6 @@
 package com.ifochka.m14n.rest.db
 
+import com.ifochka.m14n.rest.catalog.domain.Track
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying

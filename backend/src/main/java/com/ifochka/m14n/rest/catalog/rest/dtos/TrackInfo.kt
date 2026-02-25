@@ -1,6 +1,6 @@
-package com.ifochka.m14n.rest.model
+package com.ifochka.m14n.rest.catalog.rest.dtos
 
-import com.ifochka.m14n.rest.db.Track
+import com.ifochka.m14n.rest.catalog.domain.Track
 
 data class TrackInfo(
     var track: Track? = null,

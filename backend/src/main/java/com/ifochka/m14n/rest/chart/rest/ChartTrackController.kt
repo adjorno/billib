@@ -1,11 +1,11 @@
 package com.ifochka.m14n.rest.chart.rest
 
+import com.ifochka.m14n.rest.catalog.domain.Track
+import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.chart.domain.ChartList
 import com.ifochka.m14n.rest.chart.domain.ChartListRepository
 import com.ifochka.m14n.rest.chart.domain.ChartTrack
 import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
-import com.ifochka.m14n.rest.db.Track
-import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.shared.ChartListNotFoundException
 import com.ifochka.m14n.rest.shared.TrackNotFoundException
 import org.springframework.data.domain.Sort

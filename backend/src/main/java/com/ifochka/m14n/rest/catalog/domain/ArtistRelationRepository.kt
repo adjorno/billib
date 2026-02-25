@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.catalog.domain
 
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -50,11 +50,9 @@ interface ArtistRelationRepository : CrudRepository<ArtistRelation, Long> {
 
     fun findByMemberArtist(artist: Artist): List<ArtistRelation>
 
-    // Find all collaborations where the artist is a member
     @Query(value = "select ar from ArtistRelation ar where ar.memberArtist = ?1")
     fun findCollaborationsByMember(artist: Artist): List<ArtistRelation>
 
-    // Find all members of collaborations that the artist is in (either as collaboration or as member)
     @Query(value = "select ar from ArtistRelation ar where ar.collaborationArtist = ?1 or ar.memberArtist = ?1")
     fun findByArtist(artist: Artist): List<ArtistRelation>
 }

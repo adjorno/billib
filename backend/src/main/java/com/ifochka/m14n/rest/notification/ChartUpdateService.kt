@@ -1,5 +1,9 @@
 package com.ifochka.m14n.rest.notification
 
+import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.ArtistRepository
+import com.ifochka.m14n.rest.catalog.domain.Track
+import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.chart.domain.ChartList
 import com.ifochka.m14n.rest.chart.domain.ChartListRepository
 import com.ifochka.m14n.rest.chart.domain.ChartRepository
@@ -7,10 +11,6 @@ import com.ifochka.m14n.rest.chart.domain.ChartTrack
 import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
 import com.ifochka.m14n.rest.chart.domain.Week
 import com.ifochka.m14n.rest.chart.domain.WeekRepository
-import com.ifochka.m14n.rest.db.Artist
-import com.ifochka.m14n.rest.db.ArtistRepository
-import com.ifochka.m14n.rest.db.Track
-import com.ifochka.m14n.rest.db.TrackRepository
 import com.m14n.data.billboard.BB
 import com.m14n.data.billboard.html.BBHtmlParser
 import com.m14n.data.billboard.model.BBChartMetadata

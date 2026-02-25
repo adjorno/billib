@@ -1,9 +1,9 @@
 package com.ifochka.m14n.rest
 
-import com.ifochka.m14n.rest.db.Artist
-import com.ifochka.m14n.rest.db.ArtistUtils
-import com.ifochka.m14n.rest.db.Track
-import com.ifochka.m14n.rest.db.TrackUtils
+import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.ArtistUtils
+import com.ifochka.m14n.rest.catalog.domain.Track
+import com.ifochka.m14n.rest.catalog.domain.TrackUtils
 import com.ifochka.m14n.rest.model.MergedSearchResult
 import com.ifochka.m14n.rest.model.SearchResult
 import jakarta.persistence.EntityManager

@@ -1,7 +1,7 @@
-package com.ifochka.m14n.rest.model
+package com.ifochka.m14n.rest.catalog.rest.dtos
 
-import com.ifochka.m14n.rest.db.Artist
-import com.ifochka.m14n.rest.db.Track
+import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.Track
 
 class ArtistInfo(
     var artist: Artist? = null,

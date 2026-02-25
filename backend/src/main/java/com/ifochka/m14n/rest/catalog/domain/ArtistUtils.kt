@@ -1,5 +1,6 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.catalog.domain
 
+import com.ifochka.m14n.rest.db.DuplicateArtistRepository
 import java.util.regex.Pattern
 
 object ArtistUtils {
@@ -115,28 +116,14 @@ object ArtistUtils {
                     "| ( \\+ )".toRegex(),
             ).toTypedArray()
 
-    /**
-     * Returns all collaboration artists (e.g., "A, B, C") from the relations.
-     */
     @JvmStatic
     fun asCollaborationArtists(artistRelations: List<ArtistRelation>): List<Artist> =
         artistRelations.mapNotNull { it.collaborationArtist }
 
-    /**
-     * Returns all member artists (individual artists who are part of collaborations).
-     */
     @JvmStatic
     fun asMemberArtists(artistRelations: List<ArtistRelation>): List<Artist> =
         artistRelations.mapNotNull { it.memberArtist }
 
-    /**
-     * For a given artist, extracts all collaborating artists from the relations.
-     * - If artist is a collaboration (e.g., "A, B, C"), returns all its members: [A, B, C]
-     * - If artist is a member, returns all OTHER members from the same collaborations
-     *
-     * Note: For the second case, this only works if artistRelations includes ALL relations
-     * for the collaborations, not just relations involving excludeArtist.
-     */
     @JvmStatic
     fun extractCollaborators(
         artistRelations: List<ArtistRelation>,
@@ -144,17 +131,14 @@ object ArtistUtils {
     ): List<Artist> {
         val collaborators = mutableSetOf<Artist>()
 
-        // Case 1: Artist is a collaboration - return all its members
         artistRelations.filter { it.collaborationArtist?.id == excludeArtist.id }
             .forEach { it.memberArtist?.let { member -> collaborators.add(member) } }
 
-        // Case 2: Artist is a member - find all other members from same collaborations
         val collaborationsAsMember = artistRelations
             .filter { it.memberArtist?.id == excludeArtist.id }
             .mapNotNull { it.collaborationArtist }
             .toSet()
 
-        // For each collaboration this artist is a member of, add all other members
         collaborationsAsMember.forEach { collab ->
             artistRelations.filter {
                 it.collaborationArtist?.id == collab.id && it.memberArtist?.id != excludeArtist.id

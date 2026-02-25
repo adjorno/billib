@@ -1,13 +1,13 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.catalog.rest
 
-import com.ifochka.m14n.rest.db.Artist
-import com.ifochka.m14n.rest.db.ArtistRelationRepository
-import com.ifochka.m14n.rest.db.ArtistRepository
-import com.ifochka.m14n.rest.db.ArtistUtils
+import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.ArtistRelationRepository
+import com.ifochka.m14n.rest.catalog.domain.ArtistRepository
+import com.ifochka.m14n.rest.catalog.domain.ArtistUtils
+import com.ifochka.m14n.rest.catalog.rest.dtos.ArtistInfo
 import com.ifochka.m14n.rest.db.DuplicateArtist
 import com.ifochka.m14n.rest.db.DuplicateArtistRepository
 import com.ifochka.m14n.rest.db.GlobalRankArtistRepository
-import com.ifochka.m14n.rest.model.ArtistInfo
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -67,16 +67,13 @@ open class ArtistController {
     ): List<Artist> {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
 
-        // Find all relations involving this artist (as collaboration or as member)
         val directRelations = artistRelationRepository.findByArtist(theArtist)
 
-        // If artist is a member, we need to fetch ALL relations for those collaborations
         val collaborationArtists = directRelations
             .filter { it.memberArtist?.id == theArtist.id }
             .mapNotNull { it.collaborationArtist }
 
         val allRelations = if (collaborationArtists.isNotEmpty()) {
-            // Fetch all relations for these collaborations to get all members
             val allCollabRelations = collaborationArtists.flatMap {
                 artistRelationRepository.findByCollaborationArtist(it)
             }
@@ -91,7 +88,6 @@ open class ArtistController {
             return emptyList()
         }
 
-        // Sort by global rank and limit if requested
         val requestedSize = if (size == 0) collaborators.size else size
         return artistRepository.sortByGlobalRank(
             ArtistUtils.asArtistIds(collaborators),

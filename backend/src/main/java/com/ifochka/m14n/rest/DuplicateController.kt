@@ -1,21 +1,21 @@
 package com.ifochka.m14n.rest
 
+import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.ArtistRelationRepository
+import com.ifochka.m14n.rest.catalog.domain.ArtistRepository
+import com.ifochka.m14n.rest.catalog.domain.ArtistUtils
+import com.ifochka.m14n.rest.catalog.domain.Track
+import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.chart.domain.ChartList
 import com.ifochka.m14n.rest.chart.domain.ChartListRepository
 import com.ifochka.m14n.rest.chart.domain.ChartTrack
 import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
 import com.ifochka.m14n.rest.chart.rest.ChartTrackController
-import com.ifochka.m14n.rest.db.Artist
-import com.ifochka.m14n.rest.db.ArtistRelationRepository
-import com.ifochka.m14n.rest.db.ArtistRepository
-import com.ifochka.m14n.rest.db.ArtistUtils
 import com.ifochka.m14n.rest.db.DayTrackRepository
 import com.ifochka.m14n.rest.db.DuplicateArtist
 import com.ifochka.m14n.rest.db.DuplicateArtistRepository
 import com.ifochka.m14n.rest.db.DuplicateTrack
 import com.ifochka.m14n.rest.db.DuplicateTrackRepository
-import com.ifochka.m14n.rest.db.Track
-import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.db.TrendTrackRepository
 import com.ifochka.m14n.rest.model.MergeOperation
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException

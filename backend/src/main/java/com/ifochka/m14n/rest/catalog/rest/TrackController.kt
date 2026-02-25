@@ -1,14 +1,15 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.catalog.rest
 
-import com.ifochka.m14n.rest.db.Artist
-import com.ifochka.m14n.rest.db.ArtistRepository
+import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.ArtistRepository
+import com.ifochka.m14n.rest.catalog.domain.Track
+import com.ifochka.m14n.rest.catalog.domain.TrackRepository
+import com.ifochka.m14n.rest.catalog.domain.TrackService
+import com.ifochka.m14n.rest.catalog.domain.TrackUtils
+import com.ifochka.m14n.rest.catalog.rest.dtos.TrackInfo
 import com.ifochka.m14n.rest.db.DayTrack
 import com.ifochka.m14n.rest.db.DayTrackRepository
 import com.ifochka.m14n.rest.db.GlobalRankTrackRepository
-import com.ifochka.m14n.rest.db.Track
-import com.ifochka.m14n.rest.db.TrackRepository
-import com.ifochka.m14n.rest.db.TrackUtils
-import com.ifochka.m14n.rest.model.TrackInfo
 import com.ifochka.m14n.rest.notification.FcmService
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import com.ifochka.m14n.rest.shared.M14n
@@ -74,7 +75,6 @@ class TrackController(
         val results = mEntityManager.createNativeQuery(TrackUtils.getBestTracksQuery(chartId, size, from, to))
             .resultList as List<Array<Any>>
 
-        // Manually map Object[] results to Track entities
         return results.map { row ->
             val artist = Artist(
                 id = (row[7] as? Number)?.toLong(),

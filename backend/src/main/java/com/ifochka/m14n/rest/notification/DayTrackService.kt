@@ -1,8 +1,8 @@
 package com.ifochka.m14n.rest.notification
 
+import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.db.DayTrack
 import com.ifochka.m14n.rest.db.DayTrackRepository
-import com.ifochka.m14n.rest.db.TrackRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

@@ -1,5 +1,6 @@
 package com.ifochka.m14n.rest.db
 
+import com.ifochka.m14n.rest.catalog.domain.Track
 import com.ifochka.m14n.rest.chart.domain.Week
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

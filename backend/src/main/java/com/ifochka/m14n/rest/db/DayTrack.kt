@@ -1,5 +1,6 @@
 package com.ifochka.m14n.rest.db
 
+import com.ifochka.m14n.rest.catalog.domain.Track
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
