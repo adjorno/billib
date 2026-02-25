@@ -26,11 +26,7 @@ fun ChartPositionBadge(
             text = rank.toString(),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = if (rank <= 10) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
+            color = MaterialTheme.colorScheme.onSurface,
         )
         RankChangeIndicator(badge = badge)
     }

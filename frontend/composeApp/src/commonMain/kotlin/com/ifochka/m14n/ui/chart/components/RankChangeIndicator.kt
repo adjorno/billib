@@ -1,16 +1,15 @@
 package com.ifochka.m14n.ui.chart.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,19 +27,19 @@ fun RankChangeIndicator(
 ) {
     when (badge) {
         is PositionBadge.New -> {
-            Box(
-                modifier = modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(4.dp),
-                    )
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape,
+                modifier = modifier,
             ) {
                 Text(
                     text = "NEW",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
                     color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
                 )
             }
         }
