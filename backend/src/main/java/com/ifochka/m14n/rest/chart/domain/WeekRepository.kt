@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

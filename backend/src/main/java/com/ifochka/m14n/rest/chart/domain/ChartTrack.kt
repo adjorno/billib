@@ -1,6 +1,7 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.ifochka.m14n.rest.db.Track
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -11,26 +12,24 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "CHART_LIST")
-data class ChartList(
+@Table(name = "CHART_TRACK")
+data class ChartTrack(
     @Id
     @Column(name = "_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     var id: Long? = null,
     @OneToOne
-    @JoinColumn(name = "CHART_ID")
-    var chart: Chart? = null,
+    @JoinColumn(name = "TRACK_ID")
+    var track: Track? = null,
     @OneToOne
-    @JoinColumn(name = "WEEK_ID")
-    var week: Week? = null,
-    @Column(name = "NUMBER")
+    @JoinColumn(name = "CHART_LIST_ID")
     @JsonIgnore
-    var number: Int? = null,
-    @Column(name = "PREVIOUS_CHART_LIST_ID")
-    @JsonIgnore
-    var previousChartListId: Long? = null,
-    @Transient
-    var chartTracks: List<ChartTrack>? = null,
+    var chartList: ChartList? = null,
+    @Column(name = "_RANK")
+    var rank: Int = 0,
+    @Column(name = "LAST_WEEK_RANK")
+    var lastWeekRank: Int = 0,
 ) {
-    override fun toString() = "$number. $chart $week"
+    override fun toString() = "$chartList - $rank. $track"
 }

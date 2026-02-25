@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -8,14 +8,12 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "WEEK")
-data class Week(
+@Table(name = "JOURNAL")
+data class Journal(
     @Id
-    @Column(name = "WEEK_ID")
+    @Column(name = "_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-    @Column(name = "DATE")
-    var date: String? = null,
-) {
-    override fun toString() = date.toString()
-}
+    @Column(name = "NAME")
+    var name: String? = null,
+)

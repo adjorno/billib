@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
@@ -11,24 +11,26 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "CHART_TRACK")
-data class ChartTrack(
+@Table(name = "CHART_LIST")
+data class ChartList(
     @Id
     @Column(name = "_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     var id: Long? = null,
     @OneToOne
-    @JoinColumn(name = "TRACK_ID")
-    var track: Track? = null,
+    @JoinColumn(name = "CHART_ID")
+    var chart: Chart? = null,
     @OneToOne
-    @JoinColumn(name = "CHART_LIST_ID")
+    @JoinColumn(name = "WEEK_ID")
+    var week: Week? = null,
+    @Column(name = "NUMBER")
     @JsonIgnore
-    var chartList: ChartList? = null,
-    @Column(name = "_RANK")
-    var rank: Int = 0,
-    @Column(name = "LAST_WEEK_RANK")
-    var lastWeekRank: Int = 0,
+    var number: Int? = null,
+    @Column(name = "PREVIOUS_CHART_LIST_ID")
+    @JsonIgnore
+    var previousChartListId: Long? = null,
+    @Transient
+    var chartTracks: List<ChartTrack>? = null,
 ) {
-    override fun toString() = "$chartList - $rank. $track"
+    override fun toString() = "$number. $chart $week"
 }

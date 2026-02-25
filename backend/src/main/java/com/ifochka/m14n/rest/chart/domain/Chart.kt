@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.Column

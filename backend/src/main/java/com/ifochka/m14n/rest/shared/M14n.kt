@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.shared
 
 import java.text.SimpleDateFormat
 

@@ -34,6 +34,7 @@ androidx-nav3 = "1.0.0-alpha06"
 googleServices = "4.4.4"
 firebase-bom = "34.9.0"
 firebase-admin = "9.7.1"
+spring-modulith = "2.0.3"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -100,6 +101,10 @@ sqldelight-web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+
+spring-modulith-bom = { module = "org.springframework.modulith:spring-modulith-bom", version.ref = "spring-modulith" }
+spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core", version.ref = "spring-modulith" }
+spring-modulith-starter-test = { module = "org.springframework.modulith:spring-modulith-starter-test", version.ref = "spring-modulith" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

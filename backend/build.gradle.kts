@@ -40,6 +40,10 @@ dependencies {
     implementation(libs.firebase.admin)
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(platform(libs.spring.modulith.bom))
+    implementation(libs.spring.modulith.starter.core)
+    testImplementation(libs.spring.modulith.starter.test)
+
     // Project dependencies
     implementation(project(":libraries:data-source:billboard"))
 }

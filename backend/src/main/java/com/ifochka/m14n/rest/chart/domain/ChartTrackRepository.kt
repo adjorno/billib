@@ -1,5 +1,6 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
+import com.ifochka.m14n.rest.db.Track
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

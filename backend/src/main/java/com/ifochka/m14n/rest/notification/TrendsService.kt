@@ -1,16 +1,16 @@
 package com.ifochka.m14n.rest.notification
 
 import com.ifochka.m14n.rest.TrackService
-import com.ifochka.m14n.rest.db.ChartTrack
-import com.ifochka.m14n.rest.db.ChartTrackRepository
+import com.ifochka.m14n.rest.chart.domain.ChartTrack
+import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
+import com.ifochka.m14n.rest.chart.domain.Week
+import com.ifochka.m14n.rest.chart.domain.WeekRepository
 import com.ifochka.m14n.rest.db.TrackRepository
 import com.ifochka.m14n.rest.db.TrackUtils
 import com.ifochka.m14n.rest.db.TrendTrack
 import com.ifochka.m14n.rest.db.TrendTrackRepository
 import com.ifochka.m14n.rest.db.TrendType
 import com.ifochka.m14n.rest.db.TrendTypeRepository
-import com.ifochka.m14n.rest.db.Week
-import com.ifochka.m14n.rest.db.WeekRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation

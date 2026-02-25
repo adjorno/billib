@@ -1,5 +1,7 @@
 package com.ifochka.m14n.rest.db
 
+import com.ifochka.m14n.rest.chart.domain.ChartTrack
+
 object TrackUtils {
     @JvmStatic
     fun asTracks(tracks: List<ChartTrack>): List<Track> = tracks.mapNotNull { it.track }

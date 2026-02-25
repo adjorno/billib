@@ -1,7 +1,7 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.chart.rest
 
-import com.ifochka.m14n.rest.db.Chart
-import com.ifochka.m14n.rest.db.ChartRepository
+import com.ifochka.m14n.rest.chart.domain.Chart
+import com.ifochka.m14n.rest.chart.domain.ChartRepository
 import com.ifochka.m14n.rest.notification.ChartUpdateResult
 import com.ifochka.m14n.rest.notification.ChartUpdateService
 import com.ifochka.m14n.rest.notification.FcmService

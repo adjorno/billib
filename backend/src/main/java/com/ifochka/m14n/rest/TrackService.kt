@@ -1,8 +1,9 @@
 package com.ifochka.m14n.rest
 
-import com.ifochka.m14n.rest.db.ChartRepository
-import com.ifochka.m14n.rest.db.ChartTrackRepository
+import com.ifochka.m14n.rest.chart.domain.ChartRepository
+import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
 import com.ifochka.m14n.rest.db.TrackRepository
+import com.ifochka.m14n.rest.shared.TrackNotFoundException
 import org.springframework.stereotype.Service
 
 @Service

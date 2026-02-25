@@ -1,5 +1,7 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.chart.domain
 
+import com.ifochka.m14n.rest.db.Artist
+import com.ifochka.m14n.rest.db.Track
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

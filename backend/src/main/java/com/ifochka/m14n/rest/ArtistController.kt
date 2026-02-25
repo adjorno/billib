@@ -8,6 +8,7 @@ import com.ifochka.m14n.rest.db.DuplicateArtist
 import com.ifochka.m14n.rest.db.DuplicateArtistRepository
 import com.ifochka.m14n.rest.db.GlobalRankArtistRepository
 import com.ifochka.m14n.rest.model.ArtistInfo
+import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
