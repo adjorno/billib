@@ -69,7 +69,7 @@
                 </p>
                 <div class="flex items-center gap-3 mt-4">
                     <span class="h-[1px] w-8 bg-primary/30"></span>
-                    <span class="text-primary/50 text-[10px] font-mono tracking-tighter">V1.0.42-GLITCH</span>
+                    <span class="text-primary/50 text-[10px] font-mono tracking-tighter">V1.0.0</span>
                     <span class="h-[1px] w-8 bg-primary/30"></span>
                 </div>
             </div>
