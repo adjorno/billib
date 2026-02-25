@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.ui.bestsongs.components.BestSongsFilterBar
 import com.ifochka.m14n.ui.chart.components.ChartTrackList
+import com.ifochka.m14n.ui.chart.components.PositionBadge
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -88,6 +89,7 @@ fun BestSongsScreen(viewModel: BestSongsViewModel = koinViewModel()) {
                         ChartTrackList(
                             chartTracks = chartTracks,
                             onArtworkNeeded = viewModel::loadArtworkForTrack,
+                            badgeFor = { PositionBadge.None },
                             onTrackLongPress = { chartTrack ->
                                 buildTrackText(chartTrack)?.let { text ->
                                     clipboardManager.setText(AnnotatedString(text))
