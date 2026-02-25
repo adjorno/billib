@@ -1,15 +1,13 @@
 package com.ifochka.m14n.rest.catalog.rest
 
 import com.ifochka.m14n.rest.catalog.domain.Artist
+import com.ifochka.m14n.rest.catalog.domain.ArtistDuplicateResolver
 import com.ifochka.m14n.rest.catalog.domain.ArtistRelationRepository
 import com.ifochka.m14n.rest.catalog.domain.ArtistRepository
 import com.ifochka.m14n.rest.catalog.domain.ArtistUtils
 import com.ifochka.m14n.rest.catalog.rest.dtos.ArtistInfo
-import com.ifochka.m14n.rest.duplicate.domain.DuplicateArtist
-import com.ifochka.m14n.rest.duplicate.domain.DuplicateArtistRepository
 import com.ifochka.m14n.rest.rankings.domain.GlobalRankArtistRepository
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
@@ -18,22 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-open class ArtistController {
-    @Autowired
-    private lateinit var artistRepository: ArtistRepository
-
-    @Autowired
-    private lateinit var duplicateArtistRepository: DuplicateArtistRepository
-
-    @Autowired
-    private lateinit var artistRelationRepository: ArtistRelationRepository
-
-    @Autowired
-    private lateinit var globalRankArtistRepository: GlobalRankArtistRepository
-
-    @Autowired
-    private lateinit var trackController: TrackController
-
+open class ArtistController(
+    private val artistRepository: ArtistRepository,
+    private val artistDuplicateResolver: ArtistDuplicateResolver,
+    private val artistRelationRepository: ArtistRelationRepository,
+    private val globalRankArtistRepository: GlobalRankArtistRepository,
+    private val trackController: TrackController,
+) {
     @RequestMapping(value = ["/artist/getById"], method = [RequestMethod.GET])
     fun getById(
         @RequestParam id: Long,
@@ -102,28 +91,19 @@ open class ArtistController {
         @RequestParam(name = "name") newName: String,
     ) {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
-        val theDuplicate = duplicateArtistRepository.findByDuplicateName(newName)
-        val theOldName = theArtist.name
-        if (theDuplicate != null) {
-            if (theDuplicate.artist?.id != id) {
-                println("WARNING! Did not rename ($theOldName) => ($newName)")
-                return
-            }
-            duplicateArtistRepository.delete(theDuplicate)
-            println("DUPLICATE REMOVED!")
-        }
+        val theOldName = theArtist.name ?: return
+        if (!artistDuplicateResolver.prepareRename(theArtist, newName)) return
         artistRepository.rename(theArtist, newName)
-        duplicateArtistRepository.save(DuplicateArtist(theOldName, theArtist))
+        artistDuplicateResolver.recordRename(theArtist, theOldName)
         println("RENAMED! $theOldName => $newName")
     }
 
     open fun findArtist(artistName: String): Artist? {
         var theArtist = artistRepository.findByName(artistName)
         if (theArtist == null) {
-            val theDuplicate = duplicateArtistRepository.findByDuplicateName(artistName)
-            if (theDuplicate != null) {
-                println("FOUND DUPLICATE Artist: " + artistName + " => " + theDuplicate.artist?.name)
-                theArtist = theDuplicate.artist
+            theArtist = artistDuplicateResolver.findByAlternativeName(artistName)
+            if (theArtist != null) {
+                println("FOUND DUPLICATE Artist: $artistName => ${theArtist.name}")
             }
         }
         return theArtist

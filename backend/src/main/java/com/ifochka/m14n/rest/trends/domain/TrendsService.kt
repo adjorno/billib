@@ -1,7 +1,7 @@
 package com.ifochka.m14n.rest.trends.domain
 
+import com.ifochka.m14n.rest.catalog.domain.TrackHistoryPort
 import com.ifochka.m14n.rest.catalog.domain.TrackRepository
-import com.ifochka.m14n.rest.catalog.domain.TrackService
 import com.ifochka.m14n.rest.catalog.domain.TrackUtils
 import com.ifochka.m14n.rest.chart.domain.ChartTrack
 import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
@@ -19,7 +19,7 @@ class TrendsService(
     private val weekRepository: WeekRepository,
     private val chartTrackRepository: ChartTrackRepository,
     private val trendTrackRepository: TrendTrackRepository,
-    private val trackService: TrackService,
+    private val trackHistoryPort: TrackHistoryPort,
 ) {
     private val logger = LoggerFactory.getLogger(TrendsService::class.java)
 
@@ -29,11 +29,11 @@ class TrendsService(
         private fun getOrCreateGainerCache(
             trackId: Long,
             cache: MutableMap<Long, Long>,
-            trackService: TrackService,
+            trackHistoryPort: TrackHistoryPort,
             week: Week,
         ): Long {
             cache[trackId]?.let { return it }
-            val theTrackHistory = trackService.getTrackHistory(trackId, 0L)
+            val theTrackHistory = trackHistoryPort.getTrackHistory(trackId, 0L)
             var gainerValue = 1L
             for (chartHistory in theTrackHistory.values) {
                 val theSortedHistory = chartHistory.entries.sortedByDescending { it.key }
@@ -131,7 +131,7 @@ class TrendsService(
         logger.info("Generating seniors for week {}", week.date)
         val theChartTracks = filterByCharts(chartTrackRepository.findByWeek(week), blacklistedCharts())
         val theTracks = trackRepository
-            .sortByGlobalRank(TrackUtils.asTrackIds(TrackUtils.asTracks(theChartTracks)), DB_LIST_SIZE_PER_TYPE)
+            .sortByGlobalRank(TrackUtils.asTrackIds(theChartTracks.mapNotNull { it.track }), DB_LIST_SIZE_PER_TYPE)
         val theSeniorsType = trendTypeRepository.findById(TrendType.TYPE_SENIORS).orElse(null)
         for (theTrack in theTracks) {
             trendTrackRepository.save(TrendTrack(null, week, theTrack, theSeniorsType))
@@ -144,11 +144,11 @@ class TrendsService(
         logger.info("Generating gainers for week {}", week.date)
         val theGainersType = trendTypeRepository.findById(TrendType.TYPE_GAINERS).orElse(null)
         val theChartTracks = filterByCharts(chartTrackRepository.findByWeek(week), blacklistedCharts())
-        val theTracks = TrackUtils.asTracks(theChartTracks)
+        val theTracks = theChartTracks.mapNotNull { it.track }
         val theTrackIds = TrackUtils.asTrackIds(theTracks).toSet().toMutableList()
         logger.info("Unique tracks for gainers: {}", theTrackIds.size)
         val theGainerCache = mutableMapOf<Long, Long>()
-        theTrackIds.sortByDescending { getOrCreateGainerCache(it, theGainerCache, trackService, week) }
+        theTrackIds.sortByDescending { getOrCreateGainerCache(it, theGainerCache, trackHistoryPort, week) }
         for (i in 0 until minOf(DB_LIST_SIZE_PER_TYPE, theTrackIds.size)) {
             val theTrackId = theTrackIds[i]
             trendTrackRepository

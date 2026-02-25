@@ -1,6 +1,8 @@
 package com.ifochka.m14n.rest.trends.domain
 
+import com.ifochka.m14n.rest.catalog.domain.Track
 import com.ifochka.m14n.rest.catalog.domain.TrackRepository
+import com.ifochka.m14n.rest.shared.TrackNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,6 +15,23 @@ class DayTrackService(
     private val trackRepository: TrackRepository,
 ) {
     private val logger = LoggerFactory.getLogger(DayTrackService::class.java)
+
+    @Transactional
+    fun updateDayTrack(formattedDay: String): Track {
+        val monthDay = formattedDay.substring(5) // MM-dd
+        val trackIds = trackRepository.findDebutsOfTheDay(monthDay)
+        val track = trackRepository.sortByGlobalRank(trackIds, 10).firstOrNull()
+            ?: throw TrackNotFoundException()
+        val existing = dayTrackRepository.findByDay(Date.valueOf(formattedDay))
+        dayTrackRepository.save(
+            DayTrack(
+                id = existing?.id,
+                day = Date.valueOf(formattedDay),
+                track = track,
+            ),
+        )
+        return track
+    }
 
     @Transactional
     fun fillNext14Days() {
