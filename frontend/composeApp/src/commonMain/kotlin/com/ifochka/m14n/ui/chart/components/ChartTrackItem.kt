@@ -51,12 +51,7 @@ fun ChartTrackItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Position number
-        Text(
-            text = chartTrack.rank.toString(),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(40.dp),
-        )
+        ChartPositionBadge(rank = chartTrack.rank)
 
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -85,6 +80,7 @@ fun ChartTrackItem(
                 text = track.title ?: "Unknown Title",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

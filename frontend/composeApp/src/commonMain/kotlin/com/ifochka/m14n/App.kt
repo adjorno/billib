@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -31,14 +30,14 @@ import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
 import com.ifochka.m14n.ui.search.SearchScreen
+import com.ifochka.m14n.ui.theme.M14nTheme
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    M14nTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
         ) {
             val topLevelRoutes = remember { setOf(RouteHome, RouteBestSongs, RouteHistory, RouteSearch) }
             val navigationState = rememberNavigationState(

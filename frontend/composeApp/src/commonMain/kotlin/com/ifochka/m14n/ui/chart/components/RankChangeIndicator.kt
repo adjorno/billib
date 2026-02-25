@@ -15,11 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ifochka.m14n.data.model.ChartTrack
+import com.ifochka.m14n.ui.theme.RankDownRed
+import com.ifochka.m14n.ui.theme.RankUpGreen
 import kotlin.math.abs
 
 @Composable
@@ -55,13 +56,13 @@ fun RankChangeIndicator(
                 Icon(
                     imageVector = Icons.Default.ArrowUpward,
                     contentDescription = "Up",
-                    tint = Color(0xFF00C853),
+                    tint = RankUpGreen,
                     modifier = Modifier.size(16.dp),
                 )
                 Text(
                     text = abs(chartTrack.rankChange).toString(),
                     fontSize = 12.sp,
-                    color = Color(0xFF00C853),
+                    color = RankUpGreen,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -75,13 +76,13 @@ fun RankChangeIndicator(
                 Icon(
                     imageVector = Icons.Default.ArrowDownward,
                     contentDescription = "Down",
-                    tint = Color(0xFFD32F2F),
+                    tint = RankDownRed,
                     modifier = Modifier.size(16.dp),
                 )
                 Text(
                     text = abs(chartTrack.rankChange).toString(),
                     fontSize = 12.sp,
-                    color = Color(0xFFD32F2F),
+                    color = RankDownRed,
                     fontWeight = FontWeight.Medium,
                 )
             }
