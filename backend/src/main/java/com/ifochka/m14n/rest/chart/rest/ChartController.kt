@@ -4,7 +4,7 @@ import com.ifochka.m14n.rest.chart.domain.Chart
 import com.ifochka.m14n.rest.chart.domain.ChartRepository
 import com.ifochka.m14n.rest.notification.ChartUpdateResult
 import com.ifochka.m14n.rest.notification.ChartUpdateService
-import com.ifochka.m14n.rest.notification.FcmService
+import com.ifochka.m14n.rest.notification.fcm.FcmService
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController

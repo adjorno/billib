@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.duplicate.domain
 
 import com.ifochka.m14n.rest.catalog.domain.Track
 import jakarta.persistence.Column

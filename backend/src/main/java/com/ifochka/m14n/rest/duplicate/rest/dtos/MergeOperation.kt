@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.model
+package com.ifochka.m14n.rest.duplicate.rest.dtos
 
 class MergeOperation<T>(
     var removed: T? = null,

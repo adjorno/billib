@@ -7,7 +7,7 @@ import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.catalog.domain.TrackService
 import com.ifochka.m14n.rest.catalog.domain.TrackUtils
 import com.ifochka.m14n.rest.catalog.rest.dtos.TrackInfo
-import com.ifochka.m14n.rest.notification.FcmService
+import com.ifochka.m14n.rest.notification.fcm.FcmService
 import com.ifochka.m14n.rest.rankings.domain.GlobalRankTrackRepository
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import com.ifochka.m14n.rest.shared.M14n

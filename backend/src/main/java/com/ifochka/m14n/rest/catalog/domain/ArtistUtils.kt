@@ -1,6 +1,6 @@
 package com.ifochka.m14n.rest.catalog.domain
 
-import com.ifochka.m14n.rest.db.DuplicateArtistRepository
+import com.ifochka.m14n.rest.duplicate.domain.DuplicateArtistRepository
 import java.util.regex.Pattern
 
 object ArtistUtils {

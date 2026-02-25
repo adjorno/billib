@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.notification
+package com.ifochka.m14n.rest.notification.fcm
 
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp

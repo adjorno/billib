@@ -1,5 +1,6 @@
 package com.ifochka.m14n.rest.notification
 
+import com.ifochka.m14n.rest.notification.fcm.FcmService
 import com.ifochka.m14n.rest.trends.domain.DayTrackRepository
 import com.ifochka.m14n.rest.trends.domain.DayTrackService
 import com.ifochka.m14n.rest.trends.domain.TrendType

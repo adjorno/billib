@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.notification
+package com.ifochka.m14n.rest.notification.fcm
 
 interface FcmService {
     fun sendToTopic(
