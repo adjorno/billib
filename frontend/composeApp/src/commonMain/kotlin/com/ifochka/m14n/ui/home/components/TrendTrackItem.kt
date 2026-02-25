@@ -27,6 +27,10 @@ import coil3.compose.AsyncImage
 import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
 
+private val ItemSize = 80.dp
+private val CardCornerRadius = 12.dp
+private val FallbackIconSize = 32.dp
+
 @Composable
 fun TrendTrackItem(
     track: Track,
@@ -36,11 +40,11 @@ fun TrendTrackItem(
     val artist = track.artistName ?: track.artist?.name ?: ""
     LaunchedEffect(track.id) { onArtworkNeeded(track) }
     Column(
-        modifier = modifier.width(80.dp),
+        modifier = modifier.width(ItemSize),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Card(shape = RoundedCornerShape(12.dp)) {
-            Box(modifier = Modifier.size(80.dp)) {
+        Card(shape = RoundedCornerShape(CardCornerRadius)) {
+            Box(modifier = Modifier.size(ItemSize)) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -57,7 +61,7 @@ fun TrendTrackItem(
                     Icon(
                         imageVector = Icons.Default.MusicNote,
                         contentDescription = null,
-                        modifier = Modifier.size(32.dp).align(Alignment.Center),
+                        modifier = Modifier.size(FallbackIconSize).align(Alignment.Center),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
