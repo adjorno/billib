@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.notification
+package com.ifochka.m14n.rest.trends.domain
 
 import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.catalog.domain.TrackService
@@ -7,10 +7,6 @@ import com.ifochka.m14n.rest.chart.domain.ChartTrack
 import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
 import com.ifochka.m14n.rest.chart.domain.Week
 import com.ifochka.m14n.rest.chart.domain.WeekRepository
-import com.ifochka.m14n.rest.db.TrendTrack
-import com.ifochka.m14n.rest.db.TrendTrackRepository
-import com.ifochka.m14n.rest.db.TrendType
-import com.ifochka.m14n.rest.db.TrendTypeRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation

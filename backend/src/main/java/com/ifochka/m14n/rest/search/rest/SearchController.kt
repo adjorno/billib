@@ -1,11 +1,11 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.search.rest
 
 import com.ifochka.m14n.rest.catalog.domain.Artist
 import com.ifochka.m14n.rest.catalog.domain.ArtistUtils
 import com.ifochka.m14n.rest.catalog.domain.Track
 import com.ifochka.m14n.rest.catalog.domain.TrackUtils
-import com.ifochka.m14n.rest.model.MergedSearchResult
-import com.ifochka.m14n.rest.model.SearchResult
+import com.ifochka.m14n.rest.search.domain.MergedSearchResult
+import com.ifochka.m14n.rest.search.domain.SearchResult
 import jakarta.persistence.EntityManager
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod

@@ -1,12 +1,12 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.trends.rest
 
 import com.ifochka.m14n.rest.chart.domain.ChartListRepository
 import com.ifochka.m14n.rest.chart.domain.WeekRepository
-import com.ifochka.m14n.rest.db.TrendTrackRepository
-import com.ifochka.m14n.rest.model.TrendList
-import com.ifochka.m14n.rest.model.Trends
-import com.ifochka.m14n.rest.notification.TrendsService
 import com.ifochka.m14n.rest.shared.M14n
+import com.ifochka.m14n.rest.trends.domain.TrendTrackRepository
+import com.ifochka.m14n.rest.trends.domain.TrendsService
+import com.ifochka.m14n.rest.trends.rest.dtos.TrendList
+import com.ifochka.m14n.rest.trends.rest.dtos.Trends
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.RequestMapping

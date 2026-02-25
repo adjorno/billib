@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.trends.domain
 
 import com.ifochka.m14n.rest.catalog.domain.Track
 import com.ifochka.m14n.rest.chart.domain.Week

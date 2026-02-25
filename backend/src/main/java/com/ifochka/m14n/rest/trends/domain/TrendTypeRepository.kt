@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.trends.domain
 
 import org.springframework.data.repository.CrudRepository
 

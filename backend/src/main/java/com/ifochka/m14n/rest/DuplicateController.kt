@@ -11,15 +11,15 @@ import com.ifochka.m14n.rest.chart.domain.ChartListRepository
 import com.ifochka.m14n.rest.chart.domain.ChartTrack
 import com.ifochka.m14n.rest.chart.domain.ChartTrackRepository
 import com.ifochka.m14n.rest.chart.rest.ChartTrackController
-import com.ifochka.m14n.rest.db.DayTrackRepository
 import com.ifochka.m14n.rest.db.DuplicateArtist
 import com.ifochka.m14n.rest.db.DuplicateArtistRepository
 import com.ifochka.m14n.rest.db.DuplicateTrack
 import com.ifochka.m14n.rest.db.DuplicateTrackRepository
-import com.ifochka.m14n.rest.db.TrendTrackRepository
 import com.ifochka.m14n.rest.model.MergeOperation
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import com.ifochka.m14n.rest.shared.TrackNotFoundException
+import com.ifochka.m14n.rest.trends.domain.DayTrackRepository
+import com.ifochka.m14n.rest.trends.domain.TrendTrackRepository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod

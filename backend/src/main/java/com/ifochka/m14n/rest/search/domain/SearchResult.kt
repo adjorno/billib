@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.model
+package com.ifochka.m14n.rest.search.domain
 
 class SearchResult<T> {
     var total = 0

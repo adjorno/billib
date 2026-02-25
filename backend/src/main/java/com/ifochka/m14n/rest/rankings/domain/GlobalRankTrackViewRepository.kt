@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.rankings.domain
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -7,14 +7,8 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface GlobalRankTrackViewRepository : JpaRepository<GlobalRankTrackView, Long> {
-    /**
-     * Find global rank for a specific track
-     */
     fun findByTrackId(trackId: Long): GlobalRankTrackView?
 
-    /**
-     * Get top ranked tracks
-     */
     @Query(
         """
         SELECT grt FROM GlobalRankTrackView grt
@@ -23,9 +17,6 @@ interface GlobalRankTrackViewRepository : JpaRepository<GlobalRankTrackView, Lon
     )
     fun findTopRanked(pageable: Pageable): Page<GlobalRankTrackView>
 
-    /**
-     * Get tracks with rank range
-     */
     @Query(
         """
         SELECT grt FROM GlobalRankTrackView grt
@@ -38,9 +29,6 @@ interface GlobalRankTrackViewRepository : JpaRepository<GlobalRankTrackView, Lon
         @Param("maxRank") maxRank: Long,
     ): List<GlobalRankTrackView>
 
-    /**
-     * Get tracks with minimum appearances
-     */
     @Query(
         """
         SELECT grt FROM GlobalRankTrackView grt

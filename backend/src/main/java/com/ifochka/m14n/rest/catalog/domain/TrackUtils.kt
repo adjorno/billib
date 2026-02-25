@@ -1,7 +1,7 @@
 package com.ifochka.m14n.rest.catalog.domain
 
 import com.ifochka.m14n.rest.chart.domain.ChartTrack
-import com.ifochka.m14n.rest.db.TrendTrack
+import com.ifochka.m14n.rest.trends.domain.TrendTrack
 
 object TrackUtils {
     @JvmStatic

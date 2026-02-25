@@ -1,7 +1,9 @@
 package com.ifochka.m14n.rest.notification
 
-import com.ifochka.m14n.rest.db.DayTrackRepository
-import com.ifochka.m14n.rest.db.TrendType
+import com.ifochka.m14n.rest.trends.domain.DayTrackRepository
+import com.ifochka.m14n.rest.trends.domain.DayTrackService
+import com.ifochka.m14n.rest.trends.domain.TrendType
+import com.ifochka.m14n.rest.trends.domain.TrendsService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service

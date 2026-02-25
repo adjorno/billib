@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.rankings.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest
+package com.ifochka.m14n.rest.rankings.rest.dtos
 
 import org.springframework.data.util.Pair
 import java.util.Date

@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.model
+package com.ifochka.m14n.rest.trends.rest.dtos
 
 data class Trends(
     val week: String,

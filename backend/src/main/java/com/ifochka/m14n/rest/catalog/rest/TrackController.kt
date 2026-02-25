@@ -7,13 +7,13 @@ import com.ifochka.m14n.rest.catalog.domain.TrackRepository
 import com.ifochka.m14n.rest.catalog.domain.TrackService
 import com.ifochka.m14n.rest.catalog.domain.TrackUtils
 import com.ifochka.m14n.rest.catalog.rest.dtos.TrackInfo
-import com.ifochka.m14n.rest.db.DayTrack
-import com.ifochka.m14n.rest.db.DayTrackRepository
-import com.ifochka.m14n.rest.db.GlobalRankTrackRepository
 import com.ifochka.m14n.rest.notification.FcmService
+import com.ifochka.m14n.rest.rankings.domain.GlobalRankTrackRepository
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import com.ifochka.m14n.rest.shared.M14n
 import com.ifochka.m14n.rest.shared.TrackNotFoundException
+import com.ifochka.m14n.rest.trends.domain.DayTrack
+import com.ifochka.m14n.rest.trends.domain.DayTrackRepository
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat

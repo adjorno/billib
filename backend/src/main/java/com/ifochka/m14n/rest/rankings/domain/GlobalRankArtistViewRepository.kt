@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.db
+package com.ifochka.m14n.rest.rankings.domain
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -7,14 +7,8 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface GlobalRankArtistViewRepository : JpaRepository<GlobalRankArtistView, Long> {
-    /**
-     * Find global rank for a specific artist
-     */
     fun findByArtistId(artistId: Long): GlobalRankArtistView?
 
-    /**
-     * Get top ranked artists
-     */
     @Query(
         """
         SELECT gra FROM GlobalRankArtistView gra
@@ -23,9 +17,6 @@ interface GlobalRankArtistViewRepository : JpaRepository<GlobalRankArtistView, L
     )
     fun findTopRanked(pageable: Pageable): Page<GlobalRankArtistView>
 
-    /**
-     * Get artists with rank range
-     */
     @Query(
         """
         SELECT gra FROM GlobalRankArtistView gra
@@ -38,9 +29,6 @@ interface GlobalRankArtistViewRepository : JpaRepository<GlobalRankArtistView, L
         @Param("maxRank") maxRank: Long,
     ): List<GlobalRankArtistView>
 
-    /**
-     * Get artists with minimum track count
-     */
     @Query(
         """
         SELECT gra FROM GlobalRankArtistView gra

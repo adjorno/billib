@@ -7,7 +7,7 @@ import com.ifochka.m14n.rest.catalog.domain.ArtistUtils
 import com.ifochka.m14n.rest.catalog.rest.dtos.ArtistInfo
 import com.ifochka.m14n.rest.db.DuplicateArtist
 import com.ifochka.m14n.rest.db.DuplicateArtistRepository
-import com.ifochka.m14n.rest.db.GlobalRankArtistRepository
+import com.ifochka.m14n.rest.rankings.domain.GlobalRankArtistRepository
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull

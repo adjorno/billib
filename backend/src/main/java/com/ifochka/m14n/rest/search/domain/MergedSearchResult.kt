@@ -1,4 +1,4 @@
-package com.ifochka.m14n.rest.model
+package com.ifochka.m14n.rest.search.domain
 
 import com.ifochka.m14n.rest.catalog.domain.Artist
 import com.ifochka.m14n.rest.catalog.domain.Track
