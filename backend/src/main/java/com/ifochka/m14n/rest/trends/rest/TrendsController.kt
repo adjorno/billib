@@ -3,12 +3,17 @@ package com.ifochka.m14n.rest.trends.rest
 import com.ifochka.m14n.rest.chart.domain.ChartListRepository
 import com.ifochka.m14n.rest.chart.domain.WeekRepository
 import com.ifochka.m14n.rest.shared.M14n
+import com.ifochka.m14n.rest.shared.TrackNotFoundException
+import com.ifochka.m14n.rest.trends.domain.DayTrack
+import com.ifochka.m14n.rest.trends.domain.DayTrackRepository
+import com.ifochka.m14n.rest.trends.domain.DayTrackService
 import com.ifochka.m14n.rest.trends.domain.TrendTrackRepository
 import com.ifochka.m14n.rest.trends.domain.TrendsService
 import com.ifochka.m14n.rest.trends.rest.dtos.TrendList
 import com.ifochka.m14n.rest.trends.rest.dtos.Trends
 import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -20,6 +25,8 @@ class TrendsController(
     private val mChartListRepository: ChartListRepository,
     private val mTrendTrackRepository: TrendTrackRepository,
     private val mTrendsService: TrendsService,
+    private val mDayTrackRepository: DayTrackRepository,
+    private val mDayTrackService: DayTrackService,
 ) : ITrendsController {
     companion object {
         private const val LIST_SIZE_PER_TYPE = 10
@@ -53,6 +60,26 @@ class TrendsController(
             theWeek.date!!,
             theTrendLists.values.toTypedArray(),
         )
+    }
+
+    @RequestMapping(value = ["/track/day"], method = [RequestMethod.GET])
+    fun dayTrack(
+        @RequestParam(required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String?,
+    ): DayTrack {
+        val theOne = if (!date.isNullOrEmpty()) {
+            mDayTrackRepository.findByDay(java.sql.Date.valueOf(date))
+        } else {
+            mDayTrackRepository.findLast(PageRequest.of(0, 1)).content.firstOrNull()
+        }
+        return theOne ?: throw TrackNotFoundException()
+    }
+
+    @Transactional
+    @RequestMapping(value = ["/track/day"], method = [RequestMethod.POST])
+    fun updateDayTrack(
+        @RequestParam @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String,
+    ) {
+        mDayTrackService.updateDayTrack(date)
     }
 
     @RequestMapping(value = ["/generateTrends"], method = [RequestMethod.POST])

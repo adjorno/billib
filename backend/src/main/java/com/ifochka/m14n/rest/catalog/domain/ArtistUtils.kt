@@ -1,6 +1,5 @@
 package com.ifochka.m14n.rest.catalog.domain
 
-import com.ifochka.m14n.rest.duplicate.domain.DuplicateArtistRepository
 import java.util.regex.Pattern
 
 object ArtistUtils {
@@ -12,8 +11,6 @@ object ArtistUtils {
     fun equalsEasy(
         a1: String,
         a2: String,
-        artistRepository: ArtistRepository,
-        duplicateArtistRepository: DuplicateArtistRepository,
     ): Boolean = a1.equals(a2, ignoreCase = true)
 
     @JvmStatic
@@ -21,10 +18,9 @@ object ArtistUtils {
         a1: String,
         a2: String,
         artistRepository: ArtistRepository,
-        duplicateArtistRepository: DuplicateArtistRepository,
     ): Boolean {
-        val aa1 = artistAlternatives(a1, artistRepository, duplicateArtistRepository)
-        val aa2 = artistAlternatives(a2, artistRepository, duplicateArtistRepository)
+        val aa1 = artistAlternatives(a1, artistRepository)
+        val aa2 = artistAlternatives(a2, artistRepository)
         for (i in aa1.indices) {
             for (j in aa2.indices) {
                 if (aa1[i].equals(aa2[j], ignoreCase = true)) {
@@ -39,17 +35,9 @@ object ArtistUtils {
     fun artistAlternatives(
         artistName: String,
         artistRepository: ArtistRepository,
-        duplicateArtistRepository: DuplicateArtistRepository,
     ): Array<String> {
         val theResult = mutableListOf<String>()
-        val theArtist = artistRepository.findByName(artistName)
         theResult.add(artistName)
-        if (theArtist != null) {
-            val theDuplicates = duplicateArtistRepository.findByArtist(theArtist)
-            for (theDuplicateArtist in theDuplicates) {
-                theDuplicateArtist.duplicateName?.let { theResult.add(it) }
-            }
-        }
         return theResult.toTypedArray()
     }
 

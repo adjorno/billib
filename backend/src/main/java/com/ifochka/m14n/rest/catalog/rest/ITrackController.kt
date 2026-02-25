@@ -13,6 +13,4 @@ interface ITrackController {
         id: Long,
         chartId: Long?,
     ): Map<String, Map<String, Int>>
-
-    fun updateDayTrack(formattedDay: String): Track
 }

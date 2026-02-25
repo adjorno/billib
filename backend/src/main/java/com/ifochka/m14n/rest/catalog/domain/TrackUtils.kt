@@ -1,15 +1,6 @@
 package com.ifochka.m14n.rest.catalog.domain
 
-import com.ifochka.m14n.rest.chart.domain.ChartTrack
-import com.ifochka.m14n.rest.trends.domain.TrendTrack
-
 object TrackUtils {
-    @JvmStatic
-    fun asTracks(tracks: List<ChartTrack>): List<Track> = tracks.mapNotNull { it.track }
-
-    @JvmStatic
-    fun asTrackList(trendTracks: List<TrendTrack>): List<Track> = trendTracks.mapNotNull { it.track }
-
     @JvmStatic
     fun asTrackIds(tracks: List<Track>): List<Long> = tracks.mapNotNull { it.id }
 

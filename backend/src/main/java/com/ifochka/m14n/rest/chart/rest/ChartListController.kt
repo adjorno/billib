@@ -9,7 +9,6 @@ import com.ifochka.m14n.rest.chart.domain.WeekRepository
 import com.ifochka.m14n.rest.shared.ChartListNotFoundException
 import com.ifochka.m14n.rest.shared.M14n
 import com.ifochka.m14n.rest.shared.TrackNotFoundException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.format.annotation.DateTimeFormat
@@ -19,25 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class ChartListController {
-    @Autowired
-    private lateinit var chartListRepository: ChartListRepository
-
-    @Autowired
-    private lateinit var chartTrackRepository: ChartTrackRepository
-
-    @Autowired
-    private lateinit var weekRepository: WeekRepository
-
-    @Autowired
-    private lateinit var chartRepository: ChartRepository
-
-    @Autowired
-    private lateinit var trackRepository: TrackRepository
-
-    @Autowired
-    private lateinit var chartTrackController: ChartTrackController
-
+class ChartListController(
+    private val chartListRepository: ChartListRepository,
+    private val chartTrackRepository: ChartTrackRepository,
+    private val weekRepository: WeekRepository,
+    private val chartRepository: ChartRepository,
+    private val trackRepository: TrackRepository,
+    private val chartTrackController: ChartTrackController,
+) {
     @RequestMapping(value = ["/chartList/getById"], method = [RequestMethod.GET])
     fun getChartListById(
         @RequestParam(name = "id") chartListId: Long,

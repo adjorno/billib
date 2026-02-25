@@ -11,4 +11,9 @@ class ModularityTest {
     fun documentModules() {
         Documenter(modules).writeDocumentation()
     }
+
+    @Test
+    fun verifyModules() {
+        modules.verify()
+    }
 }

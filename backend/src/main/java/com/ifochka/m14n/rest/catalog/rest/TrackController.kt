@@ -3,21 +3,16 @@ package com.ifochka.m14n.rest.catalog.rest
 import com.ifochka.m14n.rest.catalog.domain.Artist
 import com.ifochka.m14n.rest.catalog.domain.ArtistRepository
 import com.ifochka.m14n.rest.catalog.domain.Track
+import com.ifochka.m14n.rest.catalog.domain.TrackHistoryPort
 import com.ifochka.m14n.rest.catalog.domain.TrackRepository
-import com.ifochka.m14n.rest.catalog.domain.TrackService
 import com.ifochka.m14n.rest.catalog.domain.TrackUtils
 import com.ifochka.m14n.rest.catalog.rest.dtos.TrackInfo
-import com.ifochka.m14n.rest.notification.fcm.FcmService
 import com.ifochka.m14n.rest.rankings.domain.GlobalRankTrackRepository
 import com.ifochka.m14n.rest.shared.ArtistNotFoundException
 import com.ifochka.m14n.rest.shared.M14n
 import com.ifochka.m14n.rest.shared.TrackNotFoundException
-import com.ifochka.m14n.rest.trends.domain.DayTrack
-import com.ifochka.m14n.rest.trends.domain.DayTrackRepository
 import jakarta.persistence.EntityManager
-import org.springframework.data.domain.PageRequest
 import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -27,11 +22,9 @@ import org.springframework.web.bind.annotation.RestController
 class TrackController(
     private val mTrackRepository: TrackRepository,
     private val mEntityManager: EntityManager,
-    private val mDayTrackRepository: DayTrackRepository,
     private val mArtistRepository: ArtistRepository,
     private val mGlobalRankTrackRepository: GlobalRankTrackRepository,
-    private val mFcmService: FcmService,
-    private val mTrackService: TrackService,
+    private val mTrackHistoryPort: TrackHistoryPort,
 ) : ITrackController {
     @RequestMapping(value = ["/track/getById"], method = [RequestMethod.GET])
     fun track(
@@ -93,27 +86,6 @@ class TrackController(
         }
     }
 
-    @RequestMapping(value = ["/track/day"], method = [RequestMethod.GET])
-    fun dayTrack(
-        @RequestParam(required = false) @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String?,
-    ): DayTrack {
-        val theOne = if (!date.isNullOrEmpty()) {
-            mDayTrackRepository.findByDay(java.sql.Date.valueOf(date))
-        } else {
-            mDayTrackRepository.findLast(PageRequest.of(0, 1)).content.firstOrNull()
-        }
-
-        return theOne ?: throw TrackNotFoundException()
-    }
-
-    @Transactional
-    @RequestMapping(value = ["/track/day"], method = [RequestMethod.POST])
-    fun dayTrack(
-        @RequestParam() @DateTimeFormat(pattern = M14n.CHART_DATE_FORMAT_STRING) date: String,
-    ) {
-        updateDayTrack(date)
-    }
-
     @RequestMapping(value = ["/track/history"], method = [RequestMethod.GET])
     fun getTrackHistoryAPI(
         @RequestParam() id: Long,
@@ -123,7 +95,7 @@ class TrackController(
     override fun getTrackHistory(
         id: Long,
         chartId: Long?,
-    ): Map<String, Map<String, Int>> = mTrackService.getTrackHistory(id, chartId)
+    ): Map<String, Map<String, Int>> = mTrackHistoryPort.getTrackHistory(id, chartId)
 
     @RequestMapping(value = ["/track/info"], method = [RequestMethod.GET])
     fun getTrackInfo(
@@ -138,19 +110,6 @@ class TrackController(
         return theTrackInfo
     }
 
-    // TODO(#75): Gate with access token before re-enabling
-    // @RequestMapping(value = ["/track/random"], method = [RequestMethod.POST])
-    fun sendRandomTrackNotification(): Track {
-        val track = mTrackRepository.findRandom() ?: throw TrackNotFoundException()
-        val body = "${track.artist?.name ?: track.artistName} — ${track.title}"
-        mFcmService.sendToTopic(
-            topic = "track-of-day",
-            title = "Track of the Day",
-            body = body,
-        )
-        return track
-    }
-
     @RequestMapping(value = ["/track/global"], method = [RequestMethod.GET])
     fun getGlobalTracks(
         @RequestParam() rank: Long,
@@ -158,27 +117,5 @@ class TrackController(
     ): List<Track> {
         val theGlobalTracks = mTrackRepository.findGlobalList(rank, rank + size)
         return theGlobalTracks
-    }
-
-    override fun updateDayTrack(formattedDay: String): Track {
-        val theTracksOfTheDay = getTracksOfTheDay(formattedDay, 10)
-        val theTrack = theTracksOfTheDay[0]
-        val existing = mDayTrackRepository.findByDay(java.sql.Date.valueOf(formattedDay))
-        mDayTrackRepository.save(
-            DayTrack(
-                id = existing?.id,
-                day = java.sql.Date.valueOf(formattedDay),
-                track = theTrack,
-            ),
-        )
-        return theTrack
-    }
-
-    private fun getTracksOfTheDay(
-        date: String,
-        size: Int,
-    ): List<Track> {
-        val theTrackIds = mTrackRepository.findDebutsOfTheDay(date.substring(5))
-        return mTrackRepository.sortByGlobalRank(theTrackIds, size)
     }
 }
