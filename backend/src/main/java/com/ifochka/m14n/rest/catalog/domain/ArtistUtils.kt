@@ -17,10 +17,9 @@ object ArtistUtils {
     fun equals(
         a1: String,
         a2: String,
-        artistRepository: ArtistRepository,
     ): Boolean {
-        val aa1 = artistAlternatives(a1, artistRepository)
-        val aa2 = artistAlternatives(a2, artistRepository)
+        val aa1 = artistAlternatives(a1)
+        val aa2 = artistAlternatives(a2)
         for (i in aa1.indices) {
             for (j in aa2.indices) {
                 if (aa1[i].equals(aa2[j], ignoreCase = true)) {
@@ -32,14 +31,7 @@ object ArtistUtils {
     }
 
     @JvmStatic
-    fun artistAlternatives(
-        artistName: String,
-        artistRepository: ArtistRepository,
-    ): Array<String> {
-        val theResult = mutableListOf<String>()
-        theResult.add(artistName)
-        return theResult.toTypedArray()
-    }
+    fun artistAlternatives(artistName: String): Array<String> = arrayOf(artistName)
 
     @JvmStatic
     fun optimizeName(original: String): String =

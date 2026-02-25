@@ -91,10 +91,10 @@ open class ArtistController(
         @RequestParam(name = "name") newName: String,
     ) {
         val theArtist = artistRepository.findByIdOrNull(id) ?: throw ArtistNotFoundException()
-        val theOldName = theArtist.name
+        val theOldName = theArtist.name ?: return
         if (!artistDuplicateResolver.prepareRename(theArtist, newName)) return
         artistRepository.rename(theArtist, newName)
-        artistDuplicateResolver.recordRename(theArtist, theOldName!!)
+        artistDuplicateResolver.recordRename(theArtist, theOldName)
         println("RENAMED! $theOldName => $newName")
     }
 
