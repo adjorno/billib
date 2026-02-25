@@ -42,10 +42,15 @@ dependencies {
 
     implementation(platform(libs.spring.modulith.bom))
     implementation(libs.spring.modulith.starter.core)
+    testImplementation(libs.spring.boot.starter.test)
     testImplementation(libs.spring.modulith.starter.test)
 
     // Project dependencies
     implementation(project(":libraries:data-source:billboard"))
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
 }
 
 tasks.named<Jar>("jar") {
