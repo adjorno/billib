@@ -45,90 +45,96 @@ fun DayTrackWidget(
         modifier = modifier.widthIn(max = 480.dp).fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        val track = dayTrack.track
+        if (track != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
             ) {
-                Icon(
-                    imageVector = Icons.Default.MusicNote,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Track of the Day",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            val track = dayTrack.track
-            if (track != null) {
+                if (!track.artworkUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = track.artworkUrl,
+                        contentDescription = "${track.artistName} - ${track.title}",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.MusicNote,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                ) {
-                    if (!track.artworkUrl.isNullOrBlank()) {
-                        AsyncImage(
-                            model = track.artworkUrl,
-                            contentDescription = "${track.artistName} - ${track.title}",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
+                        .align(Alignment.TopCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color.Black.copy(alpha = 0.55f), Color.Transparent),
+                            ),
                         )
-                    } else {
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.MusicNote,
                             contentDescription = null,
-                            modifier = Modifier
-                                .size(64.dp)
-                                .align(Alignment.Center),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = Color.White,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Track of the Day",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
                         )
                     }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(Color.Transparent, Color.Black.copy(alpha = 0.72f)),
-                                ),
-                            )
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(
-                                text = track.title ?: "Unknown Title",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            Text(
-                                text = track.artist?.name ?: track.artistName ?: "Unknown Artist",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.8f),
-                            )
-                        }
-                    }
                 }
-            } else {
                 Box(
-                    contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color.Transparent, Color.Black.copy(alpha = 0.72f)),
+                            ),
+                        )
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                 ) {
-                    Text(
-                        text = "No track available today",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = track.title ?: "Unknown Title",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = track.artist?.name ?: track.artistName ?: "Unknown Artist",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+                    }
                 }
+            }
+        } else {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+            ) {
+                Text(
+                    text = "No track available today",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
