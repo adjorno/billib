@@ -30,6 +30,7 @@ import com.ifochka.m14n.data.model.Track
 @Composable
 fun ChartTrackItem(
     chartTrack: ChartTrack,
+    badge: PositionBadge,
     onArtworkNeeded: suspend (Track) -> Unit,
     onLongPress: () -> Unit,
     onShare: (() -> Unit)?,
@@ -50,20 +51,10 @@ fun ChartTrackItem(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Position number
-        ChartPositionBadge(rank = chartTrack.rank)
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Rank change indicator
-        RankChangeIndicator(
-            chartTrack = chartTrack,
-            modifier = Modifier.width(48.dp),
-        )
+        ChartPositionBadge(rank = chartTrack.rank, badge = badge)
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Track thumbnail
         TrackThumbnail(
             track = track,
             modifier = Modifier.size(56.dp),
@@ -71,7 +62,6 @@ fun ChartTrackItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Track info
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center,

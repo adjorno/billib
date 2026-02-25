@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.data.model.Track
+import kotlin.math.abs
 
 @Composable
 fun ChartTrackList(
@@ -16,6 +17,14 @@ fun ChartTrackList(
     onTrackLongPress: (ChartTrack) -> Unit,
     onTrackShare: ((ChartTrack) -> Unit)?,
     modifier: Modifier = Modifier,
+    badgeFor: (ChartTrack) -> PositionBadge = { chartTrack ->
+        when {
+            chartTrack.isDebut -> PositionBadge.New
+            chartTrack.isUp -> PositionBadge.Up(change = abs(chartTrack.rankChange))
+            chartTrack.isDown -> PositionBadge.Down(change = abs(chartTrack.rankChange))
+            else -> PositionBadge.Same
+        }
+    },
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -27,6 +36,7 @@ fun ChartTrackList(
         ) { chartTrack ->
             ChartTrackItem(
                 chartTrack = chartTrack,
+                badge = badgeFor(chartTrack),
                 onArtworkNeeded = onArtworkNeeded,
                 onLongPress = { onTrackLongPress(chartTrack) },
                 onShare = onTrackShare?.let { { it(chartTrack) } },

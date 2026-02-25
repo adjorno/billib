@@ -18,19 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.ui.theme.RankDownRed
 import com.ifochka.m14n.ui.theme.RankUpGreen
-import kotlin.math.abs
 
 @Composable
 fun RankChangeIndicator(
-    chartTrack: ChartTrack,
+    badge: PositionBadge,
     modifier: Modifier = Modifier,
 ) {
-    when {
-        chartTrack.isDebut -> {
-            // Show "NEW" badge for debut tracks
+    when (badge) {
+        is PositionBadge.New -> {
             Box(
                 modifier = modifier
                     .background(
@@ -47,8 +44,7 @@ fun RankChangeIndicator(
                 )
             }
         }
-        chartTrack.isUp -> {
-            // Green up arrow with change amount
+        is PositionBadge.Up -> {
             Row(
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
@@ -60,15 +56,14 @@ fun RankChangeIndicator(
                     modifier = Modifier.size(16.dp),
                 )
                 Text(
-                    text = abs(chartTrack.rankChange).toString(),
+                    text = badge.change.toString(),
                     fontSize = 12.sp,
                     color = RankUpGreen,
                     fontWeight = FontWeight.Medium,
                 )
             }
         }
-        chartTrack.isDown -> {
-            // Red down arrow with change amount
+        is PositionBadge.Down -> {
             Row(
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
@@ -80,15 +75,14 @@ fun RankChangeIndicator(
                     modifier = Modifier.size(16.dp),
                 )
                 Text(
-                    text = abs(chartTrack.rankChange).toString(),
+                    text = badge.change.toString(),
                     fontSize = 12.sp,
                     color = RankDownRed,
                     fontWeight = FontWeight.Medium,
                 )
             }
         }
-        else -> {
-            // No change - show dash
+        is PositionBadge.Same -> {
             Text(
                 text = "—",
                 fontSize = 12.sp,
@@ -96,5 +90,6 @@ fun RankChangeIndicator(
                 modifier = modifier,
             )
         }
+        is PositionBadge.None -> Unit
     }
 }
