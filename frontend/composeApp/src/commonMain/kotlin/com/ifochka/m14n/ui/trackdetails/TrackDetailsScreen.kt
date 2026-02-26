@@ -1,8 +1,11 @@
 package com.ifochka.m14n.ui.trackdetails
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,6 +23,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +35,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -76,6 +84,7 @@ fun TrackDetailsScreen(
                 LaunchedEffect(track.id) { viewModel.loadArtwork(track) }
                 TrackDetailsContent(
                     track = track,
+                    history = state.history,
                     modifier = Modifier.padding(padding),
                 )
             }
@@ -91,6 +100,7 @@ fun TrackDetailsScreen(
 @Composable
 private fun TrackDetailsContent(
     track: Track,
+    history: Map<String, Map<String, Int>>?,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
@@ -165,6 +175,68 @@ private fun TrackDetailsContent(
                 MetadataRow(
                     label = "Artist",
                     value = track.artist?.name ?: track.artistName ?: "—",
+                )
+            }
+        }
+        if (!history.isNullOrEmpty()) {
+            ChartHistorySection(history = history)
+        }
+    }
+}
+
+@Composable
+private fun ChartHistorySection(history: Map<String, Map<String, Int>>) {
+    val chartNames = remember(history) { history.keys.sorted() }
+    var selectedChart by remember(chartNames) { mutableStateOf(chartNames.first()) }
+    val entries = remember(selectedChart, history) {
+        history[selectedChart]?.entries
+            ?.sortedByDescending { it.key }
+            ?: emptyList()
+    }
+
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Text(
+            text = "Chart History",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(vertical = 8.dp),
+        )
+        if (chartNames.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                chartNames.forEach { name ->
+                    FilterChip(
+                        selected = name == selectedChart,
+                        onClick = { selectedChart = name },
+                        label = { Text(name) },
+                    )
+                }
+            }
+        }
+        entries.forEach { (week, rank) ->
+            HorizontalDivider()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        paddingValues = PaddingValues(vertical = 10.dp),
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = week,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = "#$rank",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         }

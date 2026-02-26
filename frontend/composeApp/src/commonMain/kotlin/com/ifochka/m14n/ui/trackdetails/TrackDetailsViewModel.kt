@@ -16,6 +16,8 @@ sealed interface TrackDetailsUiState {
 
     data class Success(
         val track: Track,
+        val history: Map<String, Map<String, Int>>? = null,
+        val globalRank: Long = 0,
     ) : TrackDetailsUiState
 
     data class Error(
@@ -37,8 +39,14 @@ class TrackDetailsViewModel(
 
     private fun load() {
         viewModelScope.launch {
-            api.getTrackById(trackId)
-                .onSuccess { track -> _uiState.value = TrackDetailsUiState.Success(track) }
+            api.getTrackInfo(trackId)
+                .onSuccess { info ->
+                    _uiState.value = TrackDetailsUiState.Success(
+                        track = info.track,
+                        history = info.history,
+                        globalRank = info.globalRank,
+                    )
+                }
                 .onFailure { error ->
                     _uiState.value = TrackDetailsUiState.Error(error.message ?: "Failed to load")
                 }

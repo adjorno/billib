@@ -89,7 +89,7 @@ fun App() {
                         ChartScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
                     }
                     entry<RouteSearch>(metadata = ListDetailScene.listPane()) {
-                        SearchScreen()
+                        SearchScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
                     }
                     entry<RouteTrackDetails>(metadata = ListDetailScene.detailPane()) { route ->
                         TrackDetailsScreen(
