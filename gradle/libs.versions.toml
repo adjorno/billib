@@ -67,7 +67,7 @@ androidx-nav3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui
 
 androidx-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "androidx-adaptive" }
 androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptive" }
-androidx-adaptive-nav3 = { module = "org.jetbrains.compose.material3.adaptive :adaptive-navigation3", version.ref = "androidx-adaptive" }
+androidx-adaptive-nav3 = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "androidx-adaptive" }
 
 # Compose Multiplatform (explicit — compose.* accessors deprecated in 1.10.0)
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
