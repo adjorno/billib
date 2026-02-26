@@ -16,6 +16,7 @@ fun ChartTrackList(
     onArtworkNeeded: suspend (Track) -> Unit,
     onTrackLongPress: (ChartTrack) -> Unit,
     onTrackShare: ((ChartTrack) -> Unit)?,
+    onTrackClick: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
     badgeFor: (ChartTrack) -> PositionBadge = { chartTrack ->
         when {
@@ -38,6 +39,7 @@ fun ChartTrackList(
                 chartTrack = chartTrack,
                 badge = badgeFor(chartTrack),
                 onArtworkNeeded = onArtworkNeeded,
+                onClick = { chartTrack.track?.id?.let(onTrackClick) },
                 onLongPress = { onTrackLongPress(chartTrack) },
                 onShare = onTrackShare?.let { { it(chartTrack) } },
             )

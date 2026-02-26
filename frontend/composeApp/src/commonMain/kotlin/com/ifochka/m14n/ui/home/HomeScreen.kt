@@ -1,5 +1,6 @@
 package com.ifochka.m14n.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,10 @@ import com.ifochka.m14n.ui.home.components.TrendSection
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(
+    onTrackClick: (Long) -> Unit = {},
+    viewModel: HomeViewModel = koinViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     when (val state = uiState) {
@@ -48,12 +52,15 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item {
-                    DayTrackWidget(dayTrack = state.dayTrack)
+                    Box(modifier = Modifier.clickable { state.dayTrack.track?.id?.let(onTrackClick) }) {
+                        DayTrackWidget(dayTrack = state.dayTrack)
+                    }
                 }
                 items(state.trends.trendLists ?: emptyList()) { trendList ->
                     TrendSection(
                         trendList = trendList,
                         onArtworkNeeded = viewModel::loadArtworkForTrendTrack,
+                        onTrackClick = onTrackClick,
                     )
                 }
             }

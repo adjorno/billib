@@ -71,4 +71,11 @@ class KtorM14nApi(
                 parameter("tracks_size", tracksSize)
             }.body()
         }
+
+    override suspend fun getTrackById(trackId: Long): Result<Track> =
+        runCatching {
+            httpClient.get("/track/getById") {
+                parameter("id", trackId)
+            }.body()
+        }
 }

@@ -1,6 +1,8 @@
 package com.ifochka.m14n.ui.home.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import com.ifochka.m14n.data.model.TrendList
 fun TrendSection(
     trendList: TrendList,
     onArtworkNeeded: suspend (Track) -> Unit,
+    onTrackClick: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -32,10 +35,12 @@ fun TrendSection(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(trendList.tracks ?: emptyList()) { track ->
-                TrendTrackItem(
-                    track = track,
-                    onArtworkNeeded = onArtworkNeeded,
-                )
+                Box(modifier = Modifier.clickable { track.id?.let(onTrackClick) }) {
+                    TrendTrackItem(
+                        track = track,
+                        onArtworkNeeded = onArtworkNeeded,
+                    )
+                }
             }
         }
     }

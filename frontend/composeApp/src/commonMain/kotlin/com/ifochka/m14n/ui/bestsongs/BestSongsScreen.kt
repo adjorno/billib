@@ -31,7 +31,10 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun BestSongsScreen(viewModel: BestSongsViewModel = koinViewModel()) {
+fun BestSongsScreen(
+    onTrackClick: (Long) -> Unit = {},
+    viewModel: BestSongsViewModel = koinViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -89,6 +92,7 @@ fun BestSongsScreen(viewModel: BestSongsViewModel = koinViewModel()) {
                         ChartTrackList(
                             chartTracks = chartTracks,
                             onArtworkNeeded = viewModel::loadArtworkForTrack,
+                            onTrackClick = onTrackClick,
                             badgeFor = { PositionBadge.None },
                             onTrackLongPress = { chartTrack ->
                                 buildTrackText(chartTrack)?.let { text ->

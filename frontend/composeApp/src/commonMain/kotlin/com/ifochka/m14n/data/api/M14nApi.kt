@@ -31,4 +31,6 @@ interface M14nApi {
         artistsSize: Int = 5,
         tracksSize: Int = 10,
     ): Result<MergedSearchResult>
+
+    suspend fun getTrackById(trackId: Long): Result<Track>
 }

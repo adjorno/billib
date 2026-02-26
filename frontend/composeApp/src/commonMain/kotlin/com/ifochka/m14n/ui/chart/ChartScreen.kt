@@ -33,7 +33,10 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ChartScreen(viewModel: ChartViewModel = koinViewModel()) {
+fun ChartScreen(
+    onTrackClick: (Long) -> Unit = {},
+    viewModel: ChartViewModel = koinViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val shareManager: ShareManager = koinInject()
     val clipboardManager = LocalClipboardManager.current
@@ -94,6 +97,7 @@ fun ChartScreen(viewModel: ChartViewModel = koinViewModel()) {
                             ChartTrackList(
                                 chartTracks = tracks,
                                 onArtworkNeeded = viewModel::loadArtworkForTrack,
+                                onTrackClick = onTrackClick,
                                 onTrackLongPress = { chartTrack ->
                                     buildShareText(chartTrack)?.let { text ->
                                         clipboardManager.setText(AnnotatedString(text))
