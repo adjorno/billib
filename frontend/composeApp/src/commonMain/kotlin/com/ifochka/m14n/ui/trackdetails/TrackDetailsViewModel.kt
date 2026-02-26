@@ -40,10 +40,17 @@ class TrackDetailsViewModel(
         viewModelScope.launch {
             api.getTrackInfo(trackId)
                 .onSuccess { info ->
+                    val history = info.history
+                    val allDates = history?.values?.flatMap { it.keys } ?: emptyList()
                     val artworkUrl = artworkRepository.getArtworkUrl(info.track)
                     _uiState.value = TrackDetailsUiState.Success(
-                        track = info.track.copy(artworkUrl = artworkUrl ?: info.track.artworkUrl),
-                        history = info.history,
+                        track = info.track.copy(
+                            artworkUrl = artworkUrl ?: info.track.artworkUrl,
+                            firstChartDate = info.track.firstChartDate ?: allDates.minOrNull(),
+                            totalWeeksOnChart = info.track.totalWeeksOnChart.takeIf { it > 0 }
+                                ?: history?.values?.sumOf { it.size } ?: 0,
+                        ),
+                        history = history,
                         globalRank = info.globalRank,
                     )
                 }

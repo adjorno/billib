@@ -82,6 +82,7 @@ fun TrackDetailsScreen(
                 TrackDetailsContent(
                     track = state.track,
                     history = state.history,
+                    globalRank = state.globalRank,
                     modifier = Modifier.padding(padding),
                 )
             }
@@ -98,6 +99,7 @@ fun TrackDetailsScreen(
 private fun TrackDetailsContent(
     track: Track,
     history: Map<String, Map<String, Int>>?,
+    globalRank: Long,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
@@ -154,8 +156,8 @@ private fun TrackDetailsContent(
             Column(modifier = Modifier.padding(16.dp)) {
                 MetadataRow(label = "First chart date", value = track.firstChartDate ?: "—")
                 MetadataRow(
-                    label = "Peak global rank",
-                    value = track.peakGlobalRank?.let { "#$it" } ?: "—",
+                    label = "Global rank",
+                    value = if (globalRank > 0) "#$globalRank" else "—",
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -167,7 +169,7 @@ private fun TrackDetailsContent(
                 )
                 MetadataRow(
                     label = "Weeks on chart",
-                    value = track.totalWeeksOnChart.toString(),
+                    value = if (track.totalWeeksOnChart > 0) track.totalWeeksOnChart.toString() else "—",
                 )
                 MetadataRow(
                     label = "Artist",
