@@ -1,5 +1,8 @@
 package com.ifochka.m14n
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -124,6 +127,18 @@ fun App() {
                             onBack = { navigator.goBack() },
                             sceneStrategy = rememberListDetailSceneStrategy(),
                             modifier = Modifier.fillMaxSize(),
+                            transitionSpec = {
+                                slideInHorizontally(initialOffsetX = { it }) togetherWith
+                                    slideOutHorizontally(targetOffsetX = { -it })
+                            },
+                            popTransitionSpec = {
+                                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                    slideOutHorizontally(targetOffsetX = { it })
+                            },
+                            predictivePopTransitionSpec = {
+                                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                    slideOutHorizontally(targetOffsetX = { it })
+                            },
                         )
                     }
                 } else {
@@ -146,6 +161,18 @@ fun App() {
                             entries = navigationState.toEntries(provider),
                             onBack = { navigator.goBack() },
                             modifier = Modifier.padding(paddingValues),
+                            transitionSpec = {
+                                slideInHorizontally(initialOffsetX = { it }) togetherWith
+                                    slideOutHorizontally(targetOffsetX = { -it })
+                            },
+                            popTransitionSpec = {
+                                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                    slideOutHorizontally(targetOffsetX = { it })
+                            },
+                            predictivePopTransitionSpec = {
+                                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                    slideOutHorizontally(targetOffsetX = { it })
+                            },
                         )
                     }
                 }

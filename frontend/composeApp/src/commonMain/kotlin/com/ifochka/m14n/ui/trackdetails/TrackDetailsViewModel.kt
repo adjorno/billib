@@ -8,7 +8,6 @@ import com.ifochka.m14n.data.model.Track
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 sealed interface TrackDetailsUiState {
@@ -41,8 +40,9 @@ class TrackDetailsViewModel(
         viewModelScope.launch {
             api.getTrackInfo(trackId)
                 .onSuccess { info ->
+                    val artworkUrl = artworkRepository.getArtworkUrl(info.track)
                     _uiState.value = TrackDetailsUiState.Success(
-                        track = info.track,
+                        track = info.track.copy(artworkUrl = artworkUrl ?: info.track.artworkUrl),
                         history = info.history,
                         globalRank = info.globalRank,
                     )
@@ -50,14 +50,6 @@ class TrackDetailsViewModel(
                 .onFailure { error ->
                     _uiState.value = TrackDetailsUiState.Error(error.message ?: "Failed to load")
                 }
-        }
-    }
-
-    suspend fun loadArtwork(track: Track) {
-        val url = artworkRepository.getArtworkUrl(track) ?: return
-        _uiState.update { state ->
-            (state as? TrackDetailsUiState.Success)
-                ?.copy(track = state.track.copy(artworkUrl = url)) ?: state
         }
     }
 }

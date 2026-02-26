@@ -32,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,10 +79,8 @@ fun TrackDetailsScreen(
             ) { CircularProgressIndicator() }
 
             is TrackDetailsUiState.Success -> {
-                val track = state.track
-                LaunchedEffect(track.id) { viewModel.loadArtwork(track) }
                 TrackDetailsContent(
-                    track = track,
+                    track = state.track,
                     history = state.history,
                     modifier = Modifier.padding(padding),
                 )
