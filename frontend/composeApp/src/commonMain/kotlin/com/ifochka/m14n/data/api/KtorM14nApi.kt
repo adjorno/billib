@@ -5,6 +5,7 @@ import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
 import com.ifochka.m14n.data.model.MergedSearchResult
 import com.ifochka.m14n.data.model.Track
+import com.ifochka.m14n.data.model.TrackInfo
 import com.ifochka.m14n.data.model.Trends
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -69,6 +70,20 @@ class KtorM14nApi(
                 parameter("query", query)
                 parameter("artists_size", artistsSize)
                 parameter("tracks_size", tracksSize)
+            }.body()
+        }
+
+    override suspend fun getTrackById(trackId: Long): Result<Track> =
+        runCatching {
+            httpClient.get("/track/getById") {
+                parameter("id", trackId)
+            }.body()
+        }
+
+    override suspend fun getTrackInfo(trackId: Long): Result<TrackInfo> =
+        runCatching {
+            httpClient.get("/track/info") {
+                parameter("id", trackId)
             }.body()
         }
 }

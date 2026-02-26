@@ -8,6 +8,10 @@ class Navigator(
     fun navigate(route: NavKey) {
         if (route in state.backStacks.keys) {
             state.topLevelRoute = route
+        } else if (route is RouteTrackDetails) {
+            val stack = state.backStacks[state.topLevelRoute] ?: return
+            stack.removeAll { it is RouteTrackDetails }
+            stack.add(route)
         } else {
             state.backStacks[state.topLevelRoute]?.add(route)
         }

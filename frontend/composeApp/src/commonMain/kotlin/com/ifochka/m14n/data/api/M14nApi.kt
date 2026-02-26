@@ -5,6 +5,7 @@ import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
 import com.ifochka.m14n.data.model.MergedSearchResult
 import com.ifochka.m14n.data.model.Track
+import com.ifochka.m14n.data.model.TrackInfo
 import com.ifochka.m14n.data.model.Trends
 
 interface M14nApi {
@@ -31,4 +32,8 @@ interface M14nApi {
         artistsSize: Int = 5,
         tracksSize: Int = 10,
     ): Result<MergedSearchResult>
+
+    suspend fun getTrackById(trackId: Long): Result<Track>
+
+    suspend fun getTrackInfo(trackId: Long): Result<TrackInfo>
 }

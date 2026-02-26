@@ -32,6 +32,7 @@ fun ChartTrackItem(
     chartTrack: ChartTrack,
     badge: PositionBadge,
     onArtworkNeeded: suspend (Track) -> Unit,
+    onClick: () -> Unit = {},
     onLongPress: () -> Unit,
     onShare: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -47,7 +48,7 @@ fun ChartTrackItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .combinedClickable(onClick = {}, onLongClick = onLongPress)
+            .combinedClickable(onClick = onClick, onLongClick = onLongPress)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

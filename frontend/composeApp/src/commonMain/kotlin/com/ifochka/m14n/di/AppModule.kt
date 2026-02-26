@@ -22,6 +22,7 @@ import com.ifochka.m14n.ui.bestsongs.BestSongsViewModel
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import com.ifochka.m14n.ui.home.HomeViewModel
 import com.ifochka.m14n.ui.search.SearchViewModel
+import com.ifochka.m14n.ui.trackdetails.TrackDetailsViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -74,4 +75,5 @@ val appModule = module {
     factoryOf(::ChartViewModel)
     factoryOf(::HomeViewModel)
     factoryOf(::SearchViewModel)
+    factory { params -> TrackDetailsViewModel(get(), get(), params.get<Long>()) }
 }

@@ -60,6 +60,10 @@ kotlin {
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines.extensions)
             implementation(libs.androidx.nav3.ui)
+            implementation(libs.androidx.lifecycle.viewmodelNavigation3)
+            implementation(libs.androidx.adaptive)
+            implementation(libs.androidx.adaptive.layout)
+            implementation(libs.androidx.adaptive.nav3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

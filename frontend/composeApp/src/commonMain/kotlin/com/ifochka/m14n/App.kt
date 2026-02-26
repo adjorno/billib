@@ -1,5 +1,10 @@
 package com.ifochka.m14n
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,11 +34,14 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.ifochka.m14n.navigation.ListDetailScene
 import com.ifochka.m14n.navigation.Navigator
 import com.ifochka.m14n.navigation.RouteBestSongs
 import com.ifochka.m14n.navigation.RouteHistory
 import com.ifochka.m14n.navigation.RouteHome
 import com.ifochka.m14n.navigation.RouteSearch
+import com.ifochka.m14n.navigation.RouteTrackDetails
+import com.ifochka.m14n.navigation.rememberListDetailSceneStrategy
 import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
 import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
@@ -41,6 +49,9 @@ import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
 import com.ifochka.m14n.ui.search.SearchScreen
 import com.ifochka.m14n.ui.theme.M14nTheme
+import com.ifochka.m14n.ui.trackdetails.TrackDetailsScreen
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private data class NavItem(
     val route: NavKey,
@@ -73,10 +84,24 @@ fun App() {
 
             val provider: (NavKey) -> NavEntry<NavKey> = remember {
                 entryProvider {
-                    entry<RouteHome> { HomeScreen() }
-                    entry<RouteBestSongs> { BestSongsScreen() }
-                    entry<RouteHistory> { ChartScreen() }
-                    entry<RouteSearch> { SearchScreen() }
+                    entry<RouteHome>(metadata = ListDetailScene.listPane()) {
+                        HomeScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
+                    }
+                    entry<RouteBestSongs>(metadata = ListDetailScene.listPane()) {
+                        BestSongsScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
+                    }
+                    entry<RouteHistory>(metadata = ListDetailScene.listPane()) {
+                        ChartScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
+                    }
+                    entry<RouteSearch>(metadata = ListDetailScene.listPane()) {
+                        SearchScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
+                    }
+                    entry<RouteTrackDetails>(metadata = ListDetailScene.detailPane()) { route ->
+                        TrackDetailsScreen(
+                            viewModel = koinViewModel(parameters = { parametersOf(route.trackId) }),
+                            onBack = { navigator.goBack() },
+                        )
+                    }
                 }
             }
 
@@ -102,7 +127,17 @@ fun App() {
                         NavDisplay(
                             entries = navigationState.toEntries(provider),
                             onBack = { navigator.goBack() },
+                            sceneStrategy = rememberListDetailSceneStrategy(),
                             modifier = Modifier.fillMaxSize(),
+                            transitionSpec = {
+                                slideInHorizontally(initialOffsetX = { it }) togetherWith ExitTransition.None
+                            },
+                            popTransitionSpec = {
+                                EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                            },
+                            predictivePopTransitionSpec = {
+                                EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                            },
                         )
                     }
                 } else {
@@ -125,6 +160,15 @@ fun App() {
                             entries = navigationState.toEntries(provider),
                             onBack = { navigator.goBack() },
                             modifier = Modifier.padding(paddingValues),
+                            transitionSpec = {
+                                slideInHorizontally(initialOffsetX = { it }) togetherWith ExitTransition.None
+                            },
+                            popTransitionSpec = {
+                                EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                            },
+                            predictivePopTransitionSpec = {
+                                EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                            },
                         )
                     }
                 }

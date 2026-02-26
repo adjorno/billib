@@ -30,7 +30,10 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SearchScreen(viewModel: SearchViewModel = koinViewModel()) {
+fun SearchScreen(
+    onTrackClick: (Long) -> Unit = {},
+    viewModel: SearchViewModel = koinViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val query by viewModel.query.collectAsState()
     val clipboardManager = LocalClipboardManager.current
@@ -134,6 +137,7 @@ fun SearchScreen(viewModel: SearchViewModel = koinViewModel()) {
                         ChartTrackList(
                             chartTracks = chartTracks,
                             onArtworkNeeded = viewModel::loadArtworkForTrack,
+                            onTrackClick = onTrackClick,
                             onTrackLongPress = { chartTrack ->
                                 val track = chartTrack.track ?: return@ChartTrackList
                                 val artist = track.artist?.name ?: track.artistName ?: "Unknown Artist"
