@@ -24,7 +24,6 @@ class ChartTrackController(
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateTrack"], method = [RequestMethod.POST])
     fun updateTrack(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "chartTrackId") chartTrackId: Long,
         @RequestParam(name = "trackId") trackId: Long,
     ) {
@@ -65,7 +64,6 @@ class ChartTrackController(
     @Transactional
     @RequestMapping(value = ["/chartTrack/updateMissingTrack"], method = [RequestMethod.POST])
     fun addMissingChartTrack(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "clId") chartListId: Long,
         @RequestParam(name = "tId") trackId: Long,
         @RequestParam(name = "rank") rank: Int,

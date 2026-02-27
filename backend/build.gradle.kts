@@ -39,6 +39,9 @@ dependencies {
 
     implementation(libs.firebase.admin)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.oauth2.rs)
+    implementation(libs.springdoc.openapi.webmvc.ui)
 
     implementation(platform(libs.spring.modulith.bom))
     implementation(libs.spring.modulith.starter.core)

@@ -55,6 +55,7 @@ subprojects {
                 )
 
                 val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")
+                val apiKey = getPropertyOrEnv(key = "API_KEY", fallback = "local-api-key")
 
                 defaultConfigs {
                     buildConfigField(
@@ -67,6 +68,12 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         name = "API_BASE_URL",
                         value = apiBaseUrl,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "API_KEY",
+                        value = apiKey,
                     )
                 }
             }
