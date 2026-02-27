@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -21,19 +23,23 @@ class DevTokenController(
 
     @Operation(summary = "Get anonymous Firebase ID token (local only)")
     @PostMapping("/token", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getToken(): Map<String, String> {
+    fun getToken(): ResponseEntity<Map<String, String>> {
         val response = restClient.post()
             .uri("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$webApiKey")
             .contentType(MediaType.APPLICATION_JSON)
             .body("""{"returnSecureToken":true}""")
             .retrieve()
             .body(FirebaseSignUpResponse::class.java)
-            ?: error("Empty response from Firebase")
+            ?: return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(mapOf("error" to "Empty response from Firebase"))
 
-        return mapOf(
-            "token" to response.idToken,
-            "expiresIn" to response.expiresIn,
-            "hint" to "Paste token value into Swagger Authorize → Bearer",
+        return ResponseEntity.ok(
+            mapOf(
+                "token" to response.idToken,
+                "expiresIn" to response.expiresIn,
+                "hint" to "Paste token value into Swagger Authorize → Bearer",
+            ),
         )
     }
 

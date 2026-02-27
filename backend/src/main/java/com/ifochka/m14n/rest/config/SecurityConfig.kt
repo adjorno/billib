@@ -57,6 +57,8 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(HttpMethod.POST, "/admin/claims").hasRole("ADMIN")
+                    // All POST endpoints in this API are intentionally admin-only (data mutation).
+                    // Read-only (GET) endpoints are accessible to any authenticated user (ROLE_USER).
                     .requestMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                     .requestMatchers("/duplicate/artist", "/duplicate/track").hasRole("ADMIN")
                     .anyRequest().hasRole("USER")
@@ -83,7 +85,11 @@ class SecurityConfig(
                 JwtTimestampValidator(),
                 JwtIssuerValidator("https://securetoken.google.com/$projectId"),
                 JwtClaimValidator<Any>("aud") { aud ->
-                    aud?.toString()?.contains(projectId) == true
+                    when (aud) {
+                        is String -> aud == projectId
+                        is List<*> -> aud.contains(projectId)
+                        else -> false
+                    }
                 },
             ),
         )
