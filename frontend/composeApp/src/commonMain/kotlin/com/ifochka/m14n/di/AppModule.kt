@@ -18,6 +18,7 @@ import com.ifochka.m14n.data.repository.NetworkChartRepository
 import com.ifochka.m14n.db.M14nDatabase
 import com.ifochka.m14n.share.ShareManager
 import com.ifochka.m14n.share.createShareManager
+import com.ifochka.m14n.ui.artistdetails.ArtistDetailsViewModel
 import com.ifochka.m14n.ui.bestsongs.BestSongsViewModel
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import com.ifochka.m14n.ui.home.HomeViewModel
@@ -76,4 +77,5 @@ val appModule = module {
     factoryOf(::HomeViewModel)
     factoryOf(::SearchViewModel)
     factory { params -> TrackDetailsViewModel(get(), get(), params.get<Long>()) }
+    factory { params -> ArtistDetailsViewModel(get(), get(), params.get<Long>()) }
 }

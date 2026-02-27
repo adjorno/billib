@@ -32,6 +32,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SearchScreen(
     onTrackClick: (Long) -> Unit = {},
+    onArtistClick: (Long) -> Unit = {},
     viewModel: SearchViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -107,7 +108,10 @@ fun SearchScreen(
                         FlowRow(modifier = Modifier.padding(horizontal = 16.dp)) {
                             state.artists.forEach { artist ->
                                 SuggestionChip(
-                                    onClick = { viewModel.setQuery(artist.name ?: "") },
+                                    onClick = {
+                                        artist.id?.let(onArtistClick)
+                                            ?: viewModel.setQuery(artist.name ?: "")
+                                    },
                                     label = { Text(artist.name ?: "") },
                                     modifier = Modifier.padding(end = 8.dp),
                                 )

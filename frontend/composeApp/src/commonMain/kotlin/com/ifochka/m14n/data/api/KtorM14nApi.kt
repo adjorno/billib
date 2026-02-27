@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.api
 
+import com.ifochka.m14n.data.model.ArtistInfo
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
@@ -11,6 +12,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+
+private const val ARTIST_RELATIONS_SIZE = 10
+private const val ARTIST_TRACKS_SIZE = 5
 
 class KtorM14nApi(
     private val httpClient: HttpClient,
@@ -84,6 +88,15 @@ class KtorM14nApi(
         runCatching {
             httpClient.get("/track/info") {
                 parameter("id", trackId)
+            }.body()
+        }
+
+    override suspend fun getArtistInfo(artistId: Long): Result<ArtistInfo> =
+        runCatching {
+            httpClient.get("/artist/info") {
+                parameter("id", artistId)
+                parameter("relations_size", ARTIST_RELATIONS_SIZE)
+                parameter("tracks_size", ARTIST_TRACKS_SIZE)
             }.body()
         }
 }

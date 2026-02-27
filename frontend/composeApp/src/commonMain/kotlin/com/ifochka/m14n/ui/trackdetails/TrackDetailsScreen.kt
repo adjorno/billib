@@ -1,6 +1,7 @@
 package com.ifochka.m14n.ui.trackdetails
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,7 @@ import com.ifochka.m14n.data.model.Track
 fun TrackDetailsScreen(
     viewModel: TrackDetailsViewModel,
     onBack: () -> Unit,
+    onArtistClick: (Long) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val title = (uiState as? TrackDetailsUiState.Success)?.track?.title ?: ""
@@ -83,6 +85,7 @@ fun TrackDetailsScreen(
                     track = state.track,
                     history = state.history,
                     globalRank = state.globalRank,
+                    onArtistClick = onArtistClick,
                     modifier = Modifier.padding(padding),
                 )
             }
@@ -100,6 +103,7 @@ private fun TrackDetailsContent(
     track: Track,
     history: Map<String, Map<String, Int>>?,
     globalRank: Long,
+    onArtistClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
@@ -174,6 +178,7 @@ private fun TrackDetailsContent(
                 MetadataRow(
                     label = "Artist",
                     value = track.artist?.name ?: track.artistName ?: "—",
+                    onValueClick = track.artist?.id?.let { id -> { onArtistClick(id) } },
                 )
             }
         }
@@ -247,6 +252,7 @@ private fun MetadataRow(
     label: String,
     value: String,
     trailingIcon: @Composable (() -> Unit)? = null,
+    onValueClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -262,10 +268,19 @@ private fun MetadataRow(
             trailingIcon()
             Spacer(modifier = Modifier.width(4.dp))
         }
+        val valueModifier = if (onValueClick != null) Modifier.clickable(onClick = onValueClick) else Modifier
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
+            color = if (onValueClick !=
+                null
+            ) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+            modifier = valueModifier,
         )
     }
 }
