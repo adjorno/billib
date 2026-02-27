@@ -42,7 +42,6 @@ class DuplicateController(
     @Transactional
     @RequestMapping(value = ["/duplicate/checkTracks"], method = [RequestMethod.POST])
     fun checkTracksAPI(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
         @RequestParam(name = "checkSize", defaultValue = "100") size: Int,
     ) {
@@ -89,7 +88,6 @@ class DuplicateController(
     @Transactional
     @RequestMapping(value = ["/duplicate/checkArtists"], method = [RequestMethod.POST])
     fun checkArtistsAPI(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "fromArtist", defaultValue = "1") from: Int,
         @RequestParam(name = "checkSize", defaultValue = "100") size: Int,
     ) {
@@ -131,7 +129,6 @@ class DuplicateController(
     @Transactional
     @RequestMapping(value = ["/duplicate/checkLastWeek"], method = [RequestMethod.POST])
     fun checkLastWeekAPI(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "from", defaultValue = "1") from: Long,
         @RequestParam(name = "size", defaultValue = "500") size: Long,
     ) {
@@ -141,7 +138,6 @@ class DuplicateController(
     @Transactional
     @RequestMapping(value = ["/duplicate/artist"], method = [RequestMethod.GET])
     fun removeDuplicateArtistAPI(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "originalArtistId") originalId: Long,
         @RequestParam(name = "duplicateArtistId") duplicateId: Long,
     ): List<MergeOperation<*>>? {
@@ -156,7 +152,6 @@ class DuplicateController(
     @Transactional
     @RequestMapping(value = ["/duplicate/track"], method = [RequestMethod.GET])
     fun removeDuplicateTrackAPI(
-        @RequestParam(name = "password") password: String,
         @RequestParam(name = "originalTrackId") originalId: Long,
         @RequestParam(name = "duplicateTrackId") duplicateId: Long,
     ): MergeOperation<Track>? {
@@ -167,7 +162,6 @@ class DuplicateController(
     @Transactional
     @RequestMapping(value = ["/duplicate/checkCollaborations"], method = [RequestMethod.POST])
     fun removeDuplicateCollaborationsAPI(
-        @RequestParam(name = "password") password: String,
         @RequestParam(defaultValue = "0") from: Int,
         @RequestParam(required = false, defaultValue = "100") size: Int,
         @RequestParam() dryRun: Boolean,
