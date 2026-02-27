@@ -36,6 +36,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.ifochka.m14n.navigation.ListDetailScene
 import com.ifochka.m14n.navigation.Navigator
+import com.ifochka.m14n.navigation.RouteArtistDetails
 import com.ifochka.m14n.navigation.RouteBestSongs
 import com.ifochka.m14n.navigation.RouteHistory
 import com.ifochka.m14n.navigation.RouteHome
@@ -44,6 +45,7 @@ import com.ifochka.m14n.navigation.RouteTrackDetails
 import com.ifochka.m14n.navigation.rememberListDetailSceneStrategy
 import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
+import com.ifochka.m14n.ui.artistdetails.ArtistDetailsScreen
 import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
@@ -94,12 +96,24 @@ fun App() {
                         ChartScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
                     }
                     entry<RouteSearch>(metadata = ListDetailScene.listPane()) {
-                        SearchScreen(onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) })
+                        SearchScreen(
+                            onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) },
+                            onArtistClick = { id -> navigator.navigate(RouteArtistDetails(id)) },
+                        )
                     }
                     entry<RouteTrackDetails>(metadata = ListDetailScene.detailPane()) { route ->
                         TrackDetailsScreen(
                             viewModel = koinViewModel(parameters = { parametersOf(route.trackId) }),
                             onBack = { navigator.goBack() },
+                            onArtistClick = { id -> navigator.navigate(RouteArtistDetails(id)) },
+                        )
+                    }
+                    entry<RouteArtistDetails>(metadata = ListDetailScene.detailPane()) { route ->
+                        ArtistDetailsScreen(
+                            viewModel = koinViewModel(parameters = { parametersOf(route.artistId) }),
+                            onBack = { navigator.goBack() },
+                            onTrackClick = { id -> navigator.navigate(RouteTrackDetails(id)) },
+                            onArtistClick = { id -> navigator.navigate(RouteArtistDetails(id)) },
                         )
                     }
                 }

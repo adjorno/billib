@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.api
 
+import com.ifochka.m14n.data.model.ArtistInfo
 import com.ifochka.m14n.data.model.Chart
 import com.ifochka.m14n.data.model.ChartList
 import com.ifochka.m14n.data.model.DayTrack
@@ -36,4 +37,6 @@ interface M14nApi {
     suspend fun getTrackById(trackId: Long): Result<Track>
 
     suspend fun getTrackInfo(trackId: Long): Result<TrackInfo>
+
+    suspend fun getArtistInfo(artistId: Long): Result<ArtistInfo>
 }
