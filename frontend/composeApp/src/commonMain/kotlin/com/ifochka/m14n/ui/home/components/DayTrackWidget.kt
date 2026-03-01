@@ -35,16 +35,22 @@ import coil3.compose.AsyncImage
 import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.DayTrack
 import com.ifochka.m14n.data.model.Track
+import com.ifochka.m14n.ui.shared.SkeletonBox
 
 @Composable
 fun DayTrackWidget(
     dayTrack: DayTrack,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.widthIn(max = 480.dp).fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
+        if (isLoading) {
+            SkeletonBox(modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f))
+            return@Card
+        }
         val track = dayTrack.track
         if (track != null) {
             Box(

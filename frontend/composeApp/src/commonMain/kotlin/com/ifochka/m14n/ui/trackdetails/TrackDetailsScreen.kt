@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,7 +23,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.ifochka.m14n.data.model.Track
+import com.ifochka.m14n.ui.shared.SkeletonBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,10 +76,26 @@ fun TrackDetailsScreen(
         },
     ) { padding ->
         when (val state = uiState) {
-            is TrackDetailsUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            is TrackDetailsUiState.Loading -> Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                SkeletonBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                )
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    SkeletonBox(modifier = Modifier.fillMaxWidth(0.75f).height(28.dp))
+                    SkeletonBox(modifier = Modifier.fillMaxWidth(0.5f).height(20.dp))
+                    SkeletonBox(modifier = Modifier.fillMaxWidth(0.6f).height(20.dp))
+                }
+            }
 
             is TrackDetailsUiState.Success -> {
                 TrackDetailsContent(

@@ -1,6 +1,7 @@
 package com.ifochka.m14n.ui.artistdetails
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -9,15 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -42,6 +45,8 @@ import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.ui.chart.components.ChartTrackItem
 import com.ifochka.m14n.ui.chart.components.PositionBadge
+import com.ifochka.m14n.ui.chart.components.SkeletonChartTrackItem
+import com.ifochka.m14n.ui.shared.SkeletonBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,10 +75,30 @@ fun ArtistDetailsScreen(
         },
     ) { padding ->
         when (val state = uiState) {
-            is ArtistDetailsUiState.Loading -> Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            is ArtistDetailsUiState.Loading -> {
+                val skeletonItems = remember { List(6) { it } }
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 9f),
+                        ) {
+                            SkeletonBox(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                    item {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            SkeletonBox(modifier = Modifier.fillMaxWidth(0.6f).height(28.dp))
+                            SkeletonBox(modifier = Modifier.fillMaxWidth(0.4f).height(20.dp))
+                        }
+                    }
+                    items(skeletonItems) { SkeletonChartTrackItem() }
+                }
+            }
 
             is ArtistDetailsUiState.Error -> Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
