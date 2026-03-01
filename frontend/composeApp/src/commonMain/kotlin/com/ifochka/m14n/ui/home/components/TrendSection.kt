@@ -37,11 +37,11 @@ fun TrendSection(
                     .fillMaxWidth(0.4f)
                     .height(20.dp),
             )
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp),
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                repeat(5) {
+                items(5) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         SkeletonBox(modifier = Modifier.size(80.dp))
                         SkeletonBox(modifier = Modifier.size(width = 80.dp, height = 12.dp))
