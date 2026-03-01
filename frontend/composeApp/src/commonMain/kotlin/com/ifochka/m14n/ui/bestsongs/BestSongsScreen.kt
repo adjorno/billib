@@ -3,9 +3,13 @@ package com.ifochka.m14n.ui.bestsongs
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,6 +31,8 @@ import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.ui.bestsongs.components.BestSongsFilterBar
 import com.ifochka.m14n.ui.chart.components.ChartTrackList
 import com.ifochka.m14n.ui.chart.components.PositionBadge
+import com.ifochka.m14n.ui.chart.components.SkeletonChartTrackItem
+import com.ifochka.m14n.ui.shared.SkeletonBox
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -53,13 +59,19 @@ fun BestSongsScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is BestSongsUiState.Loading -> {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    SkeletonBox(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth()
+                            .height(40.dp),
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    LazyColumn(modifier = Modifier.weight(1f)) { skeletonTrackItems() }
                 }
             }
 
@@ -82,12 +94,7 @@ fun BestSongsScreen(
                     )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     if (state.isLoadingTracks) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                        LazyColumn(modifier = Modifier.fillMaxSize()) { skeletonTrackItems() }
                     } else {
                         ChartTrackList(
                             chartTracks = chartTracks,
@@ -131,4 +138,8 @@ fun BestSongsScreen(
             }
         }
     }
+}
+
+private fun LazyListScope.skeletonTrackItems(count: Int = 10) {
+    items(count) { SkeletonChartTrackItem() }
 }

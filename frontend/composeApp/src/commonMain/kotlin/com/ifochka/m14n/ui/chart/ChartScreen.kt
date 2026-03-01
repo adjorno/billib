@@ -3,9 +3,12 @@ package com.ifochka.m14n.ui.chart
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,6 +31,8 @@ import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.share.ShareManager
 import com.ifochka.m14n.ui.chart.components.ChartTopBar
 import com.ifochka.m14n.ui.chart.components.ChartTrackList
+import com.ifochka.m14n.ui.chart.components.SkeletonChartTrackItem
+import com.ifochka.m14n.ui.shared.SkeletonBox
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -56,13 +61,21 @@ fun ChartScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is ChartUiState.Loading -> {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    SkeletonBox(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth()
+                            .height(40.dp),
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(10) { SkeletonChartTrackItem() }
+                    }
                 }
             }
 
