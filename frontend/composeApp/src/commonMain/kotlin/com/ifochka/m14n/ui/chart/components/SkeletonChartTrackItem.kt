@@ -17,12 +17,17 @@ fun SkeletonChartTrackItem(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SkeletonBox(modifier = Modifier.size(48.dp))
-        SkeletonBox(modifier = Modifier.weight(1f).height(56.dp))
+        SkeletonBox(modifier = Modifier.size(56.dp))
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SkeletonBox(modifier = Modifier.fillMaxWidth().height(20.dp))
+            SkeletonBox(modifier = Modifier.fillMaxWidth(0.8f).height(16.dp))
+        }
     }
 }
