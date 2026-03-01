@@ -76,7 +76,7 @@ fun ArtistDetailsScreen(
     ) { padding ->
         when (val state = uiState) {
             is ArtistDetailsUiState.Loading -> {
-                val skeletonItems = remember { List(6) { it } }
+                val skeletonItems = remember { List(5) { it } }
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
                     item {
                         Box(
