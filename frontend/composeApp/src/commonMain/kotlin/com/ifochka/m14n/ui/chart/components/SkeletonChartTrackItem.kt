@@ -1,6 +1,7 @@
 package com.ifochka.m14n.ui.chart.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +25,7 @@ fun SkeletonChartTrackItem(modifier: Modifier = Modifier) {
         SkeletonBox(modifier = Modifier.size(56.dp))
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             SkeletonBox(modifier = Modifier.fillMaxWidth().height(20.dp))
             SkeletonBox(modifier = Modifier.fillMaxWidth(0.8f).height(16.dp))

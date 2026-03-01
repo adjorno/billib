@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
@@ -70,9 +71,7 @@ fun BestSongsScreen(
                             .height(40.dp),
                     )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    LazyColumn(modifier = Modifier.weight(1f)) {
-                        items(10) { SkeletonChartTrackItem() }
-                    }
+                    LazyColumn(modifier = Modifier.weight(1f)) { skeletonTrackItems() }
                 }
             }
 
@@ -95,9 +94,7 @@ fun BestSongsScreen(
                     )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     if (state.isLoadingTracks) {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(10) { SkeletonChartTrackItem() }
-                        }
+                        LazyColumn(modifier = Modifier.fillMaxSize()) { skeletonTrackItems() }
                     } else {
                         ChartTrackList(
                             chartTracks = chartTracks,
@@ -141,4 +138,8 @@ fun BestSongsScreen(
             }
         }
     }
+}
+
+private fun LazyListScope.skeletonTrackItems(count: Int = 10) {
+    items(count) { SkeletonChartTrackItem() }
 }
