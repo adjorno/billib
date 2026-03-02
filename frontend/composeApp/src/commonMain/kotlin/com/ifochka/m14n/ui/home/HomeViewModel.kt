@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ifochka.m14n.data.api.M14nApi
 import com.ifochka.m14n.data.artwork.ArtworkRepository
 import com.ifochka.m14n.data.model.Track
+import com.ifochka.m14n.data.util.DateUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,7 @@ class HomeViewModel(
         loadJob = viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
 
-            val dayTrackDeferred = async { api.getDayTrack() }
+            val dayTrackDeferred = async { api.getDayTrack(date = DateUtils.getTodayAsString()) }
             val trendsDeferred = async { api.getTrends() }
 
             val dayTrackResult = dayTrackDeferred.await()
