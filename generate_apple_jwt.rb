@@ -2,9 +2,9 @@ require 'jwt'
 require 'openssl'
 
 # --- Configuration ---
-KEY_ID      = '58PZHD4PW3'       # Your 10-character Key ID from Apple Developer
-TEAM_ID     = '7XHUV5UUCP'       # Your 10-character Team ID
-P8_FILE_PATH = 'MusicAPI_AuthKey_58PZHD4PW3.p8'
+KEY_ID      = 'ABC123DEFG'       # Your 10-character Key ID from Apple Developer
+TEAM_ID     = 'XYZ9876543'       # Your 10-character Team ID
+P8_FILE_PATH = 'AuthKey_ABC123DEFG.p8'
 
 # 1. Load the Private Key from the .p8 file
 # .p8 files use the PKCS#8 format which OpenSSL handles easily
