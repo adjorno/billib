@@ -25,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -46,6 +45,7 @@ import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.ui.chart.components.ChartTrackItem
 import com.ifochka.m14n.ui.chart.components.PositionBadge
 import com.ifochka.m14n.ui.chart.components.SkeletonChartTrackItem
+import com.ifochka.m14n.ui.shared.ArtistChip
 import com.ifochka.m14n.ui.shared.SkeletonBox
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -168,9 +168,10 @@ private fun ArtistDetailsContent(
             } else {
                 FlowRow(modifier = Modifier.padding(horizontal = 16.dp)) {
                     state.relations.forEach { artist ->
-                        SuggestionChip(
+                        ArtistChip(
+                            artist = artist,
+                            artworkUrl = null,
                             onClick = { artist.id?.let(onArtistClick) },
-                            label = { Text(artist.name ?: "") },
                             modifier = Modifier.padding(end = 8.dp),
                         )
                     }
