@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.ui.chart.components.ChartTrackItem
@@ -110,6 +112,7 @@ fun ArtistDetailsScreen(
                 onTrackClick = onTrackClick,
                 onArtistClick = onArtistClick,
                 onArtworkNeeded = viewModel::loadArtworkForTrack,
+                onArtistArtworkNeeded = viewModel::loadArtworkForRelation,
                 modifier = Modifier.padding(padding),
             )
         }
@@ -123,6 +126,7 @@ private fun ArtistDetailsContent(
     onTrackClick: (Long) -> Unit,
     onArtistClick: (Long) -> Unit,
     onArtworkNeeded: suspend (Track) -> Unit,
+    onArtistArtworkNeeded: suspend (Artist) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
@@ -168,9 +172,10 @@ private fun ArtistDetailsContent(
             } else {
                 FlowRow(modifier = Modifier.padding(horizontal = 16.dp)) {
                     state.relations.forEach { artist ->
+                        LaunchedEffect(artist.id) { onArtistArtworkNeeded(artist) }
                         ArtistChip(
                             artist = artist,
-                            artworkUrl = null,
+                            artworkUrl = artist.artworkUrl,
                             onClick = { artist.id?.let(onArtistClick) },
                             modifier = Modifier.padding(end = 8.dp),
                         )

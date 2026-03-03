@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.artwork
 
+import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
@@ -17,6 +18,7 @@ class CachedArtworkRepository(
     private val requestDelayMs: Long = 1000L,
 ) : ArtworkRepository {
     private val rateLimitMutex = Mutex()
+    private val artistArtworkCache = mutableMapOf<Long, String>()
 
     @Suppress("TooGenericExceptionCaught") // Graceful degradation requires catching all exceptions
     override suspend fun getArtworkUrl(track: Track): String? {
@@ -85,6 +87,21 @@ class CachedArtworkRepository(
                 delay(requestDelayMs)
             }
         }
+
+    @Suppress("TooGenericExceptionCaught") // Graceful degradation requires catching all exceptions
+    override suspend fun getArtworkUrlForArtist(artist: Artist): String? {
+        val id = artist.id ?: return null
+        return artistArtworkCache[id] ?: rateLimitMutex.withLock {
+            artistArtworkCache[id] ?: run {
+                val url = runCatching {
+                    artworkApi.searchArtistArtwork(artist.name ?: return@withLock null)
+                }.getOrNull()
+                if (url != null) artistArtworkCache[id] = url
+                delay(requestDelayMs)
+                url
+            }
+        }
+    }
 
     override suspend fun getArtworkUrls(tracks: List<Track>): Map<Long, String?> {
         val artworkMap = mutableMapOf<Long, String?>()

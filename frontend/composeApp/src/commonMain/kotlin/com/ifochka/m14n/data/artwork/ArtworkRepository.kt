@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.artwork
 
+import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
 
 /**
@@ -21,4 +22,12 @@ interface ArtworkRepository {
      * @return Map of track ID to artwork URL
      */
     suspend fun getArtworkUrls(tracks: List<Track>): Map<Long, String?>
+
+    /**
+     * Fetch artist photo URL, using in-memory cache when available.
+     *
+     * @param artist The artist to fetch artwork for
+     * @return The artist image URL if found, null otherwise
+     */
+    suspend fun getArtworkUrlForArtist(artist: Artist): String?
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifochka.m14n.data.api.M14nApi
 import com.ifochka.m14n.data.artwork.ArtworkRepository
+import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,6 +67,19 @@ class SearchViewModel(
                 )
             },
         )
+    }
+
+    suspend fun loadArtworkForArtist(artist: Artist) {
+        val url = artworkRepository.getArtworkUrlForArtist(artist) ?: return
+        _uiState.update { state ->
+            (state as? SearchUiState.Results)?.let { s ->
+                s.copy(
+                    artists = s.artists.map { a ->
+                        if (a.id == artist.id) a.copy(artworkUrl = url) else a
+                    },
+                )
+            } ?: state
+        }
     }
 
     suspend fun loadArtworkForTrack(track: Track) {
