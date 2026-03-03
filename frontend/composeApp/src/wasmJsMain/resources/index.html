@@ -43,59 +43,6 @@
     <!-- Splash screen (all visual logic lives in splash-screen.js) -->
     <script src="splash-screen.js"></script>
 
-    <!-- iTunes JSONP Static Bridge -->
-    <script>
-        // Static global dispatcher for iTunes Search API JSONP requests
-        // Handles dynamic callback registration without requiring dynamic code generation
-        window.itunesDispatcher = {
-            counter: 0,
-
-            search: function(term, onResult) {
-                const id = "itunes_cb_" + (this.counter++);
-                const script = document.createElement('script');
-
-                console.log('[iTunes Bridge] Starting search:', term, 'callback:', id);
-
-                // Register temporary global callback for this specific request
-                window[id] = function(data) {
-                    console.log('[iTunes Bridge] Callback invoked:', id);
-
-                    // Pass result back to Kotlin as JSON string
-                    onResult(JSON.stringify(data));
-
-                    // Cleanup
-                    delete window[id];
-                    script.remove();
-
-                    console.log('[iTunes Bridge] Cleaned up:', id);
-                };
-
-                // Build and inject script tag
-                const url = 'https://itunes.apple.com/search?term=' +
-                           encodeURIComponent(term) +
-                           '&entity=song&limit=1&callback=' + id;
-
-                script.src = url;
-                script.onerror = function() {
-                    console.error('[iTunes Bridge] Script load error');
-                    delete window[id];
-                    script.remove();
-                    onResult(null); // Signal error
-                };
-
-                document.body.appendChild(script);
-                console.log('[iTunes Bridge] Script injected:', url);
-            }
-        };
-
-        // Top-level wrapper for Kotlin/Wasm external function
-        function searchItunesInternal(term, callback) {
-            window.itunesDispatcher.search(term, callback);
-        }
-
-        console.log('[iTunes Bridge] Static dispatcher initialized');
-    </script>
-
     <!-- localStorage Bridge for Artwork Persistence -->
     <script>
         function jsLocalStorageGet(key) {

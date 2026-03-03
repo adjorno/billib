@@ -56,6 +56,7 @@ subprojects {
 
                 val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")
                 val apiKey = getPropertyOrEnv(key = "API_KEY", fallback = "local-api-key")
+                val appleMusicToken = getPropertyOrEnv(key = "APPLE_MUSIC_TOKEN", fallback = "")
 
                 defaultConfigs {
                     buildConfigField(
@@ -74,6 +75,12 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         name = "API_KEY",
                         value = apiKey,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "APPLE_MUSIC_TOKEN",
+                        value = appleMusicToken,
                     )
                 }
             }
