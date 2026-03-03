@@ -13,9 +13,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -28,6 +28,7 @@ import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.ui.chart.components.ChartTrackList
 import com.ifochka.m14n.ui.chart.components.SkeletonChartTrackItem
 import com.ifochka.m14n.ui.search.components.SearchTextField
+import com.ifochka.m14n.ui.shared.ArtistChip
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -106,12 +107,14 @@ fun SearchScreen(
                         )
                         FlowRow(modifier = Modifier.padding(horizontal = 16.dp)) {
                             state.artists.forEach { artist ->
-                                SuggestionChip(
+                                LaunchedEffect(artist.id) { viewModel.loadArtworkForArtist(artist) }
+                                ArtistChip(
+                                    artist = artist,
+                                    artworkUrl = artist.artworkUrl,
                                     onClick = {
                                         artist.id?.let(onArtistClick)
                                             ?: viewModel.setQuery(artist.name ?: "")
                                     },
-                                    label = { Text(artist.name ?: "") },
                                     modifier = Modifier.padding(end = 8.dp),
                                 )
                             }

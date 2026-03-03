@@ -40,7 +40,7 @@ jobs:
           cache-read-only: false
 
       - name: Build WASM distribution
-        run: ./gradlew :frontend:composeApp:wasmJsBrowserDistribution -PVERSION_NAME=${{ inputs.version }} -PAPI_KEY=${{ secrets.FB_WEB_API_KEY }}
+        run: ./gradlew :frontend:composeApp:wasmJsBrowserDistribution -PVERSION_NAME=${{ inputs.version }} -PFIREBASE_API_KEY=${{ secrets.FB_WEB_API_KEY }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

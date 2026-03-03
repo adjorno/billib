@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifochka.m14n.data.api.M14nApi
 import com.ifochka.m14n.data.artwork.ArtworkRepository
+import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsUiState.Loading
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsUiState.Success
@@ -42,6 +43,18 @@ class ArtistDetailsViewModel(
                     },
                     onFailure = { ArtistDetailsUiState.Error(it.message ?: "Unknown error") },
                 )
+        }
+    }
+
+    suspend fun loadArtworkForRelation(artist: Artist) {
+        val url = artworkRepository.getArtworkUrlForArtist(artist) ?: return
+        _uiState.update { state ->
+            if (state !is Success) return@update state
+            state.copy(
+                relations = state.relations.map { a ->
+                    if (a.id == artist.id) a.copy(artworkUrl = url) else a
+                },
+            )
         }
     }
 
