@@ -48,7 +48,7 @@ val appModule = module {
             }
             defaultRequest {
                 url(BuildKonfig.API_BASE_URL)
-                headers.append(HttpHeaders.Authorization, "Bearer ${BuildKonfig.API_KEY}")
+                headers.append(HttpHeaders.Authorization, "Bearer ${BuildKonfig.FIREBASE_API_KEY}")
             }
         }
     }

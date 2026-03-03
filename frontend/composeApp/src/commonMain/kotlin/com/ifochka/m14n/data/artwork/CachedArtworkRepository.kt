@@ -2,22 +2,11 @@ package com.ifochka.m14n.data.artwork
 
 import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
-/**
- * Cached artwork repository that fetches from iTunes API.
- *
- * Note: Database caching will be implemented in a future iteration.
- * Currently fetches directly from iTunes API with in-memory caching via Track.artworkUrl.
- */
 class CachedArtworkRepository(
     private val artworkApi: ArtworkApi,
     private val persistence: ArtworkUrlPersistence,
-    private val requestDelayMs: Long = 1000L,
 ) : ArtworkRepository {
-    private val rateLimitMutex = Mutex()
     private val artistArtworkCache = mutableMapOf<Long, String>()
 
     @Suppress("TooGenericExceptionCaught") // Graceful degradation requires catching all exceptions
@@ -62,44 +51,29 @@ class CachedArtworkRepository(
         return result
     }
 
-    /**
-     * Fetch artwork from iTunes API with error handling.
-     */
     @Suppress("TooGenericExceptionCaught") // Need to catch all exceptions for graceful degradation
     private suspend fun fetchArtworkFromApi(
         artistName: String,
         trackTitle: String,
     ): String? =
-        rateLimitMutex.withLock {
-            println("[ARTWORK-REPO] 📡 Calling iTunes API for: '$artistName' - '$trackTitle'")
-            try {
-                val result = artworkApi.searchArtwork(
-                    artist = artistName,
-                    title = trackTitle,
-                )
-                println("[ARTWORK-REPO] ✓ iTunes API returned: $result")
-                result
-            } catch (e: Exception) {
-                println("[ARTWORK-REPO] ❌ Failed to fetch artwork for '$artistName - $trackTitle': ${e.message}")
-                println("[ARTWORK-REPO] ❌ Exception: ${e::class.simpleName}")
-                null
-            } finally {
-                delay(requestDelayMs)
-            }
+        try {
+            artworkApi.searchArtwork(
+                artist = artistName,
+                title = trackTitle,
+            )
+        } catch (e: Exception) {
+            println("[ARTWORK-REPO] ❌ Failed to fetch artwork for '$artistName - $trackTitle': ${e.message}")
+            println("[ARTWORK-REPO] ❌ Exception: ${e::class.simpleName}")
+            null
         }
 
     @Suppress("TooGenericExceptionCaught") // Graceful degradation requires catching all exceptions
     override suspend fun getArtworkUrlForArtist(artist: Artist): String? {
         val id = artist.id ?: return null
-        return artistArtworkCache[id] ?: rateLimitMutex.withLock {
-            artistArtworkCache[id] ?: run {
-                val url = runCatching {
-                    artworkApi.searchArtistArtwork(artist.name ?: return@withLock null)
-                }.getOrNull()
-                if (url != null) artistArtworkCache[id] = url
-                delay(requestDelayMs)
-                url
-            }
+        return artistArtworkCache[id] ?: artist.name?.let { name ->
+            val url = runCatching { artworkApi.searchArtistArtwork(name) }.getOrNull()
+            if (url != null) artistArtworkCache[id] = url
+            url
         }
     }
 
