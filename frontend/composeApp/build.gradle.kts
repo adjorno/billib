@@ -36,6 +36,7 @@ kotlin {
             implementation(libs.androidx.startup.runtime)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android.driver)
+            implementation(libs.firebase.auth.multiplatform)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -74,6 +75,7 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.cio)
             implementation(libs.sqldelight.sqlite.driver)
+            implementation(libs.firebase.auth.multiplatform)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)

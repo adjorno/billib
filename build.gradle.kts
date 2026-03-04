@@ -57,6 +57,8 @@ subprojects {
                 val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")
                 val apiKey = getPropertyOrEnv(key = "FIREBASE_API_KEY", fallback = "local-api-key")
                 val appleMusicToken = getPropertyOrEnv(key = "APPLE_MUSIC_TOKEN", fallback = "")
+                val firebaseProjectId = getPropertyOrEnv(key = "FIREBASE_PROJECT_ID", fallback = "m14n-41a5a")
+                val firebaseAppId = getPropertyOrEnv(key = "FIREBASE_APP_ID", fallback = "")
 
                 defaultConfigs {
                     buildConfigField(
@@ -81,6 +83,18 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         name = "APPLE_MUSIC_TOKEN",
                         value = appleMusicToken,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "FIREBASE_PROJECT_ID",
+                        value = firebaseProjectId,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "FIREBASE_APP_ID",
+                        value = firebaseAppId,
                     )
                 }
             }
