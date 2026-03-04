@@ -34,9 +34,15 @@ class FirebaseAuthRepository(
                 Firebase.auth.useEmulator("localhost", 9099)
             }
             scope.launch {
-                println("[Auth] Calling signInAnonymously...")
-                val result = runCatching { Firebase.auth.signInAnonymously() }
-                println("[Auth] signInAnonymously result: ${result.map { "uid=${it.user?.uid}" }}")
+                val currentUser = Firebase.auth.currentUser
+                println("[Auth] currentUser on launch: uid=${currentUser?.uid} isAnonymous=${currentUser?.isAnonymous}")
+                if (currentUser == null) {
+                    println("[Auth] No current user — signing in anonymously...")
+                    val result = runCatching { Firebase.auth.signInAnonymously() }
+                    println("[Auth] signInAnonymously result: ${result.map { "uid=${it.user?.uid}" }}")
+                } else {
+                    println("[Auth] Restored existing user — skipping signInAnonymously")
+                }
             }
             scope.launch {
                 Firebase.auth.authStateChanged.collect { user ->

@@ -49,9 +49,10 @@ subprojects {
         plugins.withId("com.codingfeline.buildkonfig") {
             configure<com.codingfeline.buildkonfig.gradle.BuildKonfigExtension> {
                 packageName = "com.ifochka.m14n"
+                val useFirebaseEmulator = getPropertyOrEnv(key = "USE_FIREBASE_EMULATOR", fallback = "false")
                 val apiBaseUrl = getPropertyOrEnv(
                     key = "API_BASE_URL",
-                    fallback = "https://api.m14n.com",
+                    fallback = if (useFirebaseEmulator == "true") "http://localhost:8080" else "https://api.m14n.com",
                 )
 
                 val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")
@@ -59,7 +60,6 @@ subprojects {
                 val appleMusicToken = getPropertyOrEnv(key = "APPLE_MUSIC_TOKEN", fallback = "")
                 val firebaseProjectId = getPropertyOrEnv(key = "FIREBASE_PROJECT_ID", fallback = "m14n-41a5a")
                 val firebaseAppId = getPropertyOrEnv(key = "FIREBASE_APP_ID", fallback = "")
-                val useFirebaseEmulator = getPropertyOrEnv(key = "USE_FIREBASE_EMULATOR", fallback = "false")
 
                 defaultConfigs {
                     buildConfigField(
