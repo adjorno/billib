@@ -39,4 +39,6 @@ interface M14nApi {
     suspend fun getTrackInfo(trackId: Long): Result<TrackInfo>
 
     suspend fun getArtistInfo(artistId: Long): Result<ArtistInfo>
+
+    suspend fun syncUser(): Result<Unit>
 }
