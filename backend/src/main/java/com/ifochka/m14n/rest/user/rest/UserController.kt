@@ -1,0 +1,36 @@
+package com.ifochka.m14n.rest.user.rest
+
+import com.ifochka.m14n.rest.user.domain.UserProfile
+import com.ifochka.m14n.rest.user.domain.UserProfileRepository
+import org.springframework.http.ResponseEntity
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RestController
+import java.time.Instant
+
+@RestController
+class UserController(
+    private val repository: UserProfileRepository,
+) {
+    @PostMapping("/user/sync")
+    fun sync(authentication: JwtAuthenticationToken): UserProfile {
+        val uid = authentication.name
+        val isAnon = authentication.tokenAttributes["firebase:sign_in_provider"] == "anonymous"
+        val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
+        return repository.save(
+            existing.copy(
+                isAnonymous = isAnon,
+                lastLoginAt = Instant.now(),
+            ),
+        )
+    }
+
+    @GetMapping("/user/me")
+    fun me(authentication: JwtAuthenticationToken): ResponseEntity<UserProfile> {
+        val uid = authentication.name
+        return repository.findById(uid)
+            .map { ResponseEntity.ok(it) }
+            .orElse(ResponseEntity.notFound().build())
+    }
+}

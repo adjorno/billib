@@ -57,7 +57,9 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(HttpMethod.POST, "/admin/claims").hasRole("ADMIN")
-                    // All POST endpoints in this API are intentionally admin-only (data mutation).
+                    // User sync is available to any authenticated user (anonymous or registered).
+                    .requestMatchers(HttpMethod.POST, "/user/sync").hasRole("USER")
+                    // All other POST endpoints in this API are intentionally admin-only (data mutation).
                     // Read-only (GET) endpoints are accessible to any authenticated user (ROLE_USER).
                     .requestMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                     .requestMatchers("/duplicate/artist", "/duplicate/track").hasRole("ADMIN")
