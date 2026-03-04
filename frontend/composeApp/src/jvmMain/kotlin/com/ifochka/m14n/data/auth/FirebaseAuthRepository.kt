@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
 class FirebaseAuthRepository(
     private val api: M14nApi,
 ) : AuthRepository {
-    // When FIREBASE_APP_ID is empty the SDK is not initialized; treat as SignedIn (API key fallback).
-    private val initialized = BuildKonfig.FIREBASE_APP_ID.isNotEmpty()
+    // Firebase is initialized when an app ID is provided OR when using the emulator.
+    private val initialized = BuildKonfig.FIREBASE_APP_ID.isNotEmpty() || BuildKonfig.USE_FIREBASE_EMULATOR
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _authState = MutableStateFlow<AuthState>(
         if (initialized) AuthState.Loading else AuthState.SignedIn,
@@ -25,17 +25,30 @@ class FirebaseAuthRepository(
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
+        println(
+            "[Auth] FirebaseAuthRepository: initialized=$initialized emulator=${BuildKonfig.USE_FIREBASE_EMULATOR} appId='${BuildKonfig.FIREBASE_APP_ID}'",
+        )
         if (initialized) {
-            scope.launch { runCatching { Firebase.auth.signInAnonymously() } }
+            if (BuildKonfig.USE_FIREBASE_EMULATOR) {
+                println("[Auth] Connecting to emulator at localhost:9099")
+                Firebase.auth.useEmulator("localhost", 9099)
+            }
+            scope.launch {
+                println("[Auth] Calling signInAnonymously...")
+                val result = runCatching { Firebase.auth.signInAnonymously() }
+                println("[Auth] signInAnonymously result: ${result.map { "uid=${it.user?.uid}" }}")
+            }
             scope.launch {
                 Firebase.auth.authStateChanged.collect { user ->
+                    println("[Auth] authStateChanged: uid=${user?.uid} isAnonymous=${user?.isAnonymous}")
                     _authState.value = when {
                         user == null -> AuthState.Loading
                         user.isAnonymous -> AuthState.Anonymous
                         else -> AuthState.SignedIn
                     }
                     if (user != null) {
-                        runCatching { api.syncUser() }
+                        val syncResult = runCatching { api.syncUser() }
+                        println("[Auth] syncUser result: $syncResult")
                     }
                 }
             }

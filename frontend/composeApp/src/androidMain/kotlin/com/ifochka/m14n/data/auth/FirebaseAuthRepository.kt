@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.auth
 
+import com.ifochka.m14n.BuildKonfig
 import com.ifochka.m14n.data.api.M14nApi
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.EmailAuthProvider
@@ -20,6 +21,9 @@ class FirebaseAuthRepository(
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
+        if (BuildKonfig.USE_FIREBASE_EMULATOR) {
+            Firebase.auth.useEmulator("localhost", 9099)
+        }
         scope.launch { runCatching { Firebase.auth.signInAnonymously() } }
         scope.launch {
             Firebase.auth.authStateChanged.collect { user ->

@@ -115,6 +115,11 @@ compose.desktop {
     }
 }
 
+// Firebase BOM must be declared at top-level for Android platform resolution in KMP library modules
+dependencies {
+    add("androidMainImplementation", platform(libs.firebase.bom))
+}
+
 sqldelight {
     databases {
         create("M14nDatabase") {

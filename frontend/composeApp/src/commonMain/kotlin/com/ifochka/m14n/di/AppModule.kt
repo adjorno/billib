@@ -85,7 +85,7 @@ val appModule = module {
     single { M14nDatabase(get()) }
     single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
     single<M14nApi> { KtorM14nApi(get()) }
-    single<AuthRepository> { createFirebaseAuthRepository(get()) }
+    single<AuthRepository>(createdAtStart = true) { createFirebaseAuthRepository(get()) }
 
     // Artwork dependencies
     single<ArtworkApi> { AppleMusicArtworkApi(get(named("appleMusicClient"))) }
