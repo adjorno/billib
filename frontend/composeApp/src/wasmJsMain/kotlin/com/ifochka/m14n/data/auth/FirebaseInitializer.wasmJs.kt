@@ -1,5 +1,13 @@
 package com.ifochka.m14n.data.auth
 
-// GitLive firebase-auth 2.4.0 does not publish a wasmJs artifact.
-// Firebase JS SDK initialization for wasmJs is wired in Iteration 2 via JS interop.
-actual fun initFirebase() = Unit
+import com.ifochka.m14n.BuildKonfig
+
+actual fun initFirebase() {
+    jsFirebaseInit(
+        apiKey = BuildKonfig.FIREBASE_API_KEY,
+        projectId = BuildKonfig.FIREBASE_PROJECT_ID,
+        appId = BuildKonfig.FIREBASE_APP_ID,
+        authDomain = "${BuildKonfig.FIREBASE_PROJECT_ID}.firebaseapp.com",
+    )
+    if (BuildKonfig.USE_FIREBASE_EMULATOR) jsUseFirebaseEmulator()
+}

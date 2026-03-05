@@ -56,6 +56,34 @@
         console.log('[localStorage Bridge] Initialized');
     </script>
 
+    <!-- Firebase compat SDK (sync <script> → guaranteed before composeApp.js) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script>
+        function jsFirebaseInit(apiKey, projectId, appId, authDomain) {
+            firebase.initializeApp({ apiKey: apiKey, authDomain: authDomain,
+                                      projectId: projectId, appId: appId });
+        }
+        function jsUseFirebaseEmulator() {
+            firebase.auth().useEmulator("http://localhost:9099");
+        }
+        function jsSignInAnonymously() {
+            return firebase.auth().signInAnonymously();
+        }
+        function jsGetIdToken() {
+            const user = firebase.auth().currentUser;
+            return user ? user.getIdToken(false) : Promise.resolve(null);
+        }
+        function jsGetIsAnonymous() {
+            const user = firebase.auth().currentUser;
+            return user ? user.isAnonymous : true;
+        }
+        function jsIsSignedIn() {
+            return firebase.auth().currentUser !== null;
+        }
+        console.log('[Firebase Bridge] Initialized');
+    </script>
+
     <script src="composeApp.js"></script>
 </body>
 </html>
