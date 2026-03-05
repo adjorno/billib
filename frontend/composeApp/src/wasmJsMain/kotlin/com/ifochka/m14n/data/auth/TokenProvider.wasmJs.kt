@@ -1,4 +1,7 @@
 package com.ifochka.m14n.data.auth
 
-// No Firebase JS SDK interop yet; Ktor falls back to FIREBASE_API_KEY.
-actual suspend fun getFirebaseToken(): String? = null
+import kotlinx.coroutines.await
+import kotlin.js.ExperimentalWasmJsInterop
+
+@OptIn(ExperimentalWasmJsInterop::class)
+actual suspend fun getFirebaseToken(): String? = runCatching { jsGetIdToken().await<JsAny?>()?.toString() }.getOrNull()
