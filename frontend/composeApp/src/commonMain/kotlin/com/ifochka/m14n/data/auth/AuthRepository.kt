@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.auth
 
+import dev.gitlive.firebase.auth.AuthCredential
 import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
@@ -11,4 +12,6 @@ interface AuthRepository {
         email: String,
         password: String,
     ): Result<Unit>
+
+    suspend fun linkWithCredential(credential: AuthCredential): Result<Unit>
 }

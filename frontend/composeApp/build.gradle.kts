@@ -37,6 +37,9 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android.driver)
             implementation(libs.firebase.auth.multiplatform)
+            implementation(libs.androidx.credentials)
+            implementation(libs.androidx.credentials.play.services)
+            implementation(libs.google.identity.googleid)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)

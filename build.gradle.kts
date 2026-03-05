@@ -60,6 +60,7 @@ subprojects {
                 val appleMusicToken = getPropertyOrEnv(key = "APPLE_MUSIC_TOKEN", fallback = "")
                 val firebaseProjectId = getPropertyOrEnv(key = "FIREBASE_PROJECT_ID", fallback = "m14n-41a5a")
                 val firebaseAppId = getPropertyOrEnv(key = "FIREBASE_APP_ID", fallback = "")
+                val googleWebClientId = getPropertyOrEnv(key = "GOOGLE_WEB_CLIENT_ID", fallback = "")
 
                 defaultConfigs {
                     buildConfigField(
@@ -102,6 +103,12 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN,
                         name = "USE_FIREBASE_EMULATOR",
                         value = useFirebaseEmulator,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "GOOGLE_WEB_CLIENT_ID",
+                        value = googleWebClientId,
                     )
                 }
             }

@@ -3,6 +3,7 @@ package com.ifochka.m14n.data.auth
 import com.ifochka.m14n.BuildKonfig
 import com.ifochka.m14n.data.api.M14nApi
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.EmailAuthProvider
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.CoroutineScope
@@ -71,12 +72,19 @@ class FirebaseAuthRepository(
     override suspend fun linkWithEmailCredential(
         email: String,
         password: String,
-    ): Result<Unit> =
+    ): Result<Unit> {
+        val credential = EmailAuthProvider.credential(email = email, password = password)
+        return linkWithCredential(credential)
+    }
+
+    override suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> =
         if (initialized) {
             runCatching {
-                val credential = EmailAuthProvider.credential(email, password)
-                checkNotNull(Firebase.auth.currentUser) { "No current user" }
-                    .linkWithCredential(credential)
+                val current = checkNotNull(Firebase.auth.currentUser) { "No current user" }
+                runCatching { current.linkWithCredential(credential) }.getOrElse {
+                    // Credential already exists — sign into the existing account instead.
+                    Firebase.auth.signInWithCredential(credential)
+                }
                 Unit
             }
         } else {

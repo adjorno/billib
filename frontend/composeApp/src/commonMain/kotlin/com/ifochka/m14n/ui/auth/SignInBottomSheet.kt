@@ -1,6 +1,7 @@
 package com.ifochka.m14n.ui.auth
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -8,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -64,6 +67,27 @@ fun SignInBottomSheet(
                 text = "Sign in to see full history",
                 style = MaterialTheme.typography.titleMedium,
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
+                onClick = { viewModel.signInWithGoogle() },
+                enabled = uiState !is SignInUiState.Loading,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Continue with Google")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                HorizontalDivider(modifier = Modifier.weight(1f))
+                Text(
+                    text = "  or  ",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                HorizontalDivider(modifier = Modifier.weight(1f))
+            }
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = email,
