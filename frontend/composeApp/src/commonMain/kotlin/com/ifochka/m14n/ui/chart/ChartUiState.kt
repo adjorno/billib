@@ -12,6 +12,9 @@ sealed interface ChartUiState {
         val selectedChart: Chart,
         val chartList: ChartList,
         val selectedWeek: String,
+        // The week date returned when loading with date=null (i.e. the actual latest
+        // week in the DB). Used as chartEndDate for active charts whose endDate is null.
+        val latestWeek: String? = null,
     ) : ChartUiState
 
     data class Error(

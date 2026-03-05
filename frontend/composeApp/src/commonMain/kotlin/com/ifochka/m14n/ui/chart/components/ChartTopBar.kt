@@ -18,6 +18,7 @@ fun ChartTopBar(
     weekDate: String,
     availableCharts: List<Chart>,
     selectedChart: Chart,
+    latestWeekDate: String?,
     onChartSelected: (Long) -> Unit,
     onWeekNavigate: (WeekDirection) -> Unit,
     onWeekSelect: (String) -> Unit,
@@ -30,7 +31,9 @@ fun ChartTopBar(
         WeekPicker(
             weekDate = weekDate,
             chartStartDate = selectedChart.startDate,
-            chartEndDate = selectedChart.endDate,
+            // Use static endDate for discontinued charts; fall back to the actual latest
+            // week loaded from the DB for active charts (whose endDate is null).
+            chartEndDate = selectedChart.endDate ?: latestWeekDate,
             onOpenDateInput = { showDateInput = true },
             onNavigate = onWeekNavigate,
             modifier = Modifier.padding(16.dp),

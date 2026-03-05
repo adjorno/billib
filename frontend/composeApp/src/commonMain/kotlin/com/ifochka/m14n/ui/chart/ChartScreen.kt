@@ -104,6 +104,7 @@ fun ChartScreen(
                         weekDate = state.selectedWeek,
                         availableCharts = state.availableCharts,
                         selectedChart = state.selectedChart,
+                        latestWeekDate = state.latestWeek,
                         onChartSelected = { chartId ->
                             viewModel.selectChart(chartId)
                         },
