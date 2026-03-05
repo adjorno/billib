@@ -81,6 +81,25 @@
         function jsIsSignedIn() {
             return firebase.auth().currentUser !== null;
         }
+        function jsLinkWithEmail(email, password) {
+            const user = firebase.auth().currentUser;
+            const cred = firebase.auth.EmailAuthProvider.credential(email, password);
+            return user ? user.linkWithCredential(cred)
+                        : firebase.auth().createUserWithEmailAndPassword(email, password);
+        }
+        function jsSignInWithEmail(email, password) {
+            return firebase.auth().signInWithEmailAndPassword(email, password);
+        }
+        function jsSignInWithGoogle() {
+            const user = firebase.auth().currentUser;
+            const provider = new firebase.auth.GoogleAuthProvider();
+            return user ? user.linkWithPopup(provider) : firebase.auth().signInWithPopup(provider);
+        }
+        function jsSignInWithApple() {
+            const user = firebase.auth().currentUser;
+            const provider = new firebase.auth.OAuthProvider('apple.com');
+            return user ? user.linkWithPopup(provider) : firebase.auth().signInWithPopup(provider);
+        }
         console.log('[Firebase Bridge] Initialized');
     </script>
 

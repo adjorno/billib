@@ -31,3 +31,25 @@ internal external fun jsGetIsAnonymous(): Boolean
 @OptIn(ExperimentalWasmJsInterop::class)
 @JsFun("() => jsIsSignedIn()")
 internal external fun jsIsSignedIn(): Boolean
+
+@OptIn(ExperimentalWasmJsInterop::class)
+@JsFun("(e, p) => jsLinkWithEmail(e, p)")
+internal external fun jsLinkWithEmail(
+    email: String,
+    password: String,
+): Promise<JsAny?>
+
+@OptIn(ExperimentalWasmJsInterop::class)
+@JsFun("(e, p) => jsSignInWithEmail(e, p)")
+internal external fun jsSignInWithEmail(
+    email: String,
+    password: String,
+): Promise<JsAny?>
+
+@OptIn(ExperimentalWasmJsInterop::class)
+@JsFun("() => jsSignInWithGoogle()")
+internal external fun jsSignInWithGoogle(): Promise<JsAny?>
+
+@OptIn(ExperimentalWasmJsInterop::class)
+@JsFun("() => jsSignInWithApple()")
+internal external fun jsSignInWithApple(): Promise<JsAny?>

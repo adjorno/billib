@@ -34,13 +34,43 @@ class WasmFirebaseAuthRepository(
 
     override suspend fun getIdToken(): String? = runCatching { jsGetIdToken().await<JsAny?>()?.toString() }.getOrNull()
 
-    // Implemented in Iteration 2
     override suspend fun linkWithEmailCredential(
         email: String,
         password: String,
-    ): Result<Unit> = Result.success(Unit)
+    ): Result<Unit> =
+        performLink(
+            primary = { jsLinkWithEmail(email, password).await<JsAny?>() },
+            fallback = { jsSignInWithEmail(email, password).await<JsAny?>() },
+        )
 
-    override suspend fun linkWithGoogle(): Result<Unit> = Result.success(Unit)
+    override suspend fun linkWithGoogle(): Result<Unit> =
+        performLink(
+            primary = { jsSignInWithGoogle().await<JsAny?>() },
+            fallback = { jsSignInWithGoogle().await<JsAny?>() },
+        )
 
-    override suspend fun linkWithApple(): Result<Unit> = Result.success(Unit)
+    override suspend fun linkWithApple(): Result<Unit> =
+        performLink(
+            primary = { jsSignInWithApple().await<JsAny?>() },
+            fallback = { jsSignInWithApple().await<JsAny?>() },
+        )
+
+    private suspend fun performLink(
+        primary: suspend () -> JsAny?,
+        fallback: suspend () -> JsAny?,
+    ): Result<Unit> =
+        runCatching {
+            runCatching { primary() }.getOrElse { ex ->
+                if (ex.message?.contains("credential-already-in-use", ignoreCase = true) == true ||
+                    ex.message?.contains("EMAIL_EXISTS", ignoreCase = true) == true
+                ) {
+                    fallback()
+                } else {
+                    throw ex
+                }
+            }
+            _authState.value = AuthState.SignedIn
+            runCatching { api.syncUser() }.onFailure { println("[Auth] syncUser failed: $it") }
+            Unit
+        }
 }
