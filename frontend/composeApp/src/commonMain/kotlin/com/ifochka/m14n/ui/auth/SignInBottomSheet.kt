@@ -75,6 +75,14 @@ fun SignInBottomSheet(
             ) {
                 Text("Continue with Google")
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { viewModel.signInWithApple() },
+                enabled = uiState !is SignInUiState.Loading,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Continue with Apple")
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,

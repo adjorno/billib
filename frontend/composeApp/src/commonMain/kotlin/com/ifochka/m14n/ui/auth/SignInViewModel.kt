@@ -3,6 +3,7 @@ package com.ifochka.m14n.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifochka.m14n.data.auth.AuthRepository
+import com.ifochka.m14n.data.auth.getAppleCredential
 import com.ifochka.m14n.data.auth.getGoogleCredential
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +45,22 @@ class SignInViewModel(
             _uiState.value = result.fold(
                 onSuccess = { SignInUiState.Success },
                 onFailure = { SignInUiState.Error(it.message ?: "Google sign-in failed") },
+            )
+        }
+    }
+
+    fun signInWithApple() {
+        viewModelScope.launch {
+            _uiState.value = SignInUiState.Loading
+            val credential = getAppleCredential()
+            if (credential == null) {
+                _uiState.value = SignInUiState.Idle
+                return@launch
+            }
+            val result = authRepository.linkWithCredential(credential)
+            _uiState.value = result.fold(
+                onSuccess = { SignInUiState.Success },
+                onFailure = { SignInUiState.Error(it.message ?: "Apple sign-in failed") },
             )
         }
     }

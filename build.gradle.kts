@@ -61,6 +61,7 @@ subprojects {
                 val firebaseProjectId = getPropertyOrEnv(key = "FIREBASE_PROJECT_ID", fallback = "m14n-41a5a")
                 val firebaseAppId = getPropertyOrEnv(key = "FIREBASE_APP_ID", fallback = "")
                 val googleWebClientId = getPropertyOrEnv(key = "GOOGLE_WEB_CLIENT_ID", fallback = "")
+                val appleClientId = getPropertyOrEnv(key = "APPLE_CLIENT_ID", fallback = "")
 
                 defaultConfigs {
                     buildConfigField(
@@ -109,6 +110,12 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         name = "GOOGLE_WEB_CLIENT_ID",
                         value = googleWebClientId,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "APPLE_CLIENT_ID",
+                        value = appleClientId,
                     )
                 }
             }
