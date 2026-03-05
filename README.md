@@ -10,57 +10,38 @@ Historical Billboard chart data — backend API, web app, and mobile apps.
 
 ```mermaid
 graph TD
-    subgraph clients["Client Platforms"]
+    subgraph frontend["Frontend — Kotlin Multiplatform"]
         direction LR
-        AN["Android"]
-        WEB["Web — wasmJs\nm14n.com"]
-        JVM["JVM Desktop"]
+        Android["Android App"]
+        Web["Web App\nm14n.com"]
+        Desktop["Desktop App"]
     end
 
-    subgraph kmp["Compose Multiplatform — Shared Kotlin"]
-        direction TB
-        UI["UI Layer\nScreens · ViewModels · Nav3"]
-        DATA["Data Layer\nChartRepository · ArtworkRepository\nSQLDelight offline cache"]
-        NET["Network\nKtorM14nApi · FirebaseAuthRepository"]
+    subgraph firebase["Firebase"]
+        Auth["Authentication\nAnonymous · Email · Google · Apple"]
     end
 
-    subgraph ext["External Services"]
-        FB["Firebase Auth\nAnonymous · Email · Google · Apple"]
-        AM["Apple Music API\nArtwork"]
+    subgraph railway["Railway"]
+        API["Spring Boot API\napi.m14n.com"]
+        DB[("PostgreSQL")]
+        API --> DB
     end
 
-    subgraph backend["Backend — Spring Boot · api.m14n.com"]
-        direction TB
-        SEC["Security\nFirebaseJwtDecoder · ApiKeyAuthFilter"]
-        CTRL["REST Controllers\nChart · Track · Artist · Search · Trends · User"]
-        DAL["JPA Repositories"]
-        PG[("PostgreSQL\ncharts · tracks · artists · users")]
+    subgraph cloudflare["Cloudflare Pages"]
+        Web
     end
 
-    subgraph pipeline["Data Pipeline"]
-        IMP["m14n-importer\nBillboard HTML scraper"]
-    end
+    AppleMusic["Apple Music API\nArtwork"]
+    Importer["Billboard Importer"]
+    GHA["GitHub Actions\nCI / CD"]
 
-    subgraph cicd["CI / CD — GitHub Actions"]
-        direction LR
-        GHA["lint · detekt · tests"]
-        CF["Cloudflare Pages"]
-        RW["Railway"]
-    end
-
-    AN & WEB & JVM --> UI
-    UI --> DATA
-    DATA --> NET
-    NET <-->|sign-in / token| FB
-    NET -->|Bearer JWT · HTTPS| SEC
-    NET <-->|artwork URLs| AM
-    FB -.->|verifyIdToken| SEC
-    SEC --> CTRL
-    CTRL --> DAL
-    DAL --> PG
-    IMP -->|seed · update| PG
-    GHA --> CF
-    GHA --> RW
+    Android & Web & Desktop -->|HTTPS + JWT| API
+    Android & Web & Desktop <-->|sign-in / token| Auth
+    Auth -.->|verify token| API
+    Android & Web & Desktop -->|artwork| AppleMusic
+    Importer -->|chart data| DB
+    GHA -->|build & deploy| cloudflare
+    GHA -->|build & deploy| railway
 ```
 
 ## Quick Start
