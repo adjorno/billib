@@ -52,6 +52,13 @@ dependencies {
     implementation(project(":libraries:data-source:billboard"))
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    args("--spring.profiles.active=local")
+    // Firebase Admin SDK reads this env var to route token verification to the local emulator.
+    // Without it, verifyIdToken() rejects emulator-signed JWTs (wrong JWKS).
+    environment["FIREBASE_AUTH_EMULATOR_HOST"] = "localhost:9099"
+}
+
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }

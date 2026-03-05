@@ -23,6 +23,7 @@ import com.ifochka.m14n.share.ShareManager
 import com.ifochka.m14n.share.createShareManager
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsViewModel
 import com.ifochka.m14n.ui.auth.AuthViewModel
+import com.ifochka.m14n.ui.auth.SignInViewModel
 import com.ifochka.m14n.ui.bestsongs.BestSongsViewModel
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import com.ifochka.m14n.ui.home.HomeViewModel
@@ -57,9 +58,14 @@ val appModule = module {
             }
         }.also { client ->
             client.plugin(HttpSend).intercept { request ->
-                val token = getFirebaseToken() ?: BuildKonfig.FIREBASE_API_KEY
-                request.headers[HttpHeaders.Authorization] = "Bearer $token"
-                execute(request)
+                val token = getFirebaseToken()
+                val authSource = if (token != null) "FirebaseJWT(len=${token.length})" else "API_KEY_FALLBACK"
+                val path = request.url.pathSegments.joinToString("/")
+                println("[HTTP] → ${request.method.value} $path auth=$authSource")
+                request.headers[HttpHeaders.Authorization] = "Bearer ${token ?: BuildKonfig.FIREBASE_API_KEY}"
+                val call = execute(request)
+                println("[HTTP] ← ${call.response.status.value} $path")
+                call
             }
         }
     }
@@ -102,6 +108,7 @@ val appModule = module {
 
     // ViewModels
     factoryOf(::AuthViewModel)
+    factoryOf(::SignInViewModel)
     factoryOf(::BestSongsViewModel)
     factoryOf(::ChartViewModel)
     factoryOf(::HomeViewModel)

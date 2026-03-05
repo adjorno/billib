@@ -10,12 +10,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
-import org.springframework.security.oauth2.jwt.JwtClaimValidator
 import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.jwt.JwtIssuerValidator
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
@@ -25,9 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    @param:Value("\${firebase.project-id}") private val projectId: String,
-    @param:Value("\${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") private val jwksUri: String,
     @param:Value("\${api.key}") private val apiKey: String,
+    private val jwtDecoder: JwtDecoder,
 ) {
     // Public paths: no OAuth2 filter — BearerTokenAuthenticationFilter never runs here.
     @Bean
@@ -46,7 +40,7 @@ class SecurityConfig(
         return http.build()
     }
 
-    // All other paths: require a valid Firebase JWT.
+    // All other paths: require a valid Firebase JWT verified by Firebase Admin SDK.
     @Bean
     @Order(2)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -68,7 +62,7 @@ class SecurityConfig(
             .addFilterBefore(ApiKeyAuthFilter(apiKey), BearerTokenAuthenticationFilter::class.java)
             .oauth2ResourceServer { oauth2 ->
                 oauth2.jwt { jwt ->
-                    jwt.decoder(firebaseJwtDecoder())
+                    jwt.decoder(jwtDecoder)
                     jwt.jwtAuthenticationConverter(
                         JwtAuthenticationConverter().apply {
                             setJwtGrantedAuthoritiesConverter(FirebaseJwtGrantedAuthoritiesConverter())
@@ -77,25 +71,6 @@ class SecurityConfig(
                 }
             }
         return http.build()
-    }
-
-    @Bean
-    fun firebaseJwtDecoder(): JwtDecoder {
-        val decoder = NimbusJwtDecoder.withJwkSetUri(jwksUri).build()
-        decoder.setJwtValidator(
-            DelegatingOAuth2TokenValidator(
-                JwtTimestampValidator(),
-                JwtIssuerValidator("https://securetoken.google.com/$projectId"),
-                JwtClaimValidator<Any>("aud") { aud ->
-                    when (aud) {
-                        is String -> aud == projectId
-                        is List<*> -> aud.contains(projectId)
-                        else -> false
-                    }
-                },
-            ),
-        )
-        return decoder
     }
 
     private fun corsSource() =

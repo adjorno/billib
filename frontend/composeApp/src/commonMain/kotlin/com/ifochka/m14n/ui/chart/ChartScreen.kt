@@ -19,21 +19,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ifochka.m14n.data.auth.AuthState
 import com.ifochka.m14n.data.model.ChartTrack
+import com.ifochka.m14n.data.util.DateUtils
 import com.ifochka.m14n.share.ShareManager
+import com.ifochka.m14n.ui.auth.AuthViewModel
+import com.ifochka.m14n.ui.auth.SignInBottomSheet
 import com.ifochka.m14n.ui.chart.components.ChartTopBar
 import com.ifochka.m14n.ui.chart.components.ChartTrackList
 import com.ifochka.m14n.ui.chart.components.SkeletonChartTrackItem
 import com.ifochka.m14n.ui.shared.SkeletonBox
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.minus
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -41,8 +49,15 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ChartScreen(
     onTrackClick: (Long) -> Unit = {},
     viewModel: ChartViewModel = koinViewModel(),
+    authViewModel: AuthViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val authState by authViewModel.authState.collectAsState()
+    var showSignInSheet by remember { mutableStateOf(false) }
+    // Anonymous users may view the 3 most recent weeks; anything older requires sign-in.
+    val anonCutoff = remember {
+        DateUtils.getToday().minus(21, DateTimeUnit.DAY).toString()
+    }
     val shareManager: ShareManager = koinInject()
     val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -93,13 +108,24 @@ fun ChartScreen(
                             viewModel.selectChart(chartId)
                         },
                         onWeekNavigate = { direction ->
-                            viewModel.navigateWeek(direction)
+                            if (direction == WeekDirection.PREVIOUS &&
+                                authState is AuthState.Anonymous &&
+                                state.selectedWeek <= anonCutoff
+                            ) {
+                                showSignInSheet = true
+                            } else {
+                                viewModel.navigateWeek(direction)
+                            }
                         },
                         onWeekSelect = { weekDate ->
-                            viewModel.selectWeek(
-                                chartId = state.selectedChart.id ?: return@ChartTopBar,
-                                weekDate = weekDate,
-                            )
+                            if (authState is AuthState.Anonymous && weekDate <= anonCutoff) {
+                                showSignInSheet = true
+                            } else {
+                                viewModel.selectWeek(
+                                    chartId = state.selectedChart.id ?: return@ChartTopBar,
+                                    weekDate = weekDate,
+                                )
+                            }
                         },
                     )
 
@@ -155,6 +181,13 @@ fun ChartScreen(
                     }
                 }
             }
+        }
+
+        if (showSignInSheet) {
+            SignInBottomSheet(
+                onDismiss = { showSignInSheet = false },
+                onSuccess = { showSignInSheet = false },
+            )
         }
     }
 }
