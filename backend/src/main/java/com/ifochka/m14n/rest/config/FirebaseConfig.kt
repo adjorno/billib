@@ -15,15 +15,17 @@ class FirebaseConfig(
     @Bean
     fun firebaseApp(): FirebaseApp {
         if (FirebaseApp.getApps().isNotEmpty()) return FirebaseApp.getInstance()
-        // In emulator mode (FIREBASE_AUTH_EMULATOR_HOST set), verifyIdToken() bypasses
-        // signature verification entirely — credentials are never used, so a stub is safe.
-        // Outside emulator mode, getApplicationDefault() must succeed; failure means
-        // misconfigured production credentials and we fail loudly rather than silently.
+        // Credential resolution order:
+        // 1. Emulator mode (FIREBASE_AUTH_EMULATOR_HOST set) — stub, never used for verification.
+        // 2. FIREBASE_SERVICE_ACCOUNT_JSON env var — service account JSON stored as a Railway/CI secret.
+        // 3. Application Default Credentials — GCP-hosted environments (Cloud Run, GCE, etc.).
+        // Outside emulator mode at least one of (2) or (3) must succeed; failure is intentionally loud.
         val isEmulator = System.getenv("FIREBASE_AUTH_EMULATOR_HOST") != null
-        val credentials = if (isEmulator) {
-            GoogleCredentials.create(AccessToken("emulator-stub", null))
-        } else {
-            GoogleCredentials.getApplicationDefault()
+        val serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+        val credentials = when {
+            isEmulator -> GoogleCredentials.create(AccessToken("emulator-stub", null))
+            !serviceAccountJson.isNullOrEmpty() -> GoogleCredentials.fromStream(serviceAccountJson.byteInputStream())
+            else -> GoogleCredentials.getApplicationDefault()
         }
         return FirebaseApp.initializeApp(
             FirebaseOptions.builder()
