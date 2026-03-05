@@ -12,6 +12,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
 
 private const val ARTIST_RELATIONS_SIZE = 10
 private const val ARTIST_TRACKS_SIZE = 5
@@ -98,5 +99,11 @@ class KtorM14nApi(
                 parameter("relations_size", ARTIST_RELATIONS_SIZE)
                 parameter("tracks_size", ARTIST_TRACKS_SIZE)
             }.body()
+        }
+
+    override suspend fun syncUser(): Result<Unit> =
+        runCatching {
+            httpClient.post("/user/sync")
+            Unit
         }
 }

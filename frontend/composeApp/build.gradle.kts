@@ -29,6 +29,21 @@ kotlin {
     }
 
     sourceSets {
+        // Intermediate source set for Firebase-capable targets: Android, JVM desktop, future iOS.
+        // wasmJs has no firebase-auth artifact so it gets WasmFirebaseAuthRepository instead.
+        val firebaseMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.firebase.auth.multiplatform)
+            }
+        }
+        androidMain {
+            dependsOn(firebaseMain)
+        }
+        jvmMain {
+            dependsOn(firebaseMain)
+        }
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling)
             implementation(libs.androidx.activity.compose)
@@ -36,6 +51,9 @@ kotlin {
             implementation(libs.androidx.startup.runtime)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android.driver)
+            implementation(libs.androidx.credentials)
+            implementation(libs.androidx.credentials.play.services)
+            implementation(libs.google.identity.googleid)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -111,6 +129,11 @@ compose.desktop {
             }
         }
     }
+}
+
+// Firebase BOM must be declared at top-level for Android platform resolution in KMP library modules
+dependencies {
+    add("androidMainImplementation", platform(libs.firebase.bom))
 }
 
 sqldelight {

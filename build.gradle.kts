@@ -49,14 +49,19 @@ subprojects {
         plugins.withId("com.codingfeline.buildkonfig") {
             configure<com.codingfeline.buildkonfig.gradle.BuildKonfigExtension> {
                 packageName = "com.ifochka.m14n"
+                val useFirebaseEmulator = getPropertyOrEnv(key = "USE_FIREBASE_EMULATOR", fallback = "false")
                 val apiBaseUrl = getPropertyOrEnv(
                     key = "API_BASE_URL",
-                    fallback = "https://api.m14n.com",
+                    fallback = if (useFirebaseEmulator == "true") "http://localhost:8080" else "https://api.m14n.com",
                 )
 
                 val versionName = getPropertyOrEnv(key = "VERSION_NAME", fallback = "local build")
                 val apiKey = getPropertyOrEnv(key = "FIREBASE_API_KEY", fallback = "local-api-key")
                 val appleMusicToken = getPropertyOrEnv(key = "APPLE_MUSIC_TOKEN", fallback = "")
+                val firebaseProjectId = getPropertyOrEnv(key = "FIREBASE_PROJECT_ID", fallback = "m14n-41a5a")
+                val firebaseAppId = getPropertyOrEnv(key = "FIREBASE_APP_ID", fallback = "")
+                val googleWebClientId = getPropertyOrEnv(key = "GOOGLE_WEB_CLIENT_ID", fallback = "")
+                val appleClientId = getPropertyOrEnv(key = "APPLE_CLIENT_ID", fallback = "")
 
                 defaultConfigs {
                     buildConfigField(
@@ -81,6 +86,36 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         name = "APPLE_MUSIC_TOKEN",
                         value = appleMusicToken,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "FIREBASE_PROJECT_ID",
+                        value = firebaseProjectId,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "FIREBASE_APP_ID",
+                        value = firebaseAppId,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN,
+                        name = "USE_FIREBASE_EMULATOR",
+                        value = useFirebaseEmulator,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "GOOGLE_WEB_CLIENT_ID",
+                        value = googleWebClientId,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "APPLE_CLIENT_ID",
+                        value = appleClientId,
                     )
                 }
             }

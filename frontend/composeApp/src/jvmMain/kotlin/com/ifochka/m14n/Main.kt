@@ -4,11 +4,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.ifochka.m14n.data.auth.initFirebase
 import com.ifochka.m14n.di.appModule
 import org.koin.core.context.startKoin
 
 fun main() =
     application {
+        initFirebase()
+
         // Initialize Koin
         startKoin {
             modules(appModule)

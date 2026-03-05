@@ -37,7 +37,10 @@ webpack = "9.1.0"
 
 googleServices = "4.4.4"
 firebase-bom = "34.9.0"
+credentials = "1.5.0"
+google-identity = "1.1.1"
 firebase-admin = "9.7.1"
+firebase-kotlin-sdk = "2.4.0"
 spring-modulith = "2.0.3"
 springdoc = "2.8.3"
 
@@ -109,9 +112,14 @@ sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", ver
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqldelight" }
 
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-credentials-play-services = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+google-identity-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "google-identity" }
+
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+firebase-auth-multiplatform = { module = "dev.gitlive:firebase-auth", version.ref = "firebase-kotlin-sdk" }
 
 spring-modulith-bom = { module = "org.springframework.modulith:spring-modulith-bom", version.ref = "spring-modulith" }
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core", version.ref = "spring-modulith" }

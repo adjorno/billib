@@ -9,6 +9,9 @@ import com.ifochka.m14n.data.artwork.ArtworkRepository
 import com.ifochka.m14n.data.artwork.ArtworkUrlPersistence
 import com.ifochka.m14n.data.artwork.CachedArtworkRepository
 import com.ifochka.m14n.data.artwork.createArtworkUrlPersistence
+import com.ifochka.m14n.data.auth.AuthRepository
+import com.ifochka.m14n.data.auth.createFirebaseAuthRepository
+import com.ifochka.m14n.data.auth.getFirebaseToken
 import com.ifochka.m14n.data.db.ChartDatabaseRepository
 import com.ifochka.m14n.data.db.SqlDelightChartDatabase
 import com.ifochka.m14n.data.db.createDatabaseDriver
@@ -19,14 +22,18 @@ import com.ifochka.m14n.db.M14nDatabase
 import com.ifochka.m14n.share.ShareManager
 import com.ifochka.m14n.share.createShareManager
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsViewModel
+import com.ifochka.m14n.ui.auth.AuthViewModel
+import com.ifochka.m14n.ui.auth.SignInViewModel
 import com.ifochka.m14n.ui.bestsongs.BestSongsViewModel
 import com.ifochka.m14n.ui.chart.ChartViewModel
 import com.ifochka.m14n.ui.home.HomeViewModel
 import com.ifochka.m14n.ui.search.SearchViewModel
 import com.ifochka.m14n.ui.trackdetails.TrackDetailsViewModel
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.plugin
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -48,7 +55,17 @@ val appModule = module {
             }
             defaultRequest {
                 url(BuildKonfig.API_BASE_URL)
-                headers.append(HttpHeaders.Authorization, "Bearer ${BuildKonfig.FIREBASE_API_KEY}")
+            }
+        }.also { client ->
+            client.plugin(HttpSend).intercept { request ->
+                val token = getFirebaseToken()
+                val authSource = if (token != null) "FirebaseJWT(len=${token.length})" else "API_KEY_FALLBACK"
+                val path = request.url.pathSegments.joinToString("/")
+                println("[HTTP] → ${request.method.value} $path auth=$authSource")
+                request.headers[HttpHeaders.Authorization] = "Bearer ${token ?: BuildKonfig.FIREBASE_API_KEY}"
+                val call = execute(request)
+                println("[HTTP] ← ${call.response.status.value} $path")
+                call
             }
         }
     }
@@ -74,6 +91,7 @@ val appModule = module {
     single { M14nDatabase(get()) }
     single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
     single<M14nApi> { KtorM14nApi(get()) }
+    single<AuthRepository>(createdAtStart = true) { createFirebaseAuthRepository(get()) }
 
     // Artwork dependencies
     single<ArtworkApi> { AppleMusicArtworkApi(get(named("appleMusicClient"))) }
@@ -89,6 +107,8 @@ val appModule = module {
     singleOf(::ChartRepository)
 
     // ViewModels
+    factoryOf(::AuthViewModel)
+    factoryOf(::SignInViewModel)
     factoryOf(::BestSongsViewModel)
     factoryOf(::ChartViewModel)
     factoryOf(::HomeViewModel)
