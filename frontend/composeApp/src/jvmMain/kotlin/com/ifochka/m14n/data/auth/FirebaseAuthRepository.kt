@@ -72,12 +72,19 @@ class FirebaseAuthRepository(
     override suspend fun linkWithEmailCredential(
         email: String,
         password: String,
-    ): Result<Unit> {
-        val credential = EmailAuthProvider.credential(email = email, password = password)
+    ): Result<Unit> = linkWithCredential(EmailAuthProvider.credential(email = email, password = password))
+
+    override suspend fun linkWithGoogle(): Result<Unit> {
+        val credential = getGoogleCredential() ?: return Result.success(Unit)
         return linkWithCredential(credential)
     }
 
-    override suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> =
+    override suspend fun linkWithApple(): Result<Unit> {
+        val credential = getAppleCredential() ?: return Result.success(Unit)
+        return linkWithCredential(credential)
+    }
+
+    private suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> =
         if (initialized) {
             runCatching {
                 val current = checkNotNull(Firebase.auth.currentUser) { "No current user" }

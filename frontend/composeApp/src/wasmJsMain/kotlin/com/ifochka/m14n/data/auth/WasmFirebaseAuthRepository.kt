@@ -1,6 +1,5 @@
 package com.ifochka.m14n.data.auth
 
-import dev.gitlive.firebase.auth.AuthCredential
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,5 +18,7 @@ class WasmFirebaseAuthRepository : AuthRepository {
         password: String,
     ): Result<Unit> = Result.success(Unit)
 
-    override suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> = Result.success(Unit)
+    override suspend fun linkWithGoogle(): Result<Unit> = Result.success(Unit)
+
+    override suspend fun linkWithApple(): Result<Unit> = Result.success(Unit)
 }
