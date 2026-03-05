@@ -38,17 +38,15 @@ fun WeekPicker(
     onNavigate: (WeekDirection) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Calculate boundary conditions
+    // Calculate boundary conditions.
+    // chartEndDate is the actual latest week returned by the API (not today's date —
+    // the chart release schedule is independent of the current calendar day).
     val currentDate = DateUtils.parseChartDate(weekDate)
     val chartStart = chartStartDate?.let { DateUtils.parseChartDate(it) }
     val chartEnd = chartEndDate?.let { DateUtils.parseChartDate(it) }
-    val today = DateUtils.getToday()
-
-    val nextWeek = currentDate?.let { DateUtils.getNextWeek(it) }
 
     val isFirst = currentDate != null && chartStart != null && currentDate <= chartStart
-    val isLatest = (currentDate != null && chartEnd != null && currentDate >= chartEnd) ||
-        (nextWeek != null && chartEnd == null && nextWeek > today)
+    val isLatest = currentDate != null && chartEnd != null && currentDate >= chartEnd
 
     val canGoBack = !isFirst && currentDate != null
     val canGoForward = !isLatest && currentDate != null

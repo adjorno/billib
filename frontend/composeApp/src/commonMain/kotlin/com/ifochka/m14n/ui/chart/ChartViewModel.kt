@@ -94,11 +94,16 @@ class ChartViewModel(
                 val selectedChart = availableCharts.find { it.id == chartId }
                     ?: availableCharts.first()
 
+                // When loading the latest week (date == null) the returned week IS the
+                // latest week in the DB. Persist it so WeekPicker can detect the boundary
+                // for active charts whose Chart.endDate is null.
+                val existingLatestWeek = (_uiState.value as? ChartUiState.Success)?.latestWeek
                 _uiState.value = ChartUiState.Success(
                     availableCharts = availableCharts,
                     selectedChart = selectedChart,
                     chartList = chartList,
                     selectedWeek = chartList.week?.date ?: "Unknown",
+                    latestWeek = if (date == null) chartList.week?.date else existingLatestWeek,
                 )
             }
             .onFailure { throwable ->
