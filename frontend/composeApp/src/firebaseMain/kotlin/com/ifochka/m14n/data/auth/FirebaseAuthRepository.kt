@@ -18,30 +18,51 @@ class FirebaseAuthRepository(
     private val api: M14nApi,
 ) : AuthRepository {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
+
+    // On JVM desktop without FIREBASE_APP_ID, Firebase.auth throws — detect eagerly.
+    // On Android and future iOS, Firebase is always available via the platform config file.
+    private val isFirebaseAvailable = runCatching { Firebase.auth }.isSuccess
+
+    // Start as Anonymous when Firebase is active so the gate is enforced immediately,
+    // before the auth handshake completes. Non-configured JVM desktop gets SignedIn
+    // (no gate — desktop is a developer/admin surface).
+    private val _authState = MutableStateFlow<AuthState>(
+        if (isFirebaseAvailable) AuthState.Anonymous else AuthState.SignedIn,
+    )
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
-        if (BuildKonfig.USE_FIREBASE_EMULATOR) {
-            Firebase.auth.useEmulator("localhost", 9099)
-        }
-        scope.launch { runCatching { Firebase.auth.signInAnonymously() } }
-        scope.launch {
-            Firebase.auth.authStateChanged.collect { user ->
-                _authState.value = when {
-                    user == null -> AuthState.Loading
-                    user.isAnonymous -> AuthState.Anonymous
-                    else -> AuthState.SignedIn
+        if (isFirebaseAvailable) {
+            if (BuildKonfig.USE_FIREBASE_EMULATOR) {
+                runCatching { Firebase.auth.useEmulator("localhost", 9099) }
+            }
+            scope.launch {
+                val currentUser = runCatching { Firebase.auth.currentUser }.getOrNull()
+                if (currentUser == null) {
+                    runCatching { Firebase.auth.signInAnonymously() }
                 }
-                if (user != null) {
-                    runCatching { api.syncUser() }
+            }
+            scope.launch {
+                runCatching {
+                    Firebase.auth.authStateChanged.collect { user ->
+                        _authState.value = when {
+                            user == null -> AuthState.Anonymous
+                            user.isAnonymous -> AuthState.Anonymous
+                            else -> AuthState.SignedIn
+                        }
+                        if (user != null) runCatching { api.syncUser() }
+                    }
                 }
             }
         }
     }
 
     override suspend fun getIdToken(): String? =
-        runCatching { Firebase.auth.currentUser?.getIdToken(false) }.getOrNull()
+        if (isFirebaseAvailable) {
+            runCatching { Firebase.auth.currentUser?.getIdToken(false) }.getOrNull()
+        } else {
+            null
+        }
 
     override suspend fun linkWithEmailCredential(
         email: String,

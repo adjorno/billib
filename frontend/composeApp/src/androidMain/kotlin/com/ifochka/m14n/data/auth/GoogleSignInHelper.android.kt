@@ -10,7 +10,7 @@ import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.GoogleAuthProvider
 import org.koin.mp.KoinPlatform
 
-suspend fun getGoogleCredential(): AuthCredential? {
+actual suspend fun getGoogleCredential(): AuthCredential? {
     if (BuildKonfig.GOOGLE_WEB_CLIENT_ID.isEmpty()) return null
     return runCatching {
         val context: Context = KoinPlatform.getKoin().get()
