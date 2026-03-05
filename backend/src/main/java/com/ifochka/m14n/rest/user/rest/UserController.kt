@@ -13,10 +13,15 @@ import java.time.Instant
 class UserController(
     private val repository: UserProfileRepository,
 ) {
+    companion object {
+        private const val SIGN_IN_PROVIDER_CLAIM = "firebase:sign_in_provider"
+        private const val ANONYMOUS_PROVIDER = "anonymous"
+    }
+
     @PostMapping("/user/sync")
     fun sync(authentication: JwtAuthenticationToken): UserProfile {
         val uid = authentication.name
-        val isAnon = authentication.tokenAttributes["firebase:sign_in_provider"] == "anonymous"
+        val isAnon = authentication.tokenAttributes[SIGN_IN_PROVIDER_CLAIM] == ANONYMOUS_PROVIDER
         val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
         return repository.save(
             existing.copy(

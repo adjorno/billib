@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class FirebaseAuthRepository(
     private val api: M14nApi,
 ) : AuthRepository {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // On JVM desktop without FIREBASE_APP_ID, Firebase.auth throws — detect eagerly.
     // On Android and future iOS, Firebase is always available via the platform config file.
@@ -40,6 +40,7 @@ class FirebaseAuthRepository(
                 val currentUser = runCatching { Firebase.auth.currentUser }.getOrNull()
                 if (currentUser == null) {
                     runCatching { Firebase.auth.signInAnonymously() }
+                        .onFailure { println("[Auth] Anonymous sign-in failed: $it") }
                 }
             }
             scope.launch {
@@ -50,9 +51,12 @@ class FirebaseAuthRepository(
                             user.isAnonymous -> AuthState.Anonymous
                             else -> AuthState.SignedIn
                         }
-                        if (user != null) runCatching { api.syncUser() }
+                        if (user != null) {
+                            runCatching { api.syncUser() }
+                                .onFailure { println("[Auth] syncUser failed: $it") }
+                        }
                     }
-                }
+                }.onFailure { println("[Auth] authStateChanged collection failed: $it") }
             }
         }
     }

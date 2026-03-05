@@ -24,8 +24,10 @@ class FirebaseJwtDecoder(
 
         // Firebase claims contain iat/exp as Long (epoch seconds); Spring expects Instant.
         val claims = firebaseToken.claims.toMutableMap<String, Any>()
-        val iat = (claims["iat"] as? Long)?.let { Instant.ofEpochSecond(it) } ?: Instant.now()
-        val exp = (claims["exp"] as? Long)?.let { Instant.ofEpochSecond(it) } ?: iat.plusSeconds(3600)
+        val iat = (claims["iat"] as? Long)?.let { Instant.ofEpochSecond(it) }
+            ?: throw BadJwtException("Firebase token is missing 'iat' claim")
+        val exp = (claims["exp"] as? Long)?.let { Instant.ofEpochSecond(it) }
+            ?: throw BadJwtException("Firebase token is missing 'exp' claim")
         claims["iat"] = iat
         claims["exp"] = exp
         claims["sub"] = firebaseToken.uid

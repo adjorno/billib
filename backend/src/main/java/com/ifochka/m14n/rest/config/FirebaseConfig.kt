@@ -17,8 +17,14 @@ class FirebaseConfig(
         if (FirebaseApp.getApps().isNotEmpty()) return FirebaseApp.getInstance()
         // In emulator mode (FIREBASE_AUTH_EMULATOR_HOST set), verifyIdToken() bypasses
         // signature verification entirely — credentials are never used, so a stub is safe.
-        val credentials = runCatching { GoogleCredentials.getApplicationDefault() }
-            .getOrElse { GoogleCredentials.create(AccessToken("emulator-stub", null)) }
+        // Outside emulator mode, getApplicationDefault() must succeed; failure means
+        // misconfigured production credentials and we fail loudly rather than silently.
+        val isEmulator = System.getenv("FIREBASE_AUTH_EMULATOR_HOST") != null
+        val credentials = if (isEmulator) {
+            GoogleCredentials.create(AccessToken("emulator-stub", null))
+        } else {
+            GoogleCredentials.getApplicationDefault()
+        }
         return FirebaseApp.initializeApp(
             FirebaseOptions.builder()
                 .setCredentials(credentials)
