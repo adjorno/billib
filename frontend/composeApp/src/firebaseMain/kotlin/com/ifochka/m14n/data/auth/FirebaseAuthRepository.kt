@@ -46,11 +46,7 @@ class FirebaseAuthRepository(
             scope.launch {
                 runCatching {
                     Firebase.auth.authStateChanged.collect { user ->
-                        _authState.value = when {
-                            user == null -> AuthState.Anonymous
-                            user.isAnonymous -> AuthState.Anonymous
-                            else -> AuthState.SignedIn
-                        }
+                        _authState.value = if (user?.isAnonymous == false) AuthState.SignedIn else AuthState.Anonymous
                         if (user != null) {
                             runCatching { api.syncUser() }
                                 .onFailure { println("[Auth] syncUser failed: $it") }
@@ -86,9 +82,16 @@ class FirebaseAuthRepository(
     private suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> =
         runCatching {
             val current = checkNotNull(Firebase.auth.currentUser) { "No current user" }
-            runCatching { current.linkWithCredential(credential) }.getOrElse {
-                // Credential already exists — sign into the existing account instead.
-                Firebase.auth.signInWithCredential(credential)
+            runCatching { current.linkWithCredential(credential) }.getOrElse { exception ->
+                // Only fall back on credential collision; rethrow all other failures
+                // (e.g. network errors) so callers can surface them properly.
+                if (exception.message?.contains("credential-already-in-use", ignoreCase = true) == true ||
+                    exception.message?.contains("EMAIL_EXISTS", ignoreCase = true) == true
+                ) {
+                    Firebase.auth.signInWithCredential(credential)
+                } else {
+                    throw exception
+                }
             }
             Unit
         }
