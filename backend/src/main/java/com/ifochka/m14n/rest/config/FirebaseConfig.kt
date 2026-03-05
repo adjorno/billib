@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.io.IOException
 
 @Configuration
 class FirebaseConfig(
@@ -24,7 +25,11 @@ class FirebaseConfig(
         val serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
         val credentials = when {
             isEmulator -> GoogleCredentials.create(AccessToken("emulator-stub", null))
-            !serviceAccountJson.isNullOrEmpty() -> GoogleCredentials.fromStream(serviceAccountJson.byteInputStream())
+            !serviceAccountJson.isNullOrEmpty() -> try {
+                GoogleCredentials.fromStream(serviceAccountJson.byteInputStream())
+            } catch (e: IOException) {
+                throw IllegalStateException("FIREBASE_SERVICE_ACCOUNT_JSON contains invalid JSON: ${e.message}", e)
+            }
             else -> GoogleCredentials.getApplicationDefault()
         }
         return FirebaseApp.initializeApp(
