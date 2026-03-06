@@ -99,6 +99,15 @@
             const provider = new firebase.auth.OAuthProvider('apple.com');
             return user ? user.linkWithPopup(provider) : firebase.auth().signInWithPopup(provider);
         }
+        function jsSignInWithGoogleForced() {
+            return firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        }
+        function jsSignInWithAppleForced() {
+            return firebase.auth().signInWithPopup(new firebase.auth.OAuthProvider('apple.com'));
+        }
+        function jsConsoleError(msg) {
+            console.error(msg);
+        }
         console.log('[Firebase Bridge] Initialized');
     </script>
 

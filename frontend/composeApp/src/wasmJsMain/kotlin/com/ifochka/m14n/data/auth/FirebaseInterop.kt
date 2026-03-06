@@ -43,14 +43,14 @@ internal external fun jsSignInWithEmail(
 @JsFun("() => jsSignInWithGoogle()")
 internal external fun jsSignInWithGoogle(): Promise<JsAny?>
 
-@JsFun("() => firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())")
+@JsFun("() => jsSignInWithGoogleForced()")
 internal external fun jsSignInWithGoogleForced(): Promise<JsAny?>
 
 @JsFun("() => jsSignInWithApple()")
 internal external fun jsSignInWithApple(): Promise<JsAny?>
 
-@JsFun("() => firebase.auth().signInWithPopup(new firebase.auth.OAuthProvider('apple.com'))")
+@JsFun("() => jsSignInWithAppleForced()")
 internal external fun jsSignInWithAppleForced(): Promise<JsAny?>
 
-@JsFun("(msg) => console.error(msg)")
+@JsFun("(msg) => jsConsoleError(msg)")
 internal external fun jsConsoleError(msg: String)
