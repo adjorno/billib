@@ -15,7 +15,7 @@ import kotlin.js.ExperimentalWasmJsInterop
 class WasmFirebaseAuthRepository(
     private val api: M14nApi,
 ) : AuthRepository {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
@@ -24,11 +24,11 @@ class WasmFirebaseAuthRepository(
             val alreadySignedIn = runCatching { jsIsSignedIn() }.getOrDefault(false)
             if (!alreadySignedIn) {
                 runCatching { jsSignInAnonymously().await<JsAny?>() }
-                    .onFailure { println("[Auth] Anonymous sign-in failed: $it") }
+                    .onFailure { jsConsoleError("[Auth] Anonymous sign-in failed: $it") }
             }
             _authState.value = if (!jsGetIsAnonymous()) AuthState.SignedIn else AuthState.Anonymous
             runCatching { api.syncUser() }
-                .onFailure { println("[Auth] syncUser failed: $it") }
+                .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
         }
     }
 
@@ -46,13 +46,13 @@ class WasmFirebaseAuthRepository(
     override suspend fun linkWithGoogle(): Result<Unit> =
         performLink(
             primary = { jsSignInWithGoogle().await<JsAny?>() },
-            fallback = { jsSignInWithGoogle().await<JsAny?>() },
+            fallback = { jsSignInWithGoogleForced().await<JsAny?>() },
         )
 
     override suspend fun linkWithApple(): Result<Unit> =
         performLink(
             primary = { jsSignInWithApple().await<JsAny?>() },
-            fallback = { jsSignInWithApple().await<JsAny?>() },
+            fallback = { jsSignInWithAppleForced().await<JsAny?>() },
         )
 
     private suspend fun performLink(
@@ -70,7 +70,7 @@ class WasmFirebaseAuthRepository(
                 }
             }
             _authState.value = AuthState.SignedIn
-            runCatching { api.syncUser() }.onFailure { println("[Auth] syncUser failed: $it") }
+            runCatching { api.syncUser() }.onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
             Unit
         }
 }
