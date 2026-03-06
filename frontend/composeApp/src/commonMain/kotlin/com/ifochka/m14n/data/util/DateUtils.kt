@@ -3,14 +3,15 @@ package com.ifochka.m14n.data.util
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-/**
- * Get current date. Platform-specific implementation due to Clock.System
- * not being accessible in commonMain metadata compilation.
- */
-internal expect fun currentDate(): LocalDate
+@OptIn(ExperimentalTime::class)
+internal fun currentDate(): LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
 /**
  * Utilities for date calculations and formatting for chart week navigation.
