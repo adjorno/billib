@@ -7,8 +7,6 @@ import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.EmailAuthProvider
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,9 +14,8 @@ import kotlinx.coroutines.launch
 
 class FirebaseAuthRepository(
     private val api: M14nApi,
+    private val scope: CoroutineScope,
 ) : AuthRepository {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
     // On JVM desktop without FIREBASE_APP_ID, Firebase.auth throws — detect eagerly.
     // On Android and future iOS, Firebase is always available via the platform config file.
     private val isFirebaseAvailable = runCatching { Firebase.auth }.isSuccess

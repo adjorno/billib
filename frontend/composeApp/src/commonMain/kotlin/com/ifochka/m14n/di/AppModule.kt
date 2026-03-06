@@ -36,6 +36,9 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.plugin
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -91,7 +94,8 @@ val appModule = module {
     single { M14nDatabase(get()) }
     single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
     single<M14nApi> { KtorM14nApi(get()) }
-    single<AuthRepository>(createdAtStart = true) { createFirebaseAuthRepository(get()) }
+    single { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
+    single<AuthRepository>(createdAtStart = true) { createFirebaseAuthRepository(api = get(), scope = get()) }
 
     // Artwork dependencies
     single<ArtworkApi> { AppleMusicArtworkApi(get(named("appleMusicClient"))) }

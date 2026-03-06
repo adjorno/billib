@@ -61,8 +61,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script>
         function jsFirebaseInit(apiKey, projectId, appId, authDomain) {
-            firebase.initializeApp({ apiKey: apiKey, authDomain: authDomain,
-                                      projectId: projectId, appId: appId });
+            firebase.initializeApp({ apiKey: apiKey, projectId: projectId, appId: appId, authDomain: authDomain });
         }
         function jsUseFirebaseEmulator() {
             firebase.auth().useEmulator("http://localhost:9099");
@@ -99,6 +98,15 @@
             const user = firebase.auth().currentUser;
             const provider = new firebase.auth.OAuthProvider('apple.com');
             return user ? user.linkWithPopup(provider) : firebase.auth().signInWithPopup(provider);
+        }
+        function jsSignInWithGoogleForced() {
+            return firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        }
+        function jsSignInWithAppleForced() {
+            return firebase.auth().signInWithPopup(new firebase.auth.OAuthProvider('apple.com'));
+        }
+        function jsConsoleError(msg) {
+            console.error(msg);
         }
         console.log('[Firebase Bridge] Initialized');
     </script>
