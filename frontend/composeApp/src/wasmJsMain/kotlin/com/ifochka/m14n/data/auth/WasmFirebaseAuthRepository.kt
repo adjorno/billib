@@ -2,8 +2,6 @@ package com.ifochka.m14n.data.auth
 
 import com.ifochka.m14n.data.api.M14nApi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.await
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +12,8 @@ import kotlin.js.ExperimentalWasmJsInterop
 @OptIn(ExperimentalWasmJsInterop::class)
 class WasmFirebaseAuthRepository(
     private val api: M14nApi,
+    private val scope: CoroutineScope,
 ) : AuthRepository {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
