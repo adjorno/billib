@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    id("org.jetbrains.kotlin.native.cocoapods")
     alias(libs.plugins.multiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -28,8 +29,28 @@ kotlin {
         binaries.executable()
     }
 
+    iosArm64()
+    iosSimulatorArm64()
+
+    cocoapods {
+        summary = "M14N Compose Multiplatform App"
+        homepage = "https://m14n.com"
+        version = "1.0"
+        ios.deploymentTarget = "16.0"
+        podfile = project.file("../iosApp/Podfile")
+        framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+        pod("FirebaseAuth") {
+            version = "~> 11.0"
+        }
+        // SQLDelight native driver uses SQLite3 C symbols; link against system libsqlite3
+        extraSpecAttributes["libraries"] = "'c++', 'sqlite3'"
+    }
+
     sourceSets {
-        // Intermediate source set for Firebase-capable targets: Android, JVM desktop, future iOS.
+        // Intermediate source set for Firebase-capable targets: Android, JVM desktop, iOS.
         // wasmJs has no firebase-auth artifact so it gets WasmFirebaseAuthRepository instead.
         val firebaseMain by creating {
             dependsOn(commonMain.get())
@@ -43,6 +64,17 @@ kotlin {
         jvmMain {
             dependsOn(firebaseMain)
         }
+        iosMain {
+            dependsOn(firebaseMain)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+            implementation(libs.sqldelight.native.driver)
+        }
+        // Wire iOS target compilations to iosMain — required because the default hierarchy
+        // template is not applied when custom dependsOn edges exist (firebaseMain).
+        getByName("iosArm64Main") { dependsOn(getByName("iosMain")) }
+        getByName("iosSimulatorArm64Main") { dependsOn(getByName("iosMain")) }
 
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling)

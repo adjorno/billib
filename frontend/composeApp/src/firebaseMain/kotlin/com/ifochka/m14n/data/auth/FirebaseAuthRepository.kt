@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class FirebaseAuthRepository(
     private val api: M14nApi,
 ) : AuthRepository {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     // On JVM desktop without FIREBASE_APP_ID, Firebase.auth throws — detect eagerly.
     // On Android and future iOS, Firebase is always available via the platform config file.

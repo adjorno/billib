@@ -7,6 +7,7 @@ interface Platform {
 
     companion object {
         const val ANDROID = "android"
+        const val IOS = "ios"
         const val JS = "web/js"
         const val WASM = "web/wasm"
         const val DESKTOP = "desktop"
