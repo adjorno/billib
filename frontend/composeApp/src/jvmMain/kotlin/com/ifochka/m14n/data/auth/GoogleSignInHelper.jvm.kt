@@ -14,19 +14,19 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.Desktop
-import java.net.ServerSocket
 import java.net.URI
 import java.net.URLEncoder
 import java.security.SecureRandom
 import java.util.Base64
+
+private const val OAUTH_PORT = 8765
 
 actual suspend fun getGoogleCredential(): AuthCredential? {
     if (BuildKonfig.GOOGLE_WEB_CLIENT_ID.isEmpty()) return null
     return runCatching {
         val state = randomBase64(16)
         val nonce = randomBase64(16)
-        val port = freePort()
-        val redirectUri = "http://localhost:$port/callback"
+        val redirectUri = "http://localhost:$OAUTH_PORT/callback"
         val authUrl = buildGoogleAuthUrl(
             clientId = BuildKonfig.GOOGLE_WEB_CLIENT_ID,
             redirectUri = redirectUri,
@@ -34,7 +34,7 @@ actual suspend fun getGoogleCredential(): AuthCredential? {
             nonce = nonce,
         )
         val deferred = CompletableDeferred<Pair<String, String?>>()
-        val server = embeddedServer(CIO, port = port) {
+        val server = embeddedServer(CIO, port = OAUTH_PORT) {
             routing {
                 get("/callback") {
                     call.respondText(
@@ -54,10 +54,12 @@ actual suspend fun getGoogleCredential(): AuthCredential? {
             Desktop.getDesktop().browse(URI(authUrl))
         }
         val (idToken, accessToken) = deferred.await()
+        println("[Auth] getGoogleCredential: token received (idToken length=${idToken.length})")
         server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
         validateNonce(idToken = idToken, expectedNonce = nonce)
+        println("[Auth] getGoogleCredential: nonce ok, returning credential")
         GoogleAuthProvider.credential(idToken = idToken, accessToken = accessToken)
-    }.getOrNull()
+    }.onFailure { println("[Auth] getGoogleCredential failed: $it") }.getOrNull()
 }
 
 private fun randomBase64(bytes: Int): String {
@@ -65,8 +67,6 @@ private fun randomBase64(bytes: Int): String {
     SecureRandom().nextBytes(buf)
     return Base64.getUrlEncoder().withoutPadding().encodeToString(buf)
 }
-
-private fun freePort(): Int = ServerSocket(0).use { it.localPort }
 
 private fun enc(s: String): String = URLEncoder.encode(s, "UTF-8")
 
@@ -105,9 +105,16 @@ private fun validateNonce(
     idToken: String,
     expectedNonce: String,
 ) {
-    val payload = idToken.split(".").getOrNull(1) ?: return
+    val payload = idToken.split(".").getOrNull(1) ?: run {
+        println("[Auth] validateNonce: no payload segment in JWT")
+        return
+    }
     val padded = payload.padEnd((payload.length + 3) / 4 * 4, '=')
     val json = String(Base64.getUrlDecoder().decode(padded))
-    val actual = Regex(""""nonce"\s*:\s*"([^"]+)"""").find(json)?.groupValues?.get(1) ?: return
+    val actual = Regex(""""nonce"\s*:\s*"([^"]+)"""").find(json)?.groupValues?.get(1) ?: run {
+        println("[Auth] validateNonce: no nonce claim in JWT payload")
+        return
+    }
+    println("[Auth] validateNonce: expected=$expectedNonce actual=$actual match=${actual == expectedNonce}")
     check(actual == expectedNonce) { "Nonce mismatch — possible token replay" }
 }
