@@ -105,6 +105,11 @@
         function jsSignInWithAppleForced() {
             return firebase.auth().signInWithPopup(new firebase.auth.OAuthProvider('apple.com'));
         }
+        function jsOnAuthStateChanged(callback) {
+            firebase.auth().onAuthStateChanged(function(user) {
+                callback(user !== null && !user.isAnonymous);
+            });
+        }
         function jsConsoleError(msg) {
             console.error(msg);
         }
