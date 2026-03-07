@@ -13,6 +13,9 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.awt.Desktop
 import java.net.URI
 import java.net.URLEncoder
@@ -50,15 +53,18 @@ actual suspend fun getGoogleCredential(): AuthCredential? {
                 }
             }
         }.start(wait = false)
-        withContext(Dispatchers.IO) {
-            Desktop.getDesktop().browse(URI(authUrl))
+        try {
+            withContext(Dispatchers.IO) {
+                Desktop.getDesktop().browse(URI(authUrl))
+            }
+            val (idToken, accessToken) = deferred.await()
+            println("[Auth] getGoogleCredential: token received (idToken length=${idToken.length})")
+            validateNonce(idToken = idToken, expectedNonce = nonce)
+            println("[Auth] getGoogleCredential: nonce ok, returning credential")
+            GoogleAuthProvider.credential(idToken = idToken, accessToken = accessToken)
+        } finally {
+            server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
         }
-        val (idToken, accessToken) = deferred.await()
-        println("[Auth] getGoogleCredential: token received (idToken length=${idToken.length})")
-        server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
-        validateNonce(idToken = idToken, expectedNonce = nonce)
-        println("[Auth] getGoogleCredential: nonce ok, returning credential")
-        GoogleAuthProvider.credential(idToken = idToken, accessToken = accessToken)
     }.onFailure { println("[Auth] getGoogleCredential failed: $it") }.getOrNull()
 }
 
@@ -111,7 +117,7 @@ private fun validateNonce(
     }
     val padded = payload.padEnd((payload.length + 3) / 4 * 4, '=')
     val json = String(Base64.getUrlDecoder().decode(padded))
-    val actual = Regex(""""nonce"\s*:\s*"([^"]+)"""").find(json)?.groupValues?.get(1) ?: run {
+    val actual = Json.parseToJsonElement(json).jsonObject["nonce"]?.jsonPrimitive?.content ?: run {
         println("[Auth] validateNonce: no nonce claim in JWT payload")
         return
     }
