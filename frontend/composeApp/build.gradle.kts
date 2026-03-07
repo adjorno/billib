@@ -43,7 +43,7 @@ kotlin {
             isStatic = true
         }
         pod("FirebaseAuth")
-        pod("GoogleSignIn")
+        pod("GoogleSignIn") { version = "~> 8.0" }
         pod("GoogleUtilities") // explicit to de-duplicate the group in the synthetic build
         // SQLDelight native driver uses SQLite3 C symbols; link against system libsqlite3
         extraSpecAttributes["libraries"] = "'c++', 'sqlite3'"

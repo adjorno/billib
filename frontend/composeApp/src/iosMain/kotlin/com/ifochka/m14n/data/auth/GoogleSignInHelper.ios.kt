@@ -1,25 +1,26 @@
 package com.ifochka.m14n.data.auth
 
+import cocoapods.GoogleSignIn.GIDSignIn
 import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.GoogleAuthProvider
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.UIKit.UIApplication
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
+@OptIn(ExperimentalForeignApi::class)
 actual suspend fun getGoogleCredential(): AuthCredential? {
-    val delegate = GoogleSignInDelegateHolder.delegate ?: return null
-    var idToken: String? = null
-    var accessToken: String? = null
-    suspendCancellableCoroutine { cont ->
-        delegate.signIn { token, access ->
-            idToken = token
-            accessToken = access
-            cont.resume(Unit)
-        }
+    val rootVC = UIApplication.sharedApplication.keyWindow?.rootViewController
+        ?: return null
+    val (idToken, accessToken) = suspendCoroutine { cont ->
+        GIDSignIn.sharedInstance
+            .signInWithPresentingViewController(rootVC, null, null) { result, _ ->
+                cont.resume(result?.user?.idToken?.tokenString to result?.user?.accessToken?.tokenString)
+            }
     }
-    val resolvedIdToken = idToken ?: return null
-    val resolvedAccessToken = accessToken ?: return null
+    if (idToken == null || accessToken == null) return null
     return GoogleAuthProvider.credential(
-        idToken = resolvedIdToken,
-        accessToken = resolvedAccessToken,
+        idToken = idToken,
+        accessToken = accessToken,
     )
 }

@@ -11,7 +11,7 @@ PODS:
     - PromisesObjC (~> 2.4)
   - composeApp (1.0):
     - FirebaseAuth
-    - GoogleSignIn
+    - GoogleSignIn (~> 8.0)
     - GoogleUtilities
   - FirebaseAppCheckInterop (11.15.0)
   - FirebaseAuth (11.15.0):
@@ -113,7 +113,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
-  composeApp: 95a40a8efc29c95d35436c81dca77f6c0f9fa46e
+  composeApp: 0aaffe2205258fc693dee489b631b1e58a1b0799
   FirebaseAppCheckInterop: 06fe5a3799278ae4667e6c432edd86b1030fa3df
   FirebaseAuth: a6575e5fbf46b046c58dc211a28a5fbdd8d4c83b
   FirebaseAuthInterop: 7087d7a4ee4bc4de019b2d0c240974ed5d89e2fd
