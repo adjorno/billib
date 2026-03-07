@@ -1,6 +1,113 @@
 package com.ifochka.m14n.data.auth
 
+import com.ifochka.m14n.BuildKonfig
 import dev.gitlive.firebase.auth.AuthCredential
+import dev.gitlive.firebase.auth.GoogleAuthProvider
+import io.ktor.http.ContentType
+import io.ktor.server.application.call
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.awt.Desktop
+import java.net.ServerSocket
+import java.net.URI
+import java.net.URLEncoder
+import java.security.SecureRandom
+import java.util.Base64
 
-// JVM desktop Google Sign-In via loopback OAuth server — tracked as a follow-up GitHub issue.
-actual suspend fun getGoogleCredential(): AuthCredential? = null
+actual suspend fun getGoogleCredential(): AuthCredential? {
+    if (BuildKonfig.GOOGLE_WEB_CLIENT_ID.isEmpty()) return null
+    return runCatching {
+        val state = randomBase64(16)
+        val nonce = randomBase64(16)
+        val port = freePort()
+        val redirectUri = "http://localhost:$port/callback"
+        val authUrl = buildGoogleAuthUrl(
+            clientId = BuildKonfig.GOOGLE_WEB_CLIENT_ID,
+            redirectUri = redirectUri,
+            state = state,
+            nonce = nonce,
+        )
+        val deferred = CompletableDeferred<Pair<String, String?>>()
+        val server = embeddedServer(CIO, port = port) {
+            routing {
+                get("/callback") {
+                    call.respondText(
+                        text = callbackHtml(redirectUri = redirectUri, state = state),
+                        contentType = ContentType.Text.Html,
+                    )
+                }
+                get("/callback/token") {
+                    val idToken = call.request.queryParameters["id_token"] ?: error("no id_token")
+                    val accessToken = call.request.queryParameters["access_token"]
+                    deferred.complete(idToken to accessToken)
+                    call.respondText("Signed in. You can close this tab.")
+                }
+            }
+        }.start(wait = false)
+        withContext(Dispatchers.IO) {
+            Desktop.getDesktop().browse(URI(authUrl))
+        }
+        val (idToken, accessToken) = deferred.await()
+        server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
+        validateNonce(idToken = idToken, expectedNonce = nonce)
+        GoogleAuthProvider.credential(idToken = idToken, accessToken = accessToken)
+    }.getOrNull()
+}
+
+private fun randomBase64(bytes: Int): String {
+    val buf = ByteArray(bytes)
+    SecureRandom().nextBytes(buf)
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(buf)
+}
+
+private fun freePort(): Int = ServerSocket(0).use { it.localPort }
+
+private fun enc(s: String): String = URLEncoder.encode(s, "UTF-8")
+
+private fun buildGoogleAuthUrl(
+    clientId: String,
+    redirectUri: String,
+    state: String,
+    nonce: String,
+) = "https://accounts.google.com/o/oauth2/v2/auth?" +
+    "response_type=${enc("id_token token")}&" +
+    "client_id=${enc(clientId)}&" +
+    "redirect_uri=${enc(redirectUri)}&" +
+    "scope=${enc("openid email profile")}&" +
+    "nonce=${enc(nonce)}&" +
+    "state=${enc(state)}"
+
+private fun callbackHtml(
+    redirectUri: String,
+    state: String,
+) = """
+    <!DOCTYPE html><html><body><script>
+      var params = new URLSearchParams(window.location.hash.slice(1));
+      var idToken = params.get('id_token');
+      var accessToken = params.get('access_token') || '';
+      if (params.get('state') !== '$state' || !idToken) {
+        document.body.innerText = 'Error: invalid state or missing token.';
+      } else {
+        window.location.href = '$redirectUri/token' +
+          '?id_token=' + encodeURIComponent(idToken) +
+          '&access_token=' + encodeURIComponent(accessToken);
+      }
+    </script><p>Signing in...</p></body></html>
+    """.trimIndent()
+
+private fun validateNonce(
+    idToken: String,
+    expectedNonce: String,
+) {
+    val payload = idToken.split(".").getOrNull(1) ?: return
+    val padded = payload.padEnd((payload.length + 3) / 4 * 4, '=')
+    val json = String(Base64.getUrlDecoder().decode(padded))
+    val actual = Regex(""""nonce"\s*:\s*"([^"]+)"""").find(json)?.groupValues?.get(1) ?: return
+    check(actual == expectedNonce) { "Nonce mismatch — possible token replay" }
+}
