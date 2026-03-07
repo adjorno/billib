@@ -5,13 +5,14 @@ import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.GoogleAuthProvider
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindowScene
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @OptIn(ExperimentalForeignApi::class)
 actual suspend fun getGoogleCredential(): AuthCredential? {
-    val rootVC = UIApplication.sharedApplication.keyWindow?.rootViewController
-        ?: return null
+    val rootVC = (UIApplication.sharedApplication.connectedScenes.firstOrNull() as? UIWindowScene)
+        ?.keyWindow?.rootViewController ?: return null
     val (idToken, accessToken) = suspendCoroutine { cont ->
         GIDSignIn.sharedInstance
             .signInWithPresentingViewController(rootVC, null, null) { result, _ ->
