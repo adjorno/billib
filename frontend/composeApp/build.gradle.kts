@@ -41,10 +41,11 @@ kotlin {
         framework {
             baseName = "ComposeApp"
             isStatic = true
+            freeCompilerArgs += "-Xbinary=bundleId=com.ifochka.m14n.ComposeApp"
         }
-        pod("FirebaseAuth") {
-            version = "~> 11.0"
-        }
+        pod("FirebaseAuth")
+        pod("GoogleSignIn") { version = "~> 8.0" }
+        pod("GoogleUtilities") // explicit to de-duplicate the group in the synthetic build
         // SQLDelight native driver uses SQLite3 C symbols; link against system libsqlite3
         extraSpecAttributes["libraries"] = "'c++', 'sqlite3'"
     }
