@@ -43,7 +43,8 @@ kotlin {
             isStatic = true
         }
         pod("FirebaseAuth")
-        // GoogleSignIn is linked via the iosApp Podfile; not imported in Kotlin — Swift bridge calls it.
+        pod("GoogleSignIn")
+        pod("GoogleUtilities") // explicit to de-duplicate the group in the synthetic build
         // SQLDelight native driver uses SQLite3 C symbols; link against system libsqlite3
         extraSpecAttributes["libraries"] = "'c++', 'sqlite3'"
     }
