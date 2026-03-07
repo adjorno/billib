@@ -18,15 +18,19 @@ class WasmFirebaseAuthRepository(
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
+        jsOnAuthStateChanged { isSignedIn ->
+            _authState.value = if (isSignedIn) AuthState.SignedIn else AuthState.Anonymous
+            scope.launch {
+                runCatching { api.syncUser() }
+                    .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
+            }
+        }
         scope.launch {
             val alreadySignedIn = runCatching { jsIsSignedIn() }.getOrDefault(false)
             if (!alreadySignedIn) {
                 runCatching { jsSignInAnonymously().await<JsAny?>() }
                     .onFailure { jsConsoleError("[Auth] Anonymous sign-in failed: $it") }
             }
-            _authState.value = if (!jsGetIsAnonymous()) AuthState.SignedIn else AuthState.Anonymous
-            runCatching { api.syncUser() }
-                .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
         }
     }
 
@@ -67,8 +71,6 @@ class WasmFirebaseAuthRepository(
                     throw ex
                 }
             }
-            _authState.value = AuthState.SignedIn
-            runCatching { api.syncUser() }.onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
             Unit
         }
 }

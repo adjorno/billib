@@ -52,5 +52,8 @@ internal external fun jsSignInWithApple(): Promise<JsAny?>
 @JsFun("() => jsSignInWithAppleForced()")
 internal external fun jsSignInWithAppleForced(): Promise<JsAny?>
 
+@JsFun("(callback) => jsOnAuthStateChanged(callback)")
+internal external fun jsOnAuthStateChanged(callback: (Boolean) -> Unit)
+
 @JsFun("(msg) => jsConsoleError(msg)")
 internal external fun jsConsoleError(msg: String)
