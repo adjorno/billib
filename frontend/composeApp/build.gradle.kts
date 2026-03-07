@@ -41,6 +41,7 @@ kotlin {
         framework {
             baseName = "ComposeApp"
             isStatic = true
+            freeCompilerArgs += "-Xbinary=bundleId=com.ifochka.m14n.ComposeApp"
         }
         pod("FirebaseAuth")
         pod("GoogleSignIn") { version = "~> 8.0" }
