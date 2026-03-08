@@ -43,11 +43,14 @@ internal external fun jsSignInWithEmail(
 @JsFun("() => jsSignInWithGoogle()")
 internal external fun jsSignInWithGoogle(): Promise<JsAny?>
 
+@JsFun("() => jsSignInWithGoogleForced()")
+internal external fun jsSignInWithGoogleForced(): Promise<JsAny?>
+
 @JsFun("() => jsSignInWithApple()")
 internal external fun jsSignInWithApple(): Promise<JsAny?>
 
-@JsFun("() => jsGetRedirectResult()")
-internal external fun jsGetRedirectResult(): Promise<JsAny?>
+@JsFun("() => jsSignInWithAppleForced()")
+internal external fun jsSignInWithAppleForced(): Promise<JsAny?>
 
 @JsFun("(callback) => jsOnAuthStateChanged(callback)")
 internal external fun jsOnAuthStateChanged(callback: (Boolean) -> Unit)
