@@ -2,7 +2,9 @@ package com.ifochka.m14n.rest.user.rest
 
 import com.ifochka.m14n.rest.user.domain.UserProfile
 import com.ifochka.m14n.rest.user.domain.UserProfileRepository
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,30 +20,36 @@ class UserController(
     }
 
     @PostMapping("/user/sync")
-    fun sync(authentication: JwtAuthenticationToken): UserProfile {
-        val uid = authentication.name
+    fun sync(authentication: Authentication): ResponseEntity<UserProfile> {
+        val jwt = authentication.asJwt() ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        val uid = jwt.name
 
         @Suppress("UNCHECKED_CAST")
-        val firebaseClaim = authentication.tokenAttributes["firebase"] as? Map<String, Any>
+        val firebaseClaim = jwt.tokenAttributes["firebase"] as? Map<String, Any>
         val isAnon = firebaseClaim?.get("sign_in_provider") == ANONYMOUS_PROVIDER
-        val email = authentication.tokenAttributes["email"] as? String
-        val displayName = authentication.tokenAttributes["name"] as? String
+        val email = jwt.tokenAttributes["email"] as? String
+        val displayName = jwt.tokenAttributes["name"] as? String
         val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
-        return repository.save(
-            existing.copy(
-                isAnonymous = isAnon,
-                email = email ?: existing.email,
-                displayName = displayName ?: existing.displayName,
-                lastLoginAt = Instant.now(),
+        return ResponseEntity.ok(
+            repository.save(
+                existing.copy(
+                    isAnonymous = isAnon,
+                    email = email ?: existing.email,
+                    displayName = displayName ?: existing.displayName,
+                    lastLoginAt = Instant.now(),
+                ),
             ),
         )
     }
 
     @GetMapping("/user/me")
-    fun me(authentication: JwtAuthenticationToken): ResponseEntity<UserProfile> {
-        val uid = authentication.name
+    fun me(authentication: Authentication): ResponseEntity<UserProfile> {
+        val jwt = authentication.asJwt() ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        val uid = jwt.name
         return repository.findById(uid)
             .map { ResponseEntity.ok(it) }
             .orElse(ResponseEntity.notFound().build())
     }
+
+    private fun Authentication.asJwt(): JwtAuthenticationToken? = this as? JwtAuthenticationToken
 }
