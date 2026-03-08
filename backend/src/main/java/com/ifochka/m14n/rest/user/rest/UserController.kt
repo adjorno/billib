@@ -14,14 +14,16 @@ class UserController(
     private val repository: UserProfileRepository,
 ) {
     companion object {
-        private const val SIGN_IN_PROVIDER_CLAIM = "firebase:sign_in_provider"
         private const val ANONYMOUS_PROVIDER = "anonymous"
     }
 
     @PostMapping("/user/sync")
     fun sync(authentication: JwtAuthenticationToken): UserProfile {
         val uid = authentication.name
-        val isAnon = authentication.tokenAttributes[SIGN_IN_PROVIDER_CLAIM] == ANONYMOUS_PROVIDER
+
+        @Suppress("UNCHECKED_CAST")
+        val firebaseClaim = authentication.tokenAttributes["firebase"] as? Map<String, Any>
+        val isAnon = firebaseClaim?.get("sign_in_provider") == ANONYMOUS_PROVIDER
         val email = authentication.tokenAttributes["email"] as? String
         val displayName = authentication.tokenAttributes["name"] as? String
         val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
