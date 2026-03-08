@@ -7,7 +7,7 @@ actual fun initFirebase() {
         apiKey = BuildKonfig.FIREBASE_API_KEY,
         projectId = BuildKonfig.FIREBASE_PROJECT_ID,
         appId = BuildKonfig.FIREBASE_APP_ID,
-        authDomain = "${BuildKonfig.FIREBASE_PROJECT_ID}.firebaseapp.com",
+        authDomain = BuildKonfig.FIREBASE_AUTH_DOMAIN,
     )
     if (BuildKonfig.USE_FIREBASE_EMULATOR) jsUseFirebaseEmulator()
 }

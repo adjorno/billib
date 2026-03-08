@@ -23,4 +23,5 @@ jobs:
     with:
       version: ${{ needs.version.outputs.version }}
       cloudflare_project_name: 'm14n-test'
+      firebase_auth_domain: 'test.m14n.com'
     secrets: inherit
