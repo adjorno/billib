@@ -11,6 +11,7 @@ on:
       - '.github/workflows/template-compute-ci-version.yml'
       - '.github/workflows/template-web-build-and-deploy.yml'
       - '.github/workflows/deploy-web-test.yml'
+  workflow_dispatch:
 
 jobs:
   version:
