@@ -60,6 +60,10 @@ subprojects {
                 val appleMusicToken = getPropertyOrEnv(key = "APPLE_MUSIC_TOKEN", fallback = "")
                 val firebaseProjectId = getPropertyOrEnv(key = "FIREBASE_PROJECT_ID", fallback = "m14n-41a5a")
                 val firebaseAppId = getPropertyOrEnv(key = "FIREBASE_APP_ID", fallback = "")
+                val firebaseAuthDomain = getPropertyOrEnv(
+                    key = "FIREBASE_AUTH_DOMAIN",
+                    fallback = "$firebaseProjectId.firebaseapp.com",
+                )
                 val googleWebClientId = getPropertyOrEnv(key = "GOOGLE_WEB_CLIENT_ID", fallback = "")
                 val appleClientId = getPropertyOrEnv(key = "APPLE_CLIENT_ID", fallback = "")
 
@@ -98,6 +102,12 @@ subprojects {
                         type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
                         name = "FIREBASE_APP_ID",
                         value = firebaseAppId,
+                    )
+
+                    buildConfigField(
+                        type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+                        name = "FIREBASE_AUTH_DOMAIN",
+                        value = firebaseAuthDomain,
                     )
 
                     buildConfigField(

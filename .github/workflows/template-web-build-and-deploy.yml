@@ -11,6 +11,10 @@ on:
         description: 'Cloudflare Pages project name'
         required: true
         type: string
+      firebase_auth_domain:
+        description: 'Firebase authDomain (custom domain or project-id.firebaseapp.com)'
+        required: true
+        type: string
     secrets:
       CLOUDFLARE_API_TOKEN:
         required: true
@@ -46,7 +50,8 @@ jobs:
           ./gradlew :frontend:composeApp:wasmJsBrowserDistribution \
             -PVERSION_NAME=${{ inputs.version }} \
             -PFIREBASE_API_KEY=${{ secrets.FB_WEB_API_KEY }} \
-            -PAPPLE_MUSIC_TOKEN=${{ secrets.APPLE_MUSIC_TOKEN }}
+            -PAPPLE_MUSIC_TOKEN=${{ secrets.APPLE_MUSIC_TOKEN }} \
+            -PFIREBASE_AUTH_DOMAIN=${{ inputs.firebase_auth_domain }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
