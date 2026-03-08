@@ -22,10 +22,14 @@ class UserController(
     fun sync(authentication: JwtAuthenticationToken): UserProfile {
         val uid = authentication.name
         val isAnon = authentication.tokenAttributes[SIGN_IN_PROVIDER_CLAIM] == ANONYMOUS_PROVIDER
+        val email = authentication.tokenAttributes["email"] as? String
+        val displayName = authentication.tokenAttributes["name"] as? String
         val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
         return repository.save(
             existing.copy(
                 isAnonymous = isAnon,
+                email = email ?: existing.email,
+                displayName = displayName ?: existing.displayName,
                 lastLoginAt = Instant.now(),
             ),
         )

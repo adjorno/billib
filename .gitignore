@@ -187,6 +187,7 @@ import.log
 *.sql
 !m14n-importer/src/main/resources/db/schema.sql
 !src/main/resources/db/**/*.sql
+!backend/src/main/resources/db/**/*.sql
 
 # Kotlin Multiplatform
 .kotlin/
