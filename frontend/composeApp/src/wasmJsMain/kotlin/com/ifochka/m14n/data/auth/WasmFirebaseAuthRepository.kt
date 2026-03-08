@@ -18,6 +18,10 @@ class WasmFirebaseAuthRepository(
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
+        scope.launch {
+            runCatching { jsGetRedirectResult().await<JsAny?>() }
+                .onFailure { jsConsoleError("[Auth] getRedirectResult failed: $it") }
+        }
         jsOnAuthStateChanged { isSignedIn ->
             _authState.value = if (isSignedIn) AuthState.SignedIn else AuthState.Anonymous
             scope.launch {
@@ -45,17 +49,9 @@ class WasmFirebaseAuthRepository(
             fallback = { jsSignInWithEmail(email, password).await<JsAny?>() },
         )
 
-    override suspend fun linkWithGoogle(): Result<Unit> =
-        performLink(
-            primary = { jsSignInWithGoogle().await<JsAny?>() },
-            fallback = { jsSignInWithGoogleForced().await<JsAny?>() },
-        )
+    override suspend fun linkWithGoogle(): Result<Unit> = runCatching { jsSignInWithGoogle().await<JsAny?>() }.map { }
 
-    override suspend fun linkWithApple(): Result<Unit> =
-        performLink(
-            primary = { jsSignInWithApple().await<JsAny?>() },
-            fallback = { jsSignInWithAppleForced().await<JsAny?>() },
-        )
+    override suspend fun linkWithApple(): Result<Unit> = runCatching { jsSignInWithApple().await<JsAny?>() }.map { }
 
     private suspend fun performLink(
         primary: suspend () -> JsAny?,

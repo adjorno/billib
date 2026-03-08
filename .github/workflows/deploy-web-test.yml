@@ -11,6 +11,7 @@ on:
       - '.github/workflows/template-compute-ci-version.yml'
       - '.github/workflows/template-web-build-and-deploy.yml'
       - '.github/workflows/deploy-web-test.yml'
+  workflow_dispatch:
 
 jobs:
   version:
@@ -23,5 +24,5 @@ jobs:
     with:
       version: ${{ needs.version.outputs.version }}
       cloudflare_project_name: 'm14n-test'
-      firebase_auth_domain: 'test.m14n.com'
+      firebase_auth_domain: 'm14n-41a5a.firebaseapp.com'
     secrets: inherit
