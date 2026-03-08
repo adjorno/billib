@@ -20,12 +20,15 @@ class DevTokenController(
     @param:Value("\${firebase.web-api-key}") private val webApiKey: String,
 ) {
     private val restClient = RestClient.create()
+    private val signUpUrl = System.getenv("FIREBASE_AUTH_EMULATOR_HOST")
+        ?.let { "http://$it/identitytoolkit.googleapis.com/v1/accounts:signUp?key=$webApiKey" }
+        ?: "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$webApiKey"
 
     @Operation(summary = "Get anonymous Firebase ID token (local only)")
     @PostMapping("/token", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getToken(): ResponseEntity<Map<String, String>> {
         val response = restClient.post()
-            .uri("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$webApiKey")
+            .uri(signUpUrl)
             .contentType(MediaType.APPLICATION_JSON)
             .body("""{"returnSecureToken":true}""")
             .retrieve()
