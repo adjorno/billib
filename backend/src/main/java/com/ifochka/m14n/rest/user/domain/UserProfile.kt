@@ -11,7 +11,7 @@ import java.time.Instant
 data class UserProfile(
     @Id
     @Column(name = "firebase_uid")
-    val firebaseUid: String = "",
+    val firebaseUid: String,
     @Column(name = "is_anonymous")
     val isAnonymous: Boolean = true,
     @Column(name = "plan_type")
