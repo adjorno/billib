@@ -19,20 +19,30 @@ class WasmFirebaseAuthRepository(
 
     init {
         scope.launch {
+            jsConsoleLog("[Auth] Checking for pending redirect result...")
             runCatching { jsGetRedirectResult().await<JsAny?>() }
+                .onSuccess { jsConsoleLog("[Auth] getRedirectResult complete") }
                 .onFailure { jsConsoleError("[Auth] getRedirectResult failed: $it") }
         }
         jsOnAuthStateChanged { isSignedIn ->
-            _authState.value = if (isSignedIn) AuthState.SignedIn else AuthState.Anonymous
+            val newState = if (isSignedIn) AuthState.SignedIn else AuthState.Anonymous
+            jsConsoleLog("[Auth] State → $newState")
+            _authState.value = newState
             scope.launch {
+                jsConsoleLog("[Auth] Calling syncUser...")
                 runCatching { api.syncUser() }
+                    .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
                     .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
             }
         }
         scope.launch {
             val alreadySignedIn = runCatching { jsIsSignedIn() }.getOrDefault(false)
-            if (!alreadySignedIn) {
+            if (alreadySignedIn) {
+                jsConsoleLog("[Auth] Session restored — already signed in")
+            } else {
+                jsConsoleLog("[Auth] No session — signing in anonymously")
                 runCatching { jsSignInAnonymously().await<JsAny?>() }
+                    .onSuccess { jsConsoleLog("[Auth] Anonymous sign-in complete") }
                     .onFailure { jsConsoleError("[Auth] Anonymous sign-in failed: $it") }
             }
         }
@@ -49,9 +59,30 @@ class WasmFirebaseAuthRepository(
             fallback = { jsSignInWithEmail(email, password).await<JsAny?>() },
         )
 
-    override suspend fun linkWithGoogle(): Result<Unit> = runCatching { jsSignInWithGoogle().await<JsAny?>() }.map { }
+    override suspend fun linkWithGoogle(): Result<Unit> {
+        jsConsoleLog("[Auth] linkWithGoogle → initiating popup...")
+        return runCatching { jsSignInWithGoogle().await<JsAny?>() }
+            .onSuccess {
+                jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
+                _authState.value = AuthState.SignedIn
+                runCatching { api.syncUser() }
+                    .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
+                    .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
+            }
+            .onFailure { jsConsoleError("[Auth] linkWithGoogle failed: $it") }
+            .map { }
+    }
 
-    override suspend fun linkWithApple(): Result<Unit> = runCatching { jsSignInWithApple().await<JsAny?>() }.map { }
+    override suspend fun linkWithApple(): Result<Unit> =
+        runCatching { jsSignInWithApple().await<JsAny?>() }
+            .onSuccess {
+                jsConsoleLog("[Auth] linkWithApple completed — syncing state")
+                _authState.value = AuthState.SignedIn
+                runCatching { api.syncUser() }
+                    .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
+                    .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
+            }
+            .map { }
 
     private suspend fun performLink(
         primary: suspend () -> JsAny?,
