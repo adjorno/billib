@@ -67,6 +67,7 @@
             firebase.auth().useEmulator("http://localhost:9099");
         }
         function jsSignInAnonymously() {
+            console.log('[Auth] Signing in anonymously...');
             return firebase.auth().signInAnonymously();
         }
         function jsGetIdToken() {
@@ -89,10 +90,23 @@
         function jsSignInWithEmail(email, password) {
             return firebase.auth().signInWithEmailAndPassword(email, password);
         }
-        function jsSignInWithGoogle() {
+        async function jsSignInWithGoogle() {
             const user = firebase.auth().currentUser;
+            console.log('[Auth] Sign in with Google — currentUser:', user ? `uid=${user.uid} isAnonymous=${user.isAnonymous}` : 'none');
             const provider = new firebase.auth.GoogleAuthProvider();
-            return user ? user.linkWithRedirect(provider) : firebase.auth().signInWithRedirect(provider);
+            try {
+                return user ? await user.linkWithPopup(provider) : await firebase.auth().signInWithPopup(provider);
+            } catch (error) {
+                if (error.code === 'auth/credential-already-in-use') {
+                    if (error.credential) {
+                        console.log('[Auth] UC4: credential-already-in-use — signInWithCredential to switch to existing account');
+                        return await firebase.auth().signInWithCredential(error.credential);
+                    } else {
+                        console.warn('[Auth] UC4: credential-already-in-use but error.credential is null — cannot recover (emulator limitation?)');
+                    }
+                }
+                throw error;
+            }
         }
         function jsSignInWithApple() {
             const user = firebase.auth().currentUser;
@@ -101,17 +115,36 @@
         }
         async function jsGetRedirectResult() {
             try {
-                await firebase.auth().getRedirectResult();
+                const result = await firebase.auth().getRedirectResult();
+                if (result && result.user) {
+                    console.log('[Auth] Redirect result: uid=' + result.user.uid + ' provider=' + result.additionalUserInfo?.providerId);
+                } else {
+                    console.log('[Auth] Redirect result: no pending redirect');
+                }
             } catch (error) {
-                if (error.code === 'auth/credential-already-in-use' && error.credential) {
-                    await firebase.auth().signInWithCredential(error.credential);
+                console.error('[Auth] Redirect result error:', error.code, error.message);
+                if (error.code === 'auth/credential-already-in-use') {
+                    if (error.credential) {
+                        console.log('[Auth] Credential already in use — signing in with existing credential');
+                        await firebase.auth().signInWithCredential(error.credential);
+                    } else {
+                        console.warn('[Auth] credential-already-in-use but error.credential is null — skipping (emulator limitation?)');
+                    }
                 }
             }
         }
         function jsOnAuthStateChanged(callback) {
             firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    console.log('[Auth] onAuthStateChanged: uid=' + user.uid + ' isAnonymous=' + user.isAnonymous + ' provider=' + (user.providerData[0]?.providerId ?? 'none'));
+                } else {
+                    console.log('[Auth] onAuthStateChanged: signed out');
+                }
                 callback(user !== null && !user.isAnonymous);
             });
+        }
+        function jsConsoleLog(msg) {
+            console.log(msg);
         }
         function jsConsoleError(msg) {
             console.error(msg);

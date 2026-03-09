@@ -10,11 +10,11 @@ private external fun jsLocalStorageSet(
 class LocalStorageArtworkUrlPersistence : ArtworkUrlPersistence {
     override suspend fun getArtworkUrl(trackId: Long): String? {
         val url = jsLocalStorageGet("artwork_track_$trackId")
-        if (url != null) {
-            println("[ARTWORK-PERSISTENCE] ✓ Hit localStorage for track $trackId: $url")
-        } else {
-            println("[ARTWORK-PERSISTENCE] ✗ Miss for track $trackId — calling iTunes API")
-        }
+        // if (url != null) {
+        //     println("[ARTWORK-PERSISTENCE] ✓ Hit localStorage for track $trackId: $url")
+        // } else {
+        //     println("[ARTWORK-PERSISTENCE] ✗ Miss for track $trackId — calling iTunes API")
+        // }
         return url
     }
 
@@ -23,6 +23,6 @@ class LocalStorageArtworkUrlPersistence : ArtworkUrlPersistence {
         url: String,
     ) {
         jsLocalStorageSet("artwork_track_$trackId", url)
-        println("[ARTWORK-PERSISTENCE] ✓ Saved to localStorage for track $trackId")
+        // println("[ARTWORK-PERSISTENCE] ✓ Saved to localStorage for track $trackId")
     }
 }

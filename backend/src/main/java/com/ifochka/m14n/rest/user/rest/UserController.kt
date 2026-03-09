@@ -2,6 +2,7 @@ package com.ifochka.m14n.rest.user.rest
 
 import com.ifochka.m14n.rest.user.domain.UserProfile
 import com.ifochka.m14n.rest.user.domain.UserProfileRepository
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -15,6 +16,8 @@ import java.time.Instant
 class UserController(
     private val repository: UserProfileRepository,
 ) {
+    private val log = LoggerFactory.getLogger(UserController::class.java)
+
     companion object {
         private const val ANONYMOUS_PROVIDER = "anonymous"
     }
@@ -26,20 +29,33 @@ class UserController(
 
         @Suppress("UNCHECKED_CAST")
         val firebaseClaim = jwt.tokenAttributes["firebase"] as? Map<String, Any>
-        val isAnon = firebaseClaim?.get("sign_in_provider") == ANONYMOUS_PROVIDER
+        val provider = firebaseClaim?.get("sign_in_provider") as? String
+        val isAnon = provider == ANONYMOUS_PROVIDER
         val email = jwt.tokenAttributes["email"] as? String
         val displayName = jwt.tokenAttributes["name"] as? String
+
+        val isNew = !repository.existsById(uid)
+        log.info(
+            "[UserSync] uid={} provider={} isAnon={} email={} displayName={} new={}",
+            uid,
+            provider,
+            isAnon,
+            email,
+            displayName,
+            isNew,
+        )
+
         val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
-        return ResponseEntity.ok(
-            repository.save(
-                existing.copy(
-                    isAnonymous = isAnon,
-                    email = email ?: existing.email,
-                    displayName = displayName ?: existing.displayName,
-                    lastLoginAt = Instant.now(),
-                ),
+        val saved = repository.save(
+            existing.copy(
+                isAnonymous = isAnon,
+                email = email ?: existing.email,
+                displayName = displayName ?: existing.displayName,
+                lastLoginAt = Instant.now(),
             ),
         )
+        log.info("[UserSync] saved uid={} isAnon={} email={}", saved.firebaseUid, saved.isAnonymous, saved.email)
+        return ResponseEntity.ok(saved)
     }
 
     @GetMapping("/user/me")
