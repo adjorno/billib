@@ -34,18 +34,17 @@ class UserController(
         val email = jwt.tokenAttributes["email"] as? String
         val displayName = jwt.tokenAttributes["name"] as? String
 
-        val isNew = !repository.existsById(uid)
+        val existingOptional = repository.findById(uid)
+        val isNew = !existingOptional.isPresent
         log.info(
-            "[UserSync] uid={} provider={} isAnon={} email={} displayName={} new={}",
+            "[UserSync] uid={} provider={} isAnon={} new={}",
             uid,
             provider,
             isAnon,
-            email,
-            displayName,
             isNew,
         )
 
-        val existing = repository.findById(uid).orElse(UserProfile(firebaseUid = uid))
+        val existing = existingOptional.orElse(UserProfile(firebaseUid = uid))
         val saved = repository.save(
             existing.copy(
                 isAnonymous = isAnon,
@@ -54,7 +53,7 @@ class UserController(
                 lastLoginAt = Instant.now(),
             ),
         )
-        log.info("[UserSync] saved uid={} isAnon={} email={}", saved.firebaseUid, saved.isAnonymous, saved.email)
+        log.info("[UserSync] saved uid={} isAnon={}", saved.firebaseUid, saved.isAnonymous)
         return ResponseEntity.ok(saved)
     }
 
