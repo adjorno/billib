@@ -63,11 +63,20 @@ class WasmFirebaseAuthRepository(
         jsConsoleLog("[Auth] linkWithGoogle → initiating popup...")
         return runCatching { jsSignInWithGoogle().await<JsAny?>() }
             .onSuccess {
-                jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
-                _authState.value = AuthState.SignedIn
-                runCatching { api.syncUser() }
-                    .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
-                    .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
+                val wasAlreadySignedIn = _authState.value == AuthState.SignedIn
+                _authState.value = AuthState.SignedIn // always set immediately
+                if (!wasAlreadySignedIn) {
+                    // UC3: linkWithPopup does not fire onAuthStateChanged — manual sync needed
+                    jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
+                    runCatching { api.syncUser() }
+                        .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
+                        .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
+                } else {
+                    // UC4: signInWithCredential already fired onAuthStateChanged → already synced
+                    jsConsoleLog(
+                        "[Auth] linkWithGoogle popup completed — state already SignedIn (UC4), skipping manual sync",
+                    )
+                }
             }
             .onFailure { jsConsoleError("[Auth] linkWithGoogle failed: $it") }
             .map { }

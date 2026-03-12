@@ -135,12 +135,17 @@
         }
         function jsOnAuthStateChanged(callback) {
             firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    console.log('[Auth] onAuthStateChanged: uid=' + user.uid + ' isAnonymous=' + user.isAnonymous + ' provider=' + (user.providerData[0]?.providerId ?? 'none'));
-                } else {
-                    console.log('[Auth] onAuthStateChanged: signed out');
+                if (!user) {
+                    // Null fires transiently on cold start before signInAnonymously completes.
+                    // When logout is implemented, it must update _authState manually in Kotlin
+                    // rather than relying on this null emission.
+                    console.log('[Auth] onAuthStateChanged: signed out — skipping');
+                    return;
                 }
-                callback(user !== null && !user.isAnonymous);
+                console.log('[Auth] onAuthStateChanged: uid=' + user.uid
+                    + ' isAnonymous=' + user.isAnonymous
+                    + ' provider=' + (user.providerData[0]?.providerId ?? 'none'));
+                callback(!user.isAnonymous);
             });
         }
         function jsConsoleLog(msg) {
