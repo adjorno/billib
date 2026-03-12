@@ -18,12 +18,6 @@ class WasmFirebaseAuthRepository(
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
-        scope.launch {
-            jsConsoleLog("[Auth] Checking for pending redirect result...")
-            runCatching { jsGetRedirectResult().await<JsAny?>() }
-                .onSuccess { jsConsoleLog("[Auth] getRedirectResult complete") }
-                .onFailure { jsConsoleError("[Auth] getRedirectResult failed: $it") }
-        }
         jsOnAuthStateChanged { isSignedIn ->
             val newState = if (isSignedIn) AuthState.SignedIn else AuthState.Anonymous
             jsConsoleLog("[Auth] State → $newState")
@@ -36,6 +30,10 @@ class WasmFirebaseAuthRepository(
             }
         }
         scope.launch {
+            jsConsoleLog("[Auth] Checking for pending redirect result...")
+            runCatching { jsGetRedirectResult().await<JsAny?>() }
+                .onSuccess { jsConsoleLog("[Auth] getRedirectResult complete") }
+                .onFailure { jsConsoleError("[Auth] getRedirectResult failed: $it") }
             val alreadySignedIn = runCatching { jsIsSignedIn() }.getOrDefault(false)
             if (alreadySignedIn) {
                 jsConsoleLog("[Auth] Session restored — already signed in")
@@ -82,16 +80,13 @@ class WasmFirebaseAuthRepository(
             .map { }
     }
 
-    override suspend fun linkWithApple(): Result<Unit> =
-        runCatching { jsSignInWithApple().await<JsAny?>() }
-            .onSuccess {
-                jsConsoleLog("[Auth] linkWithApple completed — syncing state")
-                _authState.value = AuthState.SignedIn
-                runCatching { api.syncUser() }
-                    .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
-                    .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
-            }
+    override suspend fun linkWithApple(): Result<Unit> {
+        jsConsoleLog("[Auth] linkWithApple → initiating redirect to Apple...")
+        return runCatching { jsSignInWithApple().await<JsAny?>() }
+            .onSuccess { jsConsoleLog("[Auth] linkWithApple redirect initiated — auth completes on next page load") }
+            .onFailure { jsConsoleError("[Auth] linkWithApple failed: $it") }
             .map { }
+    }
 
     private suspend fun performLink(
         primary: suspend () -> JsAny?,
