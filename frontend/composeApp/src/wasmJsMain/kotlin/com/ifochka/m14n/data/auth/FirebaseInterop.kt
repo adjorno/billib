@@ -52,6 +52,9 @@ internal external fun jsGetRedirectResult(): Promise<JsAny?>
 @JsFun("(callback) => jsOnAuthStateChanged(callback)")
 internal external fun jsOnAuthStateChanged(callback: (Boolean) -> Unit)
 
+@JsFun("() => jsGetCurrentUserEmail()")
+internal external fun jsGetCurrentUserEmail(): String?
+
 @JsFun("(msg) => jsConsoleLog(msg)")
 internal external fun jsConsoleLog(msg: String)
 

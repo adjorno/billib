@@ -124,11 +124,14 @@
             } catch (error) {
                 console.error('[Auth] Redirect result error:', error.code, error.message);
                 if (error.code === 'auth/credential-already-in-use') {
-                    if (error.credential) {
+                    const credential = error.credential
+                        || (() => { try { return firebase.auth.OAuthProvider.credentialFromError(error); } catch(e) { return null; } })()
+                        || (() => { try { return firebase.auth.GoogleAuthProvider.credentialFromError(error); } catch(e) { return null; } })();
+                    if (credential) {
                         console.log('[Auth] Credential already in use — signing in with existing credential');
-                        await firebase.auth().signInWithCredential(error.credential);
+                        await firebase.auth().signInWithCredential(credential);
                     } else {
-                        console.warn('[Auth] credential-already-in-use but error.credential is null — skipping (emulator limitation?)');
+                        console.warn('[Auth] credential-already-in-use but credential is null — cannot recover');
                     }
                 }
             }
@@ -147,6 +150,9 @@
                     + ' provider=' + (user.providerData[0]?.providerId ?? 'none'));
                 callback(!user.isAnonymous);
             });
+        }
+        function jsGetCurrentUserEmail() {
+            return firebase.auth().currentUser?.email ?? null;
         }
         function jsConsoleLog(msg) {
             console.log(msg);

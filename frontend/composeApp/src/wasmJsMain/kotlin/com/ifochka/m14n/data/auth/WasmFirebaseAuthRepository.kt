@@ -18,14 +18,12 @@ class WasmFirebaseAuthRepository(
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
-        scope.launch {
-            jsConsoleLog("[Auth] Checking for pending redirect result...")
-            runCatching { jsGetRedirectResult().await<JsAny?>() }
-                .onSuccess { jsConsoleLog("[Auth] getRedirectResult complete") }
-                .onFailure { jsConsoleError("[Auth] getRedirectResult failed: $it") }
-        }
         jsOnAuthStateChanged { isSignedIn ->
-            val newState = if (isSignedIn) AuthState.SignedIn else AuthState.Anonymous
+            val newState = if (isSignedIn) {
+                AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())
+            } else {
+                AuthState.Anonymous
+            }
             jsConsoleLog("[Auth] State → $newState")
             _authState.value = newState
             scope.launch {
@@ -36,6 +34,10 @@ class WasmFirebaseAuthRepository(
             }
         }
         scope.launch {
+            jsConsoleLog("[Auth] Checking for pending redirect result...")
+            runCatching { jsGetRedirectResult().await<JsAny?>() }
+                .onSuccess { jsConsoleLog("[Auth] getRedirectResult complete") }
+                .onFailure { jsConsoleError("[Auth] getRedirectResult failed: $it") }
             val alreadySignedIn = runCatching { jsIsSignedIn() }.getOrDefault(false)
             if (alreadySignedIn) {
                 jsConsoleLog("[Auth] Session restored — already signed in")
@@ -63,8 +65,8 @@ class WasmFirebaseAuthRepository(
         jsConsoleLog("[Auth] linkWithGoogle → initiating popup...")
         return runCatching { jsSignInWithGoogle().await<JsAny?>() }
             .onSuccess {
-                val wasAlreadySignedIn = _authState.value == AuthState.SignedIn
-                _authState.value = AuthState.SignedIn // always set immediately
+                val wasAlreadySignedIn = _authState.value is AuthState.SignedIn
+                _authState.value = AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())
                 if (!wasAlreadySignedIn) {
                     // UC3: linkWithPopup does not fire onAuthStateChanged — manual sync needed
                     jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
@@ -82,16 +84,13 @@ class WasmFirebaseAuthRepository(
             .map { }
     }
 
-    override suspend fun linkWithApple(): Result<Unit> =
-        runCatching { jsSignInWithApple().await<JsAny?>() }
-            .onSuccess {
-                jsConsoleLog("[Auth] linkWithApple completed — syncing state")
-                _authState.value = AuthState.SignedIn
-                runCatching { api.syncUser() }
-                    .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
-                    .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
-            }
+    override suspend fun linkWithApple(): Result<Unit> {
+        jsConsoleLog("[Auth] linkWithApple → initiating redirect to Apple...")
+        return runCatching { jsSignInWithApple().await<JsAny?>() }
+            .onSuccess { jsConsoleLog("[Auth] linkWithApple redirect initiated — auth completes on next page load") }
+            .onFailure { jsConsoleError("[Auth] linkWithApple failed: $it") }
             .map { }
+    }
 
     private suspend fun performLink(
         primary: suspend () -> JsAny?,
