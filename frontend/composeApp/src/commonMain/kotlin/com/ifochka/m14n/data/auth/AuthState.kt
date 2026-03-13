@@ -5,5 +5,7 @@ sealed interface AuthState {
 
     data object Anonymous : AuthState
 
-    data object SignedIn : AuthState
+    data class SignedIn(
+        val email: String?,
+    ) : AuthState
 }

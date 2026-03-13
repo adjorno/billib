@@ -24,7 +24,7 @@ class FirebaseAuthRepository(
     // before the auth handshake completes. Non-configured JVM desktop gets SignedIn
     // (no gate — desktop is a developer/admin surface).
     private val _authState = MutableStateFlow<AuthState>(
-        if (isFirebaseAvailable) AuthState.Anonymous else AuthState.SignedIn,
+        if (isFirebaseAvailable) AuthState.Anonymous else AuthState.SignedIn(null),
     )
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
@@ -47,7 +47,13 @@ class FirebaseAuthRepository(
             scope.launch {
                 runCatching {
                     Firebase.auth.authStateChanged.collect { user ->
-                        val newState = if (user?.isAnonymous == false) AuthState.SignedIn else AuthState.Anonymous
+                        val newState = if (user?.isAnonymous ==
+                            false
+                        ) {
+                            AuthState.SignedIn(user?.email)
+                        } else {
+                            AuthState.Anonymous
+                        }
                         println("[Auth] authStateChanged: uid=${user?.uid} anonymous=${user?.isAnonymous} → $newState")
                         _authState.value = newState
                         if (user != null) {

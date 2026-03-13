@@ -13,9 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
@@ -24,8 +30,13 @@ import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,12 +57,15 @@ import com.ifochka.m14n.navigation.rememberListDetailSceneStrategy
 import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsScreen
+import com.ifochka.m14n.ui.auth.AuthViewModel
 import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
 import com.ifochka.m14n.ui.search.SearchScreen
 import com.ifochka.m14n.ui.theme.M14nTheme
 import com.ifochka.m14n.ui.trackdetails.TrackDetailsScreen
+import com.ifochka.m14n.ui.user.UserWidget
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -61,6 +75,7 @@ private data class NavItem(
     val label: String,
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun App() {
@@ -68,6 +83,8 @@ fun App() {
         Surface(
             modifier = Modifier.fillMaxSize(),
         ) {
+            val authViewModel = koinViewModel<AuthViewModel>()
+            val authState by authViewModel.authState.collectAsState()
             val topLevelRoutes = remember { setOf(RouteHome, RouteBestSongs, RouteHistory, RouteSearch) }
             val navigationState = rememberNavigationState(
                 startRoute = RouteHome,
@@ -135,6 +152,11 @@ fun App() {
                                         modifier = Modifier.padding(horizontal = 8.dp),
                                     )
                                 }
+                                Spacer(modifier = Modifier.weight(1f))
+                                UserWidget(
+                                    authState = authState,
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                                )
                             }
                         },
                     ) {
@@ -155,35 +177,60 @@ fun App() {
                         )
                     }
                 } else {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        bottomBar = {
-                            NavigationBar {
-                                navItems.forEach { item ->
-                                    NavigationBarItem(
-                                        selected = navigationState.topLevelRoute == item.route,
-                                        onClick = { navigator.navigate(item.route) },
-                                        icon = { Icon(item.icon, contentDescription = item.label) },
-                                        label = { Text(item.label) },
-                                    )
-                                }
+                    val drawerState = rememberDrawerState(DrawerValue.Closed)
+                    val scope = rememberCoroutineScope()
+                    ModalNavigationDrawer(
+                        drawerState = drawerState,
+                        drawerContent = {
+                            ModalDrawerSheet {
+                                Spacer(Modifier.height(24.dp))
+                                UserWidget(
+                                    authState = authState,
+                                    modifier = Modifier.padding(horizontal = 20.dp),
+                                )
                             }
                         },
-                    ) { paddingValues ->
-                        NavDisplay(
-                            entries = navigationState.toEntries(provider),
-                            onBack = { navigator.goBack() },
-                            modifier = Modifier.padding(paddingValues),
-                            transitionSpec = {
-                                slideInHorizontally(initialOffsetX = { it }) togetherWith ExitTransition.None
+                    ) {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            topBar = {
+                                TopAppBar(
+                                    title = {},
+                                    navigationIcon = {
+                                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Open menu")
+                                        }
+                                    },
+                                )
                             },
-                            popTransitionSpec = {
-                                EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                            bottomBar = {
+                                NavigationBar {
+                                    navItems.forEach { item ->
+                                        NavigationBarItem(
+                                            selected = navigationState.topLevelRoute == item.route,
+                                            onClick = { navigator.navigate(item.route) },
+                                            icon = { Icon(item.icon, contentDescription = item.label) },
+                                            label = { Text(item.label) },
+                                        )
+                                    }
+                                }
                             },
-                            predictivePopTransitionSpec = {
-                                EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
-                            },
-                        )
+                        ) { paddingValues ->
+                            NavDisplay(
+                                entries = navigationState.toEntries(provider),
+                                onBack = { navigator.goBack() },
+                                modifier = Modifier.padding(paddingValues),
+                                transitionSpec = {
+                                    slideInHorizontally(initialOffsetX = { it }) togetherWith ExitTransition.None
+                                },
+                                popTransitionSpec = {
+                                    EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                                },
+                                predictivePopTransitionSpec = {
+                                    EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                                },
+                            )
+                        }
                     }
                 }
             }
