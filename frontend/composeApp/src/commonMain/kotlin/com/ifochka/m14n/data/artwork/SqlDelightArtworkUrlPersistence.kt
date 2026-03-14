@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.artwork
 
+import com.ifochka.m14n.LogFlags
 import com.ifochka.m14n.data.db.ChartDatabaseRepository
 
 class SqlDelightArtworkUrlPersistence(
@@ -7,10 +8,12 @@ class SqlDelightArtworkUrlPersistence(
 ) : ArtworkUrlPersistence {
     override suspend fun getArtworkUrl(trackId: Long): String? {
         val url = database.getArtworkUrl(trackId)
-        if (url != null) {
-            println("[ARTWORK-PERSISTENCE] ✓ Hit SQLite for track $trackId: $url")
-        } else {
-            println("[ARTWORK-PERSISTENCE] ✗ Miss for track $trackId — calling iTunes API")
+        if (LogFlags.ARTWORK_PERSISTENCE) {
+            if (url != null) {
+                println("[ARTWORK-PERSISTENCE] ✓ Hit SQLite for track $trackId: $url")
+            } else {
+                println("[ARTWORK-PERSISTENCE] ✗ Miss for track $trackId — calling iTunes API")
+            }
         }
         return url
     }
@@ -20,6 +23,6 @@ class SqlDelightArtworkUrlPersistence(
         url: String,
     ) {
         database.updateTrackArtwork(trackId = trackId, artworkUrl = url)
-        println("[ARTWORK-PERSISTENCE] ✓ Saved to SQLite for track $trackId")
+        if (LogFlags.ARTWORK_PERSISTENCE) println("[ARTWORK-PERSISTENCE] ✓ Saved to SQLite for track $trackId")
     }
 }

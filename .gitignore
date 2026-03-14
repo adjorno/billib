@@ -206,3 +206,5 @@ frontend/iosApp/Configuration/Config.local.xcconfig
 frontend/iosApp/Pods/
 frontend/iosApp/iosApp.xcworkspace/
 frontend/composeApp/composeApp.podspec
+
+service-account.json
