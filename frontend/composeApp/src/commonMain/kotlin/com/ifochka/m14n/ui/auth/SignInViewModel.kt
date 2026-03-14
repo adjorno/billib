@@ -14,23 +14,6 @@ class SignInViewModel(
     private val _uiState = MutableStateFlow<SignInUiState>(SignInUiState.Idle)
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
 
-    fun signInWithEmail(
-        email: String,
-        password: String,
-    ) {
-        viewModelScope.launch {
-            _uiState.value = SignInUiState.Loading
-            val result = authRepository.linkWithEmailCredential(
-                email = email,
-                password = password,
-            )
-            _uiState.value = result.fold(
-                onSuccess = { SignInUiState.Success },
-                onFailure = { SignInUiState.Error(it.message ?: "Sign in failed") },
-            )
-        }
-    }
-
     fun signInWithGoogle() {
         viewModelScope.launch {
             _uiState.value = SignInUiState.Loading

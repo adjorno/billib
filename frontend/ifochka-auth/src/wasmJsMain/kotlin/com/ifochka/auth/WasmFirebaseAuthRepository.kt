@@ -51,15 +51,6 @@ class WasmFirebaseAuthRepository(
 
     override suspend fun getIdToken(): String? = runCatching { jsGetIdToken().await<JsAny?>()?.toString() }.getOrNull()
 
-    override suspend fun linkWithEmailCredential(
-        email: String,
-        password: String,
-    ): Result<Unit> =
-        performLink(
-            primary = { jsLinkWithEmail(email, password).await<JsAny?>() },
-            fallback = { jsSignInWithEmail(email, password).await<JsAny?>() },
-        )
-
     override suspend fun linkWithGoogle(): Result<Unit> {
         jsConsoleLog("[Auth] linkWithGoogle → initiating popup...")
         return runCatching { jsSignInWithGoogle().await<JsAny?>() }
@@ -90,21 +81,4 @@ class WasmFirebaseAuthRepository(
             .onFailure { jsConsoleError("[Auth] linkWithApple failed: $it") }
             .map { }
     }
-
-    private suspend fun performLink(
-        primary: suspend () -> JsAny?,
-        fallback: suspend () -> JsAny?,
-    ): Result<Unit> =
-        runCatching {
-            runCatching { primary() }.getOrElse { ex ->
-                if (ex.message?.contains("credential-already-in-use", ignoreCase = true) == true ||
-                    ex.message?.contains("EMAIL_EXISTS", ignoreCase = true) == true
-                ) {
-                    fallback()
-                } else {
-                    throw ex
-                }
-            }
-            Unit
-        }
 }

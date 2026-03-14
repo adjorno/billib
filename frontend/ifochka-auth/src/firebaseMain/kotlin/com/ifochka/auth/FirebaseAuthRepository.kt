@@ -2,7 +2,6 @@ package com.ifochka.auth
 
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthCredential
-import dev.gitlive.firebase.auth.EmailAuthProvider
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,11 +67,6 @@ class FirebaseAuthRepository(
         } else {
             null
         }
-
-    override suspend fun linkWithEmailCredential(
-        email: String,
-        password: String,
-    ): Result<Unit> = linkWithCredential(EmailAuthProvider.credential(email = email, password = password))
 
     override suspend fun linkWithGoogle(): Result<Unit> {
         println("[Auth] linkWithGoogle: acquiring credential")
