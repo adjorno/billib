@@ -1,7 +1,8 @@
 package com.ifochka.auth
 
+import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthCredential
-import dev.gitlive.firebase.auth.OAuthProvider
+import dev.gitlive.firebase.auth.auth
 import io.ktor.http.ContentType
 import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
@@ -12,10 +13,15 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.awt.Desktop
 import java.net.ServerSocket
 import java.net.URI
 import java.net.URLEncoder
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
@@ -56,11 +62,18 @@ actual suspend fun getAppleCredential(): AuthCredential? {
             }
             val idToken = deferred.await()
             if (LogFlags.AUTH) println("[Auth] getAppleCredential: token received (idToken length=${idToken.length})")
-            OAuthProvider.credential(
-                providerId = "apple.com",
-                idToken = idToken,
-                rawNonce = rawNonce,
+            if (LogFlags.AUTH) println("[Auth] getAppleCredential: nonce ok, exchanging for custom token")
+            val customToken = exchangeAppleForCustomToken(
+                appleIdToken = idToken,
+                hashedNonce = hashedNonce,
             )
+            if (customToken != null) {
+                Firebase.auth.signInWithCustomToken(customToken)
+                if (LogFlags.AUTH) println("[Auth] getAppleCredential: signed in with custom token")
+            } else {
+                if (LogFlags.AUTH) println("[Auth] getAppleCredential: custom token exchange failed")
+            }
+            null
         } finally {
             server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
         }
@@ -109,3 +122,34 @@ private fun appleCallbackHtml(
       }
     </script><p>Signing in with Apple...</p></body></html>
     """.trimIndent()
+
+@Serializable
+private data class AppleCustomTokenRequest(
+    val appleIdToken: String,
+    val hashedNonce: String,
+)
+
+@Serializable
+private data class AppleCustomTokenResponse(
+    val customToken: String,
+)
+
+private suspend fun exchangeAppleForCustomToken(
+    appleIdToken: String,
+    hashedNonce: String,
+): String? =
+    withContext(Dispatchers.IO) {
+        runCatching {
+            val apiBaseUrl = AuthConfig.current.apiBaseUrl.trimEnd('/')
+            if (apiBaseUrl.isEmpty()) return@runCatching null
+            val requestBody = Json.encodeToString(AppleCustomTokenRequest(appleIdToken, hashedNonce))
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("$apiBaseUrl/auth/custom-token"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build()
+            val response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString())
+            if (response.statusCode() != 200) return@runCatching null
+            Json.decodeFromString<AppleCustomTokenResponse>(response.body()).customToken
+        }.getOrNull()
+    }
