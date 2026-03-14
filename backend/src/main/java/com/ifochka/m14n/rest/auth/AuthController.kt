@@ -24,8 +24,8 @@ import java.util.Base64
 class AuthController(
     firebaseApp: FirebaseApp,
     @Value("\${firebase.web-api-key}") private val webApiKey: String,
-    private val objectMapper: ObjectMapper,
 ) {
+    private val objectMapper = ObjectMapper()
     private val logger = LoggerFactory.getLogger(AuthController::class.java)
     private val auth = FirebaseAuth.getInstance(firebaseApp)
     private val restClient = RestClient.create()
@@ -50,8 +50,11 @@ class AuthController(
         @RequestParam("state") state: String,
     ): ResponseEntity<Unit> {
         val callbackState = runCatching {
-            val decoded = String(Base64.getUrlDecoder().decode(state))
-            objectMapper.readValue(decoded, AppleCallbackState::class.java)
+            val node = objectMapper.readTree(String(Base64.getUrlDecoder().decode(state)))
+            AppleCallbackState(
+                port = node.get("port").asInt(),
+                rawNonce = node.get("rawNonce").asText(),
+            )
         }.getOrNull() ?: run {
             logger.warn("[AppleCallback] Failed to parse state")
             return ResponseEntity.badRequest().build()
