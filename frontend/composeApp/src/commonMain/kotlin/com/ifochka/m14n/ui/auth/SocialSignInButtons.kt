@@ -25,7 +25,7 @@ import m14n.frontend.composeapp.generated.resources.ic_google
 import org.jetbrains.compose.resources.painterResource
 
 private val buttonShape = RoundedCornerShape(4.dp)
-private val buttonHeight = Modifier.fillMaxWidth().height(44.dp)
+private val buttonModifier = Modifier.fillMaxWidth().height(44.dp)
 private val buttonPadding = PaddingValues(horizontal = 16.dp)
 private const val BUTTON_FONT_SIZE = 14
 
