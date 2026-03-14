@@ -46,11 +46,11 @@ class AuthController(
             restClient.post()
                 .uri("https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=$webApiKey")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body("""{"requestUri":"http://localhost","postBody":"$postBody","returnSecureToken":true}""")
+                .body(SignInWithIdpRequest(postBody = postBody))
                 .retrieve()
                 .body(SignInWithIdpResponse::class.java)
                 ?.localId
-        }.getOrNull()
+        }.onFailure { logger.warn("[CustomToken] Google token exchange failed: ${it.message}") }.getOrNull()
     }
 
     data class CustomTokenRequest(
@@ -59,6 +59,12 @@ class AuthController(
 
     data class CustomTokenResponse(
         val customToken: String,
+    )
+
+    private data class SignInWithIdpRequest(
+        val requestUri: String = "http://localhost",
+        val postBody: String,
+        val returnSecureToken: Boolean = true,
     )
 
     private data class SignInWithIdpResponse(
