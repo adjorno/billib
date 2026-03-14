@@ -1,3 +1,3 @@
-package com.ifochka.m14n.share
+package com.ifochka.core.share
 
 actual fun createShareManager(): ShareManager = AndroidShareManager()

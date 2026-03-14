@@ -1,4 +1,4 @@
-package com.ifochka.m14n.share
+package com.ifochka.core.share
 
 interface ShareManager {
     val hasNativeShare: Boolean

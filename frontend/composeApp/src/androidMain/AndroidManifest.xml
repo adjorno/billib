@@ -7,7 +7,7 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false">
             <meta-data
-                android:name="com.ifochka.m14n.AppContextInitializer"
+                android:name="com.ifochka.core.AppContextInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>

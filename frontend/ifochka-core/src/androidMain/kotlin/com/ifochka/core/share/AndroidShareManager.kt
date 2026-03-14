@@ -1,7 +1,7 @@
-package com.ifochka.m14n.share
+package com.ifochka.core.share
 
 import android.content.Intent
-import com.ifochka.m14n.AppContext
+import com.ifochka.core.AppContext
 
 class AndroidShareManager : ShareManager {
     override val hasNativeShare = true

@@ -1,4 +1,4 @@
-package com.ifochka.m14n.share
+package com.ifochka.core.share
 
 class NoShareManager : ShareManager {
     override val hasNativeShare = false

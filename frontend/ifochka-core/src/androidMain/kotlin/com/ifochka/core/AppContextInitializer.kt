@@ -1,4 +1,4 @@
-package com.ifochka.m14n
+package com.ifochka.core
 
 import android.content.Context
 import androidx.startup.Initializer

@@ -1,5 +1,7 @@
 package com.ifochka.m14n.di
 
+import com.ifochka.core.share.ShareManager
+import com.ifochka.core.share.createShareManager
 import com.ifochka.m14n.BuildKonfig
 import com.ifochka.m14n.data.api.KtorM14nApi
 import com.ifochka.m14n.data.api.M14nApi
@@ -19,8 +21,6 @@ import com.ifochka.m14n.data.repository.CachedChartRepository
 import com.ifochka.m14n.data.repository.ChartRepository
 import com.ifochka.m14n.data.repository.NetworkChartRepository
 import com.ifochka.m14n.db.M14nDatabase
-import com.ifochka.m14n.share.ShareManager
-import com.ifochka.m14n.share.createShareManager
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsViewModel
 import com.ifochka.m14n.ui.auth.AuthViewModel
 import com.ifochka.m14n.ui.auth.SignInViewModel

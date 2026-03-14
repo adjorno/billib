@@ -69,7 +69,6 @@ kotlin {
             dependsOn(firebaseMain)
         }
         iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
             implementation(libs.sqldelight.native.driver)
         }
         // Wire iOS target compilations to iosMain — required because the default hierarchy
@@ -80,8 +79,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.androidx.startup.runtime)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android.driver)
             implementation(libs.androidx.credentials)
@@ -89,6 +86,7 @@ kotlin {
             implementation(libs.google.identity.googleid)
         }
         commonMain.dependencies {
+            implementation(projects.frontend.ifochkaCore)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -123,13 +121,11 @@ kotlin {
             implementation(libs.compose.ui.tooling)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.ktor.client.cio)
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.ktor.server.core)
             implementation(libs.ktor.server.cio)
         }
         wasmJsMain.dependencies {
-            implementation(libs.ktor.client.js)
             implementation(libs.sqldelight.web.worker.driver)
             implementation(npm("sql.js", libs.versions.sqljs.get()))
             implementation(npm("@cashapp/sqldelight-sqljs-worker", libs.versions.sqldelight.get()))
