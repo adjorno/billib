@@ -28,18 +28,6 @@ internal external fun jsGetIsAnonymous(): Boolean
 @JsFun("() => jsIsSignedIn()")
 internal external fun jsIsSignedIn(): Boolean
 
-@JsFun("(e, p) => jsLinkWithEmail(e, p)")
-internal external fun jsLinkWithEmail(
-    email: String,
-    password: String,
-): Promise<JsAny?>
-
-@JsFun("(e, p) => jsSignInWithEmail(e, p)")
-internal external fun jsSignInWithEmail(
-    email: String,
-    password: String,
-): Promise<JsAny?>
-
 @JsFun("() => jsSignInWithGoogle()")
 internal external fun jsSignInWithGoogle(): Promise<JsAny?>
 
