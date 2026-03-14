@@ -14,73 +14,61 @@ class FirebaseAuthRepository(
     private val onUserSync: suspend () -> Unit,
     private val scope: CoroutineScope,
 ) : AuthRepository {
-    // On JVM desktop without appId, Firebase.auth throws — detect eagerly.
-    // On Android and future iOS, Firebase is always available via the platform config file.
-    private val isFirebaseAvailable = runCatching { Firebase.auth }.isSuccess
+    init {
+        Firebase.auth // crash early with a clear message if Firebase is not configured
+    }
 
-    // Start as Anonymous when Firebase is active so the gate is enforced immediately,
-    // before the auth handshake completes. Non-configured JVM desktop gets SignedIn
-    // (no gate — desktop is a developer/admin surface).
-    private val _authState = MutableStateFlow<AuthState>(
-        if (isFirebaseAvailable) AuthState.Anonymous else AuthState.SignedIn(null),
-    )
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Anonymous)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     override fun start() {
-        if (LogFlags.AUTH) println("[Auth] Firebase available: $isFirebaseAvailable")
-        if (isFirebaseAvailable) {
-            if (AuthConfig.current.useEmulator) {
-                runCatching { Firebase.auth.useEmulator("localhost", 9099) }
+        if (AuthConfig.current.useEmulator) {
+            runCatching { Firebase.auth.useEmulator("localhost", 9099) }
+        }
+        scope.launch {
+            val currentUser = runCatching { Firebase.auth.currentUser }.getOrNull()
+            if (LogFlags.AUTH) {
+                println(
+                    "[Auth] Current user on start: uid=${currentUser?.uid} anonymous=${currentUser?.isAnonymous}",
+                )
             }
-            scope.launch {
-                val currentUser = runCatching { Firebase.auth.currentUser }.getOrNull()
-                if (LogFlags.AUTH) {
-                    println(
-                        "[Auth] Current user on start: uid=${currentUser?.uid} anonymous=${currentUser?.isAnonymous}",
-                    )
-                }
-                if (currentUser == null) {
-                    if (LogFlags.AUTH) println("[Auth] No user — signing in anonymously")
-                    runCatching { Firebase.auth.signInAnonymously() }
-                        .onSuccess { if (LogFlags.AUTH) println("[Auth] Anonymous sign-in ok") }
-                        .onFailure { if (LogFlags.AUTH) println("[Auth] Anonymous sign-in failed: $it") }
-                }
+            if (currentUser == null) {
+                if (LogFlags.AUTH) println("[Auth] No user — signing in anonymously")
+                runCatching { Firebase.auth.signInAnonymously() }
+                    .onSuccess { if (LogFlags.AUTH) println("[Auth] Anonymous sign-in ok") }
+                    .onFailure { if (LogFlags.AUTH) println("[Auth] Anonymous sign-in failed: $it") }
             }
-            scope.launch {
-                runCatching {
-                    Firebase.auth.authStateChanged.collect { user ->
-                        val newState = if (user?.isAnonymous == false) {
-                            val email = user?.email
-                                ?: user?.providerData?.firstNotNullOfOrNull { it.email }
-                                ?: error(
-                                    "Authenticated user uid=${user?.uid} has no email in user.email or providerData",
-                                )
-                            AuthState.SignedIn(email)
-                        } else {
-                            AuthState.Anonymous
-                        }
-                        if (LogFlags.AUTH) {
-                            println(
-                                "[Auth] authStateChanged: uid=${user?.uid} anonymous=${user?.isAnonymous} → $newState",
+        }
+        scope.launch {
+            runCatching {
+                Firebase.auth.authStateChanged.collect { user ->
+                    val newState = if (user?.isAnonymous == false) {
+                        val email = user.email
+                            ?: user.providerData.firstNotNullOfOrNull { it.email }
+                            ?: error(
+                                "Authenticated user uid=${user.uid} has no email in user.email or providerData",
                             )
-                        }
-                        _authState.value = newState
-                        if (user != null) {
-                            onUserSync()
-                                .also { if (LogFlags.AUTH) println("[Auth] syncUser ok") }
-                        }
+                        AuthState.SignedIn(email)
+                    } else {
+                        AuthState.Anonymous
                     }
-                }.onFailure { if (LogFlags.AUTH) println("[Auth] authStateChanged collection failed: $it") }
-            }
+                    if (LogFlags.AUTH) {
+                        println(
+                            "[Auth] authStateChanged: uid=${user?.uid} anonymous=${user?.isAnonymous} → $newState",
+                        )
+                    }
+                    _authState.value = newState
+                    if (user != null) {
+                        onUserSync()
+                            .also { if (LogFlags.AUTH) println("[Auth] syncUser ok") }
+                    }
+                }
+            }.onFailure { if (LogFlags.AUTH) println("[Auth] authStateChanged collection failed: $it") }
         }
     }
 
     override suspend fun getIdToken(): String? =
-        if (isFirebaseAvailable) {
-            runCatching { Firebase.auth.currentUser?.getIdToken(false) }.getOrNull()
-        } else {
-            null
-        }
+        runCatching { Firebase.auth.currentUser?.getIdToken(false) }.getOrNull()
 
     override suspend fun linkWithGoogle(): Result<Unit> {
         if (LogFlags.AUTH) println("[Auth] linkWithGoogle: acquiring credential")

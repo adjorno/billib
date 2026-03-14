@@ -43,7 +43,7 @@ fun UserWidget(
         when (authState) {
             is AuthState.SignedIn -> Column {
                 Text(
-                    text = authState.email ?: "Authenticated",
+                    text = authState.email,
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
