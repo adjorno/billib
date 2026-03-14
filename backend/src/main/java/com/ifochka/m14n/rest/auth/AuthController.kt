@@ -2,6 +2,7 @@ package com.ifochka.m14n.rest.auth
 
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -20,6 +21,7 @@ class AuthController(
     firebaseApp: FirebaseApp,
     @Value("\${firebase.web-api-key}") private val webApiKey: String,
 ) {
+    private val logger = LoggerFactory.getLogger(AuthController::class.java)
     private val auth = FirebaseAuth.getInstance(firebaseApp)
     private val restClient = RestClient.create()
 
@@ -28,8 +30,12 @@ class AuthController(
         @RequestBody body: CustomTokenRequest,
     ): ResponseEntity<CustomTokenResponse> {
         val uid = resolveFirebaseUid(body.googleIdToken)
-            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            ?: run {
+                logger.warn("[CustomToken] Failed to resolve Firebase UID from Google ID token")
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            }
         val customToken = auth.createCustomToken(uid)
+        logger.info("[CustomToken] Issued for uid=$uid")
         return ResponseEntity.ok(CustomTokenResponse(customToken = customToken))
     }
 

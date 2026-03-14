@@ -60,6 +60,9 @@ tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
         environment["FIREBASE_AUTH_EMULATOR_HOST"] = "localhost:9099"
         environment["USE_FIREBASE_EMULATOR"] = "true"
     }
+    project.findProperty("FIREBASE_SERVICE_ACCOUNT_PATH")?.let {
+        environment["FIREBASE_SERVICE_ACCOUNT_PATH"] = it.toString()
+    }
 }
 
 tasks.named<Test>("test") {
