@@ -34,6 +34,7 @@ class SecurityConfig(
                 "/v3/api-docs/**",
                 "/dev/token",
                 "/auth/custom-token",
+                "/auth/apple/callback",
             )
             .cors { it.configurationSource(corsSource()) }
             .csrf { it.disable() }
