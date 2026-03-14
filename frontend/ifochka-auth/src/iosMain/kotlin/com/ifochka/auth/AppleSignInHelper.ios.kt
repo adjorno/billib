@@ -32,13 +32,11 @@ import platform.UIKit.UIApplication
 import platform.darwin.NSObject
 import kotlin.coroutines.resume
 
-private var currentNonce: String? = null
 private var activeDelegate: AppleSignInDelegate? = null
 private var activePresentationContext: PresentationContextProvider? = null
 
 actual suspend fun getAppleCredential(): AuthCredential? {
     val nonce = randomNonce()
-    currentNonce = nonce
 
     val idToken = suspendCancellableCoroutine<String?> { cont ->
         val delegate = AppleSignInDelegate { cont.resume(it) }
@@ -64,7 +62,7 @@ actual suspend fun getAppleCredential(): AuthCredential? {
     return OAuthProvider.credential(
         providerId = "apple.com",
         idToken = idToken,
-        rawNonce = currentNonce,
+        rawNonce = nonce,
     )
 }
 
