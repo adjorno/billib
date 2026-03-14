@@ -43,6 +43,7 @@ include("libraries:m14n-importer")
 val isRailwayBuild = System.getenv("RAILWAY_ENVIRONMENT") != null
 if (!isRailwayBuild) {
     include(":frontend:ifochka-core")
+    include(":frontend:ifochka-auth")
     include(":frontend:composeApp")
     include(":frontend:androidApp")
 } else {

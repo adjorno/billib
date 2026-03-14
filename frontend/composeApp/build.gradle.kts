@@ -50,43 +50,22 @@ kotlin {
         extraSpecAttributes["libraries"] = "'c++', 'sqlite3'"
     }
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
-        // Intermediate source set for Firebase-capable targets: Android, JVM desktop, iOS.
-        // wasmJs has no firebase-auth artifact so it gets WasmFirebaseAuthRepository instead.
-        val firebaseMain by creating {
-            dependsOn(commonMain.get())
-            dependencies {
-                implementation(libs.firebase.auth.multiplatform)
-            }
-        }
-        androidMain {
-            dependsOn(firebaseMain)
-        }
-        jvmMain {
-            dependsOn(firebaseMain)
-        }
-        iosMain {
-            dependsOn(firebaseMain)
-        }
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
         }
-        // Wire iOS target compilations to iosMain — required because the default hierarchy
-        // template is not applied when custom dependsOn edges exist (firebaseMain).
-        getByName("iosArm64Main") { dependsOn(getByName("iosMain")) }
-        getByName("iosSimulatorArm64Main") { dependsOn(getByName("iosMain")) }
 
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling)
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android.driver)
-            implementation(libs.androidx.credentials)
-            implementation(libs.androidx.credentials.play.services)
-            implementation(libs.google.identity.googleid)
         }
         commonMain.dependencies {
             implementation(projects.frontend.ifochkaCore)
+            implementation(projects.frontend.ifochkaAuth)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -122,8 +101,6 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.sqldelight.sqlite.driver)
-            implementation(libs.ktor.server.core)
-            implementation(libs.ktor.server.cio)
         }
         wasmJsMain.dependencies {
             implementation(libs.sqldelight.web.worker.driver)
@@ -160,11 +137,6 @@ compose.desktop {
             }
         }
     }
-}
-
-// Firebase BOM must be declared at top-level for Android platform resolution in KMP library modules
-dependencies {
-    add("androidMainImplementation", platform(libs.firebase.bom))
 }
 
 sqldelight {

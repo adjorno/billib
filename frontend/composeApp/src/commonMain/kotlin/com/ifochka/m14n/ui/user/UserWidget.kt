@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ifochka.m14n.data.auth.AuthState
+import com.ifochka.auth.AuthState
 
 @Composable
 fun UserWidget(

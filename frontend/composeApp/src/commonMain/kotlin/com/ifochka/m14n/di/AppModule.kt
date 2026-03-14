@@ -1,5 +1,8 @@
 package com.ifochka.m14n.di
 
+import com.ifochka.auth.AuthRepository
+import com.ifochka.auth.createFirebaseAuthRepository
+import com.ifochka.auth.getFirebaseToken
 import com.ifochka.core.share.ShareManager
 import com.ifochka.core.share.createShareManager
 import com.ifochka.m14n.BuildKonfig
@@ -11,9 +14,6 @@ import com.ifochka.m14n.data.artwork.ArtworkRepository
 import com.ifochka.m14n.data.artwork.ArtworkUrlPersistence
 import com.ifochka.m14n.data.artwork.CachedArtworkRepository
 import com.ifochka.m14n.data.artwork.createArtworkUrlPersistence
-import com.ifochka.m14n.data.auth.AuthRepository
-import com.ifochka.m14n.data.auth.createFirebaseAuthRepository
-import com.ifochka.m14n.data.auth.getFirebaseToken
 import com.ifochka.m14n.data.db.ChartDatabaseRepository
 import com.ifochka.m14n.data.db.SqlDelightChartDatabase
 import com.ifochka.m14n.data.db.createDatabaseDriver
@@ -95,7 +95,10 @@ val appModule = module {
     single<ChartDatabaseRepository> { SqlDelightChartDatabase(get()) }
     single<M14nApi> { KtorM14nApi(get()) }
     single { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
-    single<AuthRepository>(createdAtStart = true) { createFirebaseAuthRepository(api = get(), scope = get()) }
+    single<AuthRepository>(createdAtStart = true) {
+        val api: M14nApi = get()
+        createFirebaseAuthRepository(onUserSync = { api.syncUser() }, scope = get())
+    }
 
     // Artwork dependencies
     single<ArtworkApi> { AppleMusicArtworkApi(get(named("appleMusicClient"))) }
