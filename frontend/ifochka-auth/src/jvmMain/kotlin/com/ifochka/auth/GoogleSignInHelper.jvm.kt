@@ -13,6 +13,7 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -78,6 +79,16 @@ actual suspend fun getGoogleCredential(): AuthCredential? {
     }.onFailure { if (LogFlags.AUTH) println("[Auth] getGoogleCredential failed: $it") }.getOrNull()
 }
 
+@Serializable
+private data class CustomTokenRequest(
+    val googleIdToken: String,
+)
+
+@Serializable
+private data class CustomTokenResponse(
+    val customToken: String,
+)
+
 private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
     withContext(Dispatchers.IO) {
         runCatching {
@@ -86,10 +97,11 @@ private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
                 if (LogFlags.AUTH) println("[Auth] exchangeForCustomToken: apiBaseUrl not set")
                 return@runCatching null
             }
+            val requestBody = Json.encodeToString(CustomTokenRequest(googleIdToken))
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("$apiBaseUrl/auth/custom-token"))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString("""{"googleIdToken":"$googleIdToken"}"""))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()
             val response = HttpClient.newHttpClient()
                 .send(request, HttpResponse.BodyHandlers.ofString())
@@ -97,7 +109,7 @@ private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
                 if (LogFlags.AUTH) println("[Auth] exchangeForCustomToken: HTTP ${response.statusCode()}")
                 return@runCatching null
             }
-            Json.parseToJsonElement(response.body()).jsonObject["customToken"]?.jsonPrimitive?.content
+            Json.decodeFromString<CustomTokenResponse>(response.body()).customToken
         }.getOrNull()
     }
 
