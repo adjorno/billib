@@ -26,7 +26,7 @@ class FirebaseAuthRepository(
     )
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-    init {
+    override fun start() {
         println("[Auth] Firebase available: $isFirebaseAvailable")
         if (isFirebaseAvailable) {
             if (AuthConfig.current.useEmulator) {
