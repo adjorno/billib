@@ -1,5 +1,6 @@
 package com.ifochka.m14n.ui.user
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,10 +22,16 @@ import com.ifochka.auth.AuthState
 @Composable
 fun UserWidget(
     authState: AuthState,
+    onSignInClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val clickModifier = if (authState is AuthState.Anonymous) {
+        modifier.clickable(onClick = onSignInClick)
+    } else {
+        modifier
+    }
     Row(
-        modifier = modifier,
+        modifier = clickModifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
