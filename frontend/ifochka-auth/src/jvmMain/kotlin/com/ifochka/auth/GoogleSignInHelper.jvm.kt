@@ -94,9 +94,10 @@ private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
         runCatching {
             val apiBaseUrl = AuthConfig.current.apiBaseUrl.trimEnd('/')
             if (apiBaseUrl.isEmpty()) {
-                if (LogFlags.AUTH) println("[Auth] exchangeForCustomToken: apiBaseUrl not set")
+                println("[Auth] exchangeForCustomToken: apiBaseUrl not set")
                 return@runCatching null
             }
+            println("[Auth] exchangeForCustomToken: POST $apiBaseUrl/auth/custom-token")
             val requestBody = Json.encodeToString(CustomTokenRequest(googleIdToken))
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("$apiBaseUrl/auth/custom-token"))
@@ -105,12 +106,11 @@ private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
                 .build()
             val response = HttpClient.newHttpClient()
                 .send(request, HttpResponse.BodyHandlers.ofString())
-            if (response.statusCode() != 200) {
-                if (LogFlags.AUTH) println("[Auth] exchangeForCustomToken: HTTP ${response.statusCode()}")
-                return@runCatching null
-            }
+            println("[Auth] exchangeForCustomToken: HTTP ${response.statusCode()} body=${response.body().take(200)}")
+            if (response.statusCode() != 200) return@runCatching null
             Json.decodeFromString<CustomTokenResponse>(response.body()).customToken
-        }.getOrNull()
+        }.onFailure { println("[Auth] exchangeForCustomToken: exception ${it::class.simpleName}: ${it.message}") }
+            .getOrNull()
     }
 
 private fun randomBase64(bytes: Int): String {
