@@ -35,8 +35,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +60,7 @@ import com.ifochka.m14n.navigation.rememberNavigationState
 import com.ifochka.m14n.navigation.toEntries
 import com.ifochka.m14n.ui.artistdetails.ArtistDetailsScreen
 import com.ifochka.m14n.ui.auth.AuthViewModel
+import com.ifochka.m14n.ui.auth.SignInBottomSheet
 import com.ifochka.m14n.ui.bestsongs.BestSongsScreen
 import com.ifochka.m14n.ui.chart.ChartScreen
 import com.ifochka.m14n.ui.home.HomeScreen
@@ -85,6 +88,7 @@ fun App() {
         ) {
             val authViewModel = koinViewModel<AuthViewModel>()
             val authState by authViewModel.authState.collectAsState()
+            var showSignInSheet by remember { mutableStateOf(false) }
             val topLevelRoutes = remember { setOf(RouteHome, RouteBestSongs, RouteHistory, RouteSearch) }
             val navigationState = rememberNavigationState(
                 startRoute = RouteHome,
@@ -136,6 +140,13 @@ fun App() {
                 }
             }
 
+            if (showSignInSheet) {
+                SignInBottomSheet(
+                    onDismiss = { showSignInSheet = false },
+                    onSuccess = { showSignInSheet = false },
+                )
+            }
+
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val isWide = maxWidth >= 840.dp
                 if (isWide) {
@@ -155,6 +166,7 @@ fun App() {
                                 Spacer(modifier = Modifier.weight(1f))
                                 UserWidget(
                                     authState = authState,
+                                    onSignInClick = { showSignInSheet = true },
                                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
                                 )
                             }
@@ -186,6 +198,10 @@ fun App() {
                                 Spacer(Modifier.height(24.dp))
                                 UserWidget(
                                     authState = authState,
+                                    onSignInClick = {
+                                        scope.launch { drawerState.close() }
+                                        showSignInSheet = true
+                                    },
                                     modifier = Modifier.padding(horizontal = 20.dp),
                                 )
                             }

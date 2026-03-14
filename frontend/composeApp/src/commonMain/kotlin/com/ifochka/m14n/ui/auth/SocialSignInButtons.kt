@@ -37,7 +37,7 @@ fun GoogleSignInButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = buttonHeight,
+        modifier = buttonModifier,
         shape = buttonShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.White,
@@ -68,7 +68,7 @@ fun AppleSignInButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = buttonHeight,
+        modifier = buttonModifier,
         shape = buttonShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Black,

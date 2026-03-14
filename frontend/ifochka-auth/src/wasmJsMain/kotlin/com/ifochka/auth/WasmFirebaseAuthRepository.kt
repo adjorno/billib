@@ -16,7 +16,7 @@ class WasmFirebaseAuthRepository(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-    init {
+    override fun start() {
         jsOnAuthStateChanged { isSignedIn ->
             val newState = if (isSignedIn) {
                 AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())

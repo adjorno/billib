@@ -2,6 +2,7 @@ package com.ifochka.auth
 
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthCredential
+import dev.gitlive.firebase.auth.FirebaseAuthUserCollisionException
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,7 @@ class FirebaseAuthRepository(
     )
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-    init {
+    override fun start() {
         println("[Auth] Firebase available: $isFirebaseAvailable")
         if (isFirebaseAvailable) {
             if (AuthConfig.current.useEmulator) {
@@ -81,27 +82,78 @@ class FirebaseAuthRepository(
 
     override suspend fun linkWithApple(): Result<Unit> {
         val credential = getAppleCredential() ?: return Result.success(Unit)
-        return linkWithCredential(credential)
+        val current = Firebase.auth.currentUser
+            ?: return Result.failure(IllegalStateException("No current user"))
+        println("[Auth] linkWithApple: uid=${current.uid} anonymous=${current.isAnonymous}")
+        return try {
+            current.linkWithCredential(credential)
+            println("[Auth] linkWithApple: linked ok")
+            Result.success(Unit)
+        } catch (_: FirebaseAuthUserCollisionException) {
+            // UC4: Apple tokens are one-time-use — the nonce was consumed by linkWithCredential.
+            // Re-prompt the user for a fresh Apple credential before switching accounts.
+            println("[Auth] linkWithApple: collision — requesting fresh Apple credential")
+            switchToExistingAppleAccount()
+        } catch (e: Exception) {
+            println("[Auth] linkWithApple: failed — ${e.message}")
+            Result.failure(e)
+        }
     }
 
-    private suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> =
-        runCatching {
-            val current = checkNotNull(Firebase.auth.currentUser) { "No current user" }
-            println("[Auth] linkWithCredential: uid=${current.uid} anonymous=${current.isAnonymous}")
-            runCatching { current.linkWithCredential(credential) }
-                .onSuccess { println("[Auth] linkWithCredential: linked ok, uid=${it.user?.uid}") }
-                .getOrElse { exception ->
-                    println("[Auth] linkWithCredential: failed (${exception.message})")
-                    if (exception.message?.contains("credential-already-in-use", ignoreCase = true) == true ||
-                        exception.message?.contains("EMAIL_EXISTS", ignoreCase = true) == true
-                    ) {
-                        println("[Auth] linkWithCredential: credential already in use — signing in directly")
-                        Firebase.auth.signInWithCredential(credential)
-                            .also { println("[Auth] signInWithCredential ok, uid=${it.user?.uid}") }
-                    } else {
-                        throw exception
-                    }
-                }
-            Unit
-        }.onFailure { println("[Auth] linkWithCredential: unhandled error: $it") }
+    private suspend fun switchToExistingAppleAccount(): Result<Unit> {
+        val freshCredential = getAppleCredential() ?: return Result.success(Unit)
+        return try {
+            val result = Firebase.auth.signInWithCredential(freshCredential)
+            println("[Auth] linkWithApple: switched to existing account, uid=${result.user?.uid}")
+            Result.success(Unit)
+        } catch (e: FirebaseAuthUserCollisionException) {
+            println("[Auth] linkWithApple: provider conflict — ${e.message}")
+            Result.failure(
+                Exception(
+                    "This email is already registered with a different sign-in method. " +
+                        "Please use your original sign-in method to continue.",
+                ),
+            )
+        } catch (e: Exception) {
+            println("[Auth] linkWithApple: fresh sign-in failed — ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> {
+        val current = Firebase.auth.currentUser
+            ?: return Result.failure(IllegalStateException("No current user"))
+        println("[Auth] linkWithCredential: uid=${current.uid} anonymous=${current.isAnonymous}")
+        return try {
+            current.linkWithCredential(credential)
+            println("[Auth] linkWithCredential: linked ok")
+            Result.success(Unit)
+        } catch (_: FirebaseAuthUserCollisionException) {
+            println("[Auth] linkWithCredential: collision — attempting direct sign-in")
+            trySignInOnCollision(credential)
+        } catch (e: Exception) {
+            println("[Auth] linkWithCredential: failed — ${e.message}")
+            Result.failure(e)
+        }
+    }
 }
+
+private suspend fun trySignInOnCollision(credential: AuthCredential): Result<Unit> =
+    try {
+        val result = Firebase.auth.signInWithCredential(credential)
+        println("[Auth] Switched to existing account via direct sign-in, uid=${result.user?.uid}")
+        Result.success(Unit)
+    } catch (e: FirebaseAuthUserCollisionException) {
+        // The credential belongs to an account that uses a different provider.
+        // Auto-linking two separate identities without explicit user consent is dangerous — surface the error.
+        println("[Auth] Provider conflict — cannot auto-link: ${e.message}")
+        Result.failure(
+            Exception(
+                "This email is already registered with a different sign-in method. " +
+                    "Please use your original sign-in method to continue.",
+            ),
+        )
+    } catch (e: Exception) {
+        println("[Auth] trySignInOnCollision: failed — ${e.message}")
+        Result.failure(e)
+    }
