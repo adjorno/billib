@@ -21,6 +21,8 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
@@ -35,15 +37,8 @@ kotlin {
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
         }
-        val iosMain by creating {
-            dependsOn(commonMain.get())
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
-        // Wire iOS target compilations to iosMain — required because the default hierarchy
-        // template is not applied when custom dependsOn edges exist.
-        getByName("iosArm64Main") { dependsOn(iosMain) }
-        getByName("iosSimulatorArm64Main") { dependsOn(iosMain) }
     }
 }
