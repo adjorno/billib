@@ -18,6 +18,7 @@ fun main() =
                 appId = BuildKonfig.FIREBASE_APP_ID,
                 authDomain = BuildKonfig.FIREBASE_AUTH_DOMAIN,
                 googleWebClientId = BuildKonfig.GOOGLE_WEB_CLIENT_ID,
+                apiBaseUrl = BuildKonfig.API_BASE_URL,
                 useEmulator = BuildKonfig.USE_FIREBASE_EMULATOR,
             ),
         )

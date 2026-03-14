@@ -1,7 +1,8 @@
 package com.ifochka.auth
 
+import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthCredential
-import dev.gitlive.firebase.auth.GoogleAuthProvider
+import dev.gitlive.firebase.auth.auth
 import io.ktor.http.ContentType
 import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
@@ -18,6 +19,9 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.awt.Desktop
 import java.net.URI
 import java.net.URLEncoder
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.security.SecureRandom
 import java.util.Base64
 
@@ -56,16 +60,46 @@ actual suspend fun getGoogleCredential(): AuthCredential? {
             withContext(Dispatchers.IO) {
                 Desktop.getDesktop().browse(URI(authUrl))
             }
-            val (idToken, accessToken) = deferred.await()
-            println("[Auth] getGoogleCredential: token received (idToken length=${idToken.length})")
+            val (idToken) = deferred.await()
+            if (LogFlags.AUTH) println("[Auth] getGoogleCredential: token received (idToken length=${idToken.length})")
             validateNonce(idToken = idToken, expectedNonce = nonce)
-            println("[Auth] getGoogleCredential: nonce ok, returning credential")
-            GoogleAuthProvider.credential(idToken = idToken, accessToken = accessToken)
+            if (LogFlags.AUTH) println("[Auth] getGoogleCredential: nonce ok, exchanging for custom token")
+            val customToken = exchangeForCustomToken(idToken)
+            if (customToken != null) {
+                Firebase.auth.signInWithCustomToken(customToken)
+                if (LogFlags.AUTH) println("[Auth] getGoogleCredential: signed in with custom token")
+            } else {
+                if (LogFlags.AUTH) println("[Auth] getGoogleCredential: custom token exchange failed")
+            }
+            null // sign-in handled via custom token — no credential needed
         } finally {
             server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
         }
-    }.onFailure { println("[Auth] getGoogleCredential failed: $it") }.getOrNull()
+    }.onFailure { if (LogFlags.AUTH) println("[Auth] getGoogleCredential failed: $it") }.getOrNull()
 }
+
+private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
+    withContext(Dispatchers.IO) {
+        runCatching {
+            val apiBaseUrl = AuthConfig.current.apiBaseUrl.trimEnd('/')
+            if (apiBaseUrl.isEmpty()) {
+                if (LogFlags.AUTH) println("[Auth] exchangeForCustomToken: apiBaseUrl not set")
+                return@runCatching null
+            }
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("$apiBaseUrl/auth/custom-token"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString("""{"googleIdToken":"$googleIdToken"}"""))
+                .build()
+            val response = HttpClient.newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString())
+            if (response.statusCode() != 200) {
+                if (LogFlags.AUTH) println("[Auth] exchangeForCustomToken: HTTP ${response.statusCode()}")
+                return@runCatching null
+            }
+            Json.parseToJsonElement(response.body()).jsonObject["customToken"]?.jsonPrimitive?.content
+        }.getOrNull()
+    }
 
 private fun randomBase64(bytes: Int): String {
     val buf = ByteArray(bytes)
@@ -111,15 +145,19 @@ private fun validateNonce(
     expectedNonce: String,
 ) {
     val payload = idToken.split(".").getOrNull(1) ?: run {
-        println("[Auth] validateNonce: no payload segment in JWT")
+        if (LogFlags.AUTH) println("[Auth] validateNonce: no payload segment in JWT")
         return
     }
     val padded = payload.padEnd((payload.length + 3) / 4 * 4, '=')
     val json = String(Base64.getUrlDecoder().decode(padded))
     val actual = Json.parseToJsonElement(json).jsonObject["nonce"]?.jsonPrimitive?.content ?: run {
-        println("[Auth] validateNonce: no nonce claim in JWT payload")
+        if (LogFlags.AUTH) println("[Auth] validateNonce: no nonce claim in JWT payload")
         return
     }
-    println("[Auth] validateNonce: expected=$expectedNonce actual=$actual match=${actual == expectedNonce}")
+    if (LogFlags.AUTH) {
+        println(
+            "[Auth] validateNonce: expected=$expectedNonce actual=$actual match=${actual == expectedNonce}",
+        )
+    }
     check(actual == expectedNonce) { "Nonce mismatch — possible token replay" }
 }

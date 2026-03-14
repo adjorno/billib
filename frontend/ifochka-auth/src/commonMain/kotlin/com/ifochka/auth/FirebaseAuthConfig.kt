@@ -6,5 +6,7 @@ data class FirebaseAuthConfig(
     val appId: String,
     val authDomain: String,
     val googleWebClientId: String,
+    val apiBaseUrl: String = "",
+    val appleServiceId: String = "",
     val useEmulator: Boolean = false,
 )

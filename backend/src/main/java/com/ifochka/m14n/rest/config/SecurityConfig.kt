@@ -33,6 +33,7 @@ class SecurityConfig(
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
                 "/dev/token",
+                "/auth/custom-token",
             )
             .cors { it.configurationSource(corsSource()) }
             .csrf { it.disable() }

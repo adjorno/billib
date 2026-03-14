@@ -6,6 +6,7 @@ import com.ifochka.auth.getFirebaseToken
 import com.ifochka.core.share.ShareManager
 import com.ifochka.core.share.createShareManager
 import com.ifochka.m14n.BuildKonfig
+import com.ifochka.m14n.LogFlags
 import com.ifochka.m14n.data.api.KtorM14nApi
 import com.ifochka.m14n.data.api.M14nApi
 import com.ifochka.m14n.data.artwork.AppleMusicArtworkApi
@@ -64,10 +65,10 @@ val appModule = module {
                 val token = getFirebaseToken()
                 val authSource = if (token != null) "FirebaseJWT(len=${token.length})" else "API_KEY_FALLBACK"
                 val path = request.url.pathSegments.joinToString("/")
-                println("[HTTP] → ${request.method.value} $path auth=$authSource")
+                if (LogFlags.HTTP) println("[HTTP] → ${request.method.value} $path auth=$authSource")
                 request.headers[HttpHeaders.Authorization] = "Bearer ${token ?: BuildKonfig.FIREBASE_API_KEY}"
                 val call = execute(request)
-                println("[HTTP] ← ${call.response.status.value} $path")
+                if (LogFlags.HTTP) println("[HTTP] ← ${call.response.status.value} $path")
                 call
             }
         }

@@ -40,7 +40,7 @@ private var activePresentationContext: PresentationContextProvider? = null
 
 actual suspend fun getAppleCredential(): AuthCredential? {
     if (!signInMutex.tryLock()) {
-        println("[Apple] getAppleCredential: already in progress, ignoring concurrent call")
+        if (LogFlags.AUTH) println("[Apple] getAppleCredential: already in progress, ignoring concurrent call")
         return null
     }
     try {
@@ -52,7 +52,7 @@ actual suspend fun getAppleCredential(): AuthCredential? {
 
 private suspend fun getAppleCredentialInternal(): AuthCredential? {
     val nonce = randomNonce()
-    println("[Apple] getAppleCredential: starting, nonce prefix=${nonce.take(8)}")
+    if (LogFlags.AUTH) println("[Apple] getAppleCredential: starting, nonce prefix=${nonce.take(8)}")
 
     val idToken = suspendCancellableCoroutine<String?> { cont ->
         val delegate = AppleSignInDelegate { cont.resume(it) }
@@ -64,23 +64,27 @@ private suspend fun getAppleCredentialInternal(): AuthCredential? {
             requestedScopes = listOf(ASAuthorizationScopeEmail, ASAuthorizationScopeFullName)
             this.nonce = sha256(nonce)
         }
-        println("[Apple] ASAuthorizationController: performRequests()")
+        if (LogFlags.AUTH) println("[Apple] ASAuthorizationController: performRequests()")
         ASAuthorizationController(listOf(request)).apply {
             this.delegate = delegate
             this.presentationContextProvider = presentationContext
             performRequests()
         }
         cont.invokeOnCancellation {
-            println("[Apple] getAppleCredential: cancelled")
+            if (LogFlags.AUTH) println("[Apple] getAppleCredential: cancelled")
             activeDelegate = null
             activePresentationContext = null
         }
     } ?: run {
-        println("[Apple] getAppleCredential: idToken is null (user cancelled or delegate error)")
+        if (LogFlags.AUTH) println("[Apple] getAppleCredential: idToken is null (user cancelled or delegate error)")
         return null
     }
 
-    println("[Apple] getAppleCredential: idToken obtained (length=${idToken.length}), building credential")
+    if (LogFlags.AUTH) {
+        println(
+            "[Apple] getAppleCredential: idToken obtained (length=${idToken.length}), building credential",
+        )
+    }
     return OAuthProvider.credential(
         providerId = "apple.com",
         idToken = idToken,
@@ -101,9 +105,11 @@ private class AppleSignInDelegate(
         val appleCredential = didCompleteWithAuthorization.credential as? ASAuthorizationAppleIDCredential
         val idToken = appleCredential?.identityToken
             ?.let { NSString.create(it, NSUTF8StringEncoding)?.toString() }
-        println(
-            "[Apple] delegate: didCompleteWithAuthorization — user=${appleCredential?.user} idToken=${if (idToken != null) "ok(${idToken.length})" else "null"}",
-        )
+        if (LogFlags.AUTH) {
+            println(
+                "[Apple] delegate: didCompleteWithAuthorization — user=${appleCredential?.user} idToken=${if (idToken != null) "ok(${idToken.length})" else "null"}",
+            )
+        }
         onResult(idToken)
     }
 
@@ -113,9 +119,11 @@ private class AppleSignInDelegate(
     ) {
         activeDelegate = null
         activePresentationContext = null
-        println(
-            "[Apple] delegate: didCompleteWithError — code=${didCompleteWithError.code} domain=${didCompleteWithError.domain} msg=${didCompleteWithError.localizedDescription}",
-        )
+        if (LogFlags.AUTH) {
+            println(
+                "[Apple] delegate: didCompleteWithError — code=${didCompleteWithError.code} domain=${didCompleteWithError.domain} msg=${didCompleteWithError.localizedDescription}",
+            )
+        }
         onResult(null)
     }
 }

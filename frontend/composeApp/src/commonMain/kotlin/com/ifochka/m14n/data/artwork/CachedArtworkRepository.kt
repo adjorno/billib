@@ -1,5 +1,6 @@
 package com.ifochka.m14n.data.artwork
 
+import com.ifochka.m14n.LogFlags
 import com.ifochka.m14n.data.model.Artist
 import com.ifochka.m14n.data.model.Track
 
@@ -11,12 +12,16 @@ class CachedArtworkRepository(
 
     @Suppress("TooGenericExceptionCaught") // Graceful degradation requires catching all exceptions
     override suspend fun getArtworkUrl(track: Track): String? {
-        // println("[ARTWORK-REPO] 🔍 getArtworkUrl called for: ${track.artistName} - ${track.title}")
+        if (LogFlags.ARTWORK_REPO) {
+            println(
+                "[ARTWORK-REPO] 🔍 getArtworkUrl called for: ${track.artistName} - ${track.title}",
+            )
+        }
 
         // Check in-memory cache first (populated by DB JOIN on native platforms)
         val cachedUrl = track.artworkUrl?.takeIf { it.isNotBlank() }
         if (cachedUrl != null) {
-            // println("[ARTWORK-REPO] ⊘ Track already has artwork: $cachedUrl")
+            if (LogFlags.ARTWORK_REPO) println("[ARTWORK-REPO] ⊘ Track already has artwork: $cachedUrl")
             return cachedUrl
         }
 
@@ -37,7 +42,11 @@ class CachedArtworkRepository(
         val trackTitle = track.title
         val result = when {
             artistName == null || trackTitle == null -> {
-                // println("[ARTWORK-REPO] ❌ Missing required fields - artist: $artistName, title: $trackTitle")
+                if (LogFlags.ARTWORK_REPO) {
+                    println(
+                        "[ARTWORK-REPO] ❌ Missing required fields - artist: $artistName, title: $trackTitle",
+                    )
+                }
                 null
             }
             else -> fetchArtworkFromApi(artistName, trackTitle)
@@ -63,8 +72,12 @@ class CachedArtworkRepository(
                 title = trackTitle,
             )
         } catch (e: Exception) {
-            // println("[ARTWORK-REPO] ❌ Failed to fetch artwork for '$artistName - $trackTitle': ${e.message}")
-            // println("[ARTWORK-REPO] ❌ Exception: ${e::class.simpleName}")
+            if (LogFlags.ARTWORK_REPO) {
+                println(
+                    "[ARTWORK-REPO] ❌ Failed to fetch artwork for '$artistName - $trackTitle': ${e.message}",
+                )
+            }
+            if (LogFlags.ARTWORK_REPO) println("[ARTWORK-REPO] ❌ Exception: ${e::class.simpleName}")
             null
         }
 
@@ -95,7 +108,11 @@ class CachedArtworkRepository(
             artworkMap[trackId] = artworkUrl
 
             if (artworkUrl != null) {
-                // println("[ARTWORK] ✓ Fetched artwork for: ${track.artistName} - ${track.title}")
+                if (LogFlags.ARTWORK_REPO) {
+                    println(
+                        "[ARTWORK] ✓ Fetched artwork for: ${track.artistName} - ${track.title}",
+                    )
+                }
             }
         }
 
