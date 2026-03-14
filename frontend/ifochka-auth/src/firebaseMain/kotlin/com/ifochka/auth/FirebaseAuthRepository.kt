@@ -50,7 +50,12 @@ class FirebaseAuthRepository(
                 runCatching {
                     Firebase.auth.authStateChanged.collect { user ->
                         val newState = if (user?.isAnonymous == false) {
-                            AuthState.SignedIn(user?.email)
+                            val email = user?.email
+                                ?: user?.providerData?.firstNotNullOfOrNull { it.email }
+                                ?: error(
+                                    "Authenticated user uid=${user?.uid} has no email in user.email or providerData",
+                                )
+                            AuthState.SignedIn(email)
                         } else {
                             AuthState.Anonymous
                         }

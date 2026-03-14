@@ -82,7 +82,7 @@ fun AppleSignInButton(
             Image(
                 painter = painterResource(Res.drawable.ic_apple_logo_white),
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.width(12.dp))
             Text(text = "Continue with Apple", fontSize = BUTTON_FONT_SIZE.sp, maxLines = 1)
