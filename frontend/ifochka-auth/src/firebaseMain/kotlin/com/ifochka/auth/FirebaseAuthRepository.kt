@@ -37,6 +37,9 @@ class FirebaseAuthRepository(
                 runCatching { Firebase.auth.signInAnonymously() }
                     .onSuccess { if (LogFlags.AUTH) println("[Auth] Anonymous sign-in ok") }
                     .onFailure { if (LogFlags.AUTH) println("[Auth] Anonymous sign-in failed: $it") }
+            } else {
+                // On JVM, authStateChanged may not fire reliably — sync state from stored user.
+                syncStateFromCurrentUser()
             }
         }
         scope.launch {
@@ -74,11 +77,8 @@ class FirebaseAuthRepository(
         if (LogFlags.AUTH) println("[Auth] linkWithGoogle: acquiring credential")
         val credential = getGoogleCredential()
         if (credential == null) {
-            if (LogFlags.AUTH) {
-                println(
-                    "[Auth] linkWithGoogle: no credential returned (sign-in may have been handled directly)",
-                )
-            }
+            if (LogFlags.AUTH) println("[Auth] linkWithGoogle: sign-in handled directly — syncing state")
+            syncStateFromCurrentUser()
             return Result.success(Unit)
         }
         if (LogFlags.AUTH) println("[Auth] linkWithGoogle: credential obtained, linking")
@@ -93,6 +93,7 @@ class FirebaseAuthRepository(
         return try {
             current.linkWithCredential(credential)
             if (LogFlags.AUTH) println("[Auth] linkWithApple: linked ok")
+            syncStateFromCurrentUser()
             Result.success(Unit)
         } catch (_: FirebaseAuthUserCollisionException) {
             // UC4: Apple tokens are one-time-use — the nonce was consumed by linkWithCredential.
@@ -110,6 +111,7 @@ class FirebaseAuthRepository(
         return try {
             val result = Firebase.auth.signInWithCredential(freshCredential)
             if (LogFlags.AUTH) println("[Auth] linkWithApple: switched to existing account, uid=${result.user?.uid}")
+            syncStateFromCurrentUser()
             Result.success(Unit)
         } catch (e: FirebaseAuthUserCollisionException) {
             if (LogFlags.AUTH) println("[Auth] linkWithApple: provider conflict — ${e.message}")
@@ -140,6 +142,26 @@ class FirebaseAuthRepository(
             if (LogFlags.AUTH) println("[Auth] linkWithCredential: failed — ${e.message}")
             Result.failure(e)
         }
+    }
+
+    /**
+     * Fallback for platforms where authStateChanged does not fire reliably (JVM desktop).
+     * Reads the current user's email directly and updates _authState + triggers onUserSync.
+     * No-op when the current user is anonymous (no email) — state correctly stays Anonymous.
+     */
+    private suspend fun syncStateFromCurrentUser() {
+        val user = runCatching { Firebase.auth.currentUser }.getOrNull()
+        if (LogFlags.AUTH) println("[Auth] syncStateFromCurrentUser: uid=${runCatching { user?.uid }.getOrNull()}")
+        if (user == null) return
+        val email = runCatching { user.email }.getOrNull()
+            ?: runCatching { user.providerData.firstNotNullOfOrNull { it.email } }.getOrNull()
+        if (email.isNullOrBlank()) {
+            if (LogFlags.AUTH) println("[Auth] syncStateFromCurrentUser: no email — user is anonymous, skipping")
+            return
+        }
+        if (LogFlags.AUTH) println("[Auth] syncStateFromCurrentUser: email=$email → SignedIn")
+        _authState.value = AuthState.SignedIn(email)
+        onUserSync()
     }
 }
 
