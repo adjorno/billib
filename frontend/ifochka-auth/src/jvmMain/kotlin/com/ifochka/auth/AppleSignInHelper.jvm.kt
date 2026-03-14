@@ -13,6 +13,8 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.awt.Desktop
 import java.net.URI
 import java.net.URLEncoder
@@ -65,11 +67,17 @@ actual suspend fun getAppleCredential(): AuthCredential? {
     }.onFailure { if (LogFlags.AUTH) println("[Auth] getAppleCredential failed: $it") }.getOrNull()
 }
 
+@Serializable
+private data class AppleState(
+    val port: Int,
+    val rawNonce: String,
+)
+
 private fun buildAppleState(
     port: Int,
     rawNonce: String,
 ): String {
-    val json = """{"port":$port,"rawNonce":"$rawNonce"}"""
+    val json = Json.encodeToString(AppleState(port = port, rawNonce = rawNonce))
     return Base64.getUrlEncoder().withoutPadding().encodeToString(json.toByteArray())
 }
 

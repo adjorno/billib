@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.multiplatformLibrary)
+    alias(libs.plugins.kotlin.serialization)
     id("org.jetbrains.kotlin.native.cocoapods")
 }
 
