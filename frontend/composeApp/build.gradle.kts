@@ -50,6 +50,8 @@ kotlin {
         extraSpecAttributes["libraries"] = "'c++', 'sqlite3'"
     }
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
