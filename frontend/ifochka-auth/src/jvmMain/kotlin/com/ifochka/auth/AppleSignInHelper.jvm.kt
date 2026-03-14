@@ -1,7 +1,8 @@
 package com.ifochka.auth
 
+import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthCredential
-import dev.gitlive.firebase.auth.OAuthProvider
+import dev.gitlive.firebase.auth.auth
 import io.ktor.http.ContentType
 import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
@@ -12,6 +13,8 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.awt.Desktop
 import java.net.ServerSocket
 import java.net.URI
@@ -23,11 +26,13 @@ import java.util.Base64
 actual suspend fun getAppleCredential(): AuthCredential? {
     if (AuthConfig.current.appleServiceId.isEmpty()) return null
     return runCatching {
+        val port = ServerSocket(0).use { it.localPort }
         val rawNonce = randomAppleBase64(32)
         val hashedNonce = sha256Hex(rawNonce)
-        val state = randomAppleBase64(16)
-        val port = ServerSocket(0).use { it.localPort }
-        val redirectUri = "http://localhost:$port/callback"
+        val state = buildAppleState(port = port, rawNonce = rawNonce)
+        val appleCallbackBase = AuthConfig.current.appleCallbackUrl.trimEnd('/')
+            .ifEmpty { AuthConfig.current.apiBaseUrl.trimEnd('/') }
+        val redirectUri = "$appleCallbackBase/auth/apple/callback"
         val authUrl = buildAppleAuthUrl(
             serviceId = AuthConfig.current.appleServiceId,
             redirectUri = redirectUri,
@@ -38,15 +43,12 @@ actual suspend fun getAppleCredential(): AuthCredential? {
         val server = embeddedServer(CIO, port = port) {
             routing {
                 get("/callback") {
+                    val token = call.request.queryParameters["token"] ?: error("no token")
+                    deferred.complete(token)
                     call.respondText(
-                        text = appleCallbackHtml(redirectUri = redirectUri, state = state),
+                        text = "<html><body>Signed in with Apple. You can close this tab.</body></html>",
                         contentType = ContentType.Text.Html,
                     )
-                }
-                get("/callback/token") {
-                    val idToken = call.request.queryParameters["id_token"] ?: error("no id_token")
-                    deferred.complete(idToken)
-                    call.respondText("Signed in with Apple. You can close this tab.")
                 }
             }
         }.start(wait = false)
@@ -54,17 +56,29 @@ actual suspend fun getAppleCredential(): AuthCredential? {
             withContext(Dispatchers.IO) {
                 Desktop.getDesktop().browse(URI(authUrl))
             }
-            val idToken = deferred.await()
-            if (LogFlags.AUTH) println("[Auth] getAppleCredential: token received (idToken length=${idToken.length})")
-            OAuthProvider.credential(
-                providerId = "apple.com",
-                idToken = idToken,
-                rawNonce = rawNonce,
-            )
+            val customToken = deferred.await()
+            if (LogFlags.AUTH) println("[Auth] getAppleCredential: custom token received")
+            Firebase.auth.signInWithCustomToken(customToken)
+            if (LogFlags.AUTH) println("[Auth] getAppleCredential: signed in with custom token")
         } finally {
             server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
         }
+        null
     }.onFailure { if (LogFlags.AUTH) println("[Auth] getAppleCredential failed: $it") }.getOrNull()
+}
+
+@Serializable
+private data class AppleState(
+    val port: Int,
+    val rawNonce: String,
+)
+
+private fun buildAppleState(
+    port: Int,
+    rawNonce: String,
+): String {
+    val json = Json.encodeToString(AppleState(port = port, rawNonce = rawNonce))
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(json.toByteArray())
 }
 
 private fun randomAppleBase64(bytes: Int): String {
@@ -87,25 +101,9 @@ private fun buildAppleAuthUrl(
     hashedNonce: String,
 ) = "https://appleid.apple.com/auth/authorize?" +
     "response_type=${encApple("code id_token")}&" +
-    "response_mode=fragment&" +
+    "response_mode=form_post&" +
     "client_id=${encApple(serviceId)}&" +
     "redirect_uri=${encApple(redirectUri)}&" +
     "scope=${encApple("name email")}&" +
     "nonce=${encApple(hashedNonce)}&" +
     "state=${encApple(state)}"
-
-private fun appleCallbackHtml(
-    redirectUri: String,
-    state: String,
-) = """
-    <!DOCTYPE html><html><body><script>
-      var params = new URLSearchParams(window.location.hash.slice(1));
-      var idToken = params.get('id_token');
-      if (params.get('state') !== '$state' || !idToken) {
-        document.body.innerText = 'Error: invalid state or missing token.';
-      } else {
-        window.location.href = '$redirectUri/token' +
-          '?id_token=' + encodeURIComponent(idToken);
-      }
-    </script><p>Signing in with Apple...</p></body></html>
-    """.trimIndent()

@@ -20,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    @param:Value("\${api.key}") private val apiKey: String,
+    @param:Value("\${firebase.web-api-key}") private val apiKey: String,
     private val jwtDecoder: JwtDecoder,
 ) {
     // Public paths: no OAuth2 filter — BearerTokenAuthenticationFilter never runs here.
