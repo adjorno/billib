@@ -10,6 +10,7 @@ import kotlinx.cinterop.convert
 import kotlinx.cinterop.refTo
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
 import platform.AuthenticationServices.ASAuthorization
 import platform.AuthenticationServices.ASAuthorizationAppleIDCredential
 import platform.AuthenticationServices.ASAuthorizationAppleIDProvider
@@ -29,13 +30,27 @@ import platform.Security.SecRandomCopyBytes
 import platform.Security.errSecSuccess
 import platform.Security.kSecRandomDefault
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindow
 import platform.darwin.NSObject
 import kotlin.coroutines.resume
 
+private val signInMutex = Mutex()
 private var activeDelegate: AppleSignInDelegate? = null
 private var activePresentationContext: PresentationContextProvider? = null
 
 actual suspend fun getAppleCredential(): AuthCredential? {
+    if (!signInMutex.tryLock()) {
+        println("[Apple] getAppleCredential: already in progress, ignoring concurrent call")
+        return null
+    }
+    try {
+        return getAppleCredentialInternal()
+    } finally {
+        signInMutex.unlock()
+    }
+}
+
+private suspend fun getAppleCredentialInternal(): AuthCredential? {
     val nonce = randomNonce()
     println("[Apple] getAppleCredential: starting, nonce prefix=${nonce.take(8)}")
 
@@ -110,7 +125,7 @@ private class PresentationContextProvider :
     ASAuthorizationControllerPresentationContextProvidingProtocol {
     override fun presentationAnchorForAuthorizationController(
         controller: ASAuthorizationController,
-    ): ASPresentationAnchor = UIApplication.sharedApplication.keyWindow?.rootViewController?.view?.window
+    ): ASPresentationAnchor = UIApplication.sharedApplication.keyWindow ?: UIWindow()
 }
 
 private fun randomNonce(length: Int = 32): String {
