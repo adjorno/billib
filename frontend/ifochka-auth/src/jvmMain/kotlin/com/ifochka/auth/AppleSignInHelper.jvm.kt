@@ -28,8 +28,9 @@ actual suspend fun getAppleCredential(): AuthCredential? {
         val rawNonce = randomAppleBase64(32)
         val hashedNonce = sha256Hex(rawNonce)
         val state = buildAppleState(port = OAUTH_PORT, rawNonce = rawNonce)
-        val apiBaseUrl = AuthConfig.current.apiBaseUrl.trimEnd('/')
-        val redirectUri = "$apiBaseUrl/auth/apple/callback"
+        val appleCallbackBase = AuthConfig.current.appleCallbackUrl.trimEnd('/')
+            .ifEmpty { AuthConfig.current.apiBaseUrl.trimEnd('/') }
+        val redirectUri = "$appleCallbackBase/auth/apple/callback"
         val authUrl = buildAppleAuthUrl(
             serviceId = AuthConfig.current.appleServiceId,
             redirectUri = redirectUri,

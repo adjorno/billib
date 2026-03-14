@@ -20,6 +20,7 @@ fun main() =
                 googleWebClientId = BuildKonfig.GOOGLE_WEB_CLIENT_ID,
                 apiBaseUrl = BuildKonfig.API_BASE_URL,
                 appleServiceId = BuildKonfig.APPLE_CLIENT_ID,
+                appleCallbackUrl = "https://api.m14n.com",
                 useEmulator = BuildKonfig.USE_FIREBASE_EMULATOR,
             ),
         )
