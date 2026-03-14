@@ -1,6 +1,5 @@
-package com.ifochka.m14n.data.auth
+package com.ifochka.auth
 
-import com.ifochka.m14n.data.api.M14nApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +10,7 @@ import kotlin.js.ExperimentalWasmJsInterop
 
 @OptIn(ExperimentalWasmJsInterop::class)
 class WasmFirebaseAuthRepository(
-    private val api: M14nApi,
+    private val onUserSync: suspend () -> Unit,
     private val scope: CoroutineScope,
 ) : AuthRepository {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
@@ -28,7 +27,7 @@ class WasmFirebaseAuthRepository(
             _authState.value = newState
             scope.launch {
                 jsConsoleLog("[Auth] Calling syncUser...")
-                runCatching { api.syncUser() }
+                runCatching { onUserSync() }
                     .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
                     .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
             }
@@ -70,7 +69,7 @@ class WasmFirebaseAuthRepository(
                 if (!wasAlreadySignedIn) {
                     // UC3: linkWithPopup does not fire onAuthStateChanged — manual sync needed
                     jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
-                    runCatching { api.syncUser() }
+                    runCatching { onUserSync() }
                         .onSuccess { jsConsoleLog("[Auth] syncUser OK") }
                         .onFailure { jsConsoleError("[Auth] syncUser failed: $it") }
                 } else {

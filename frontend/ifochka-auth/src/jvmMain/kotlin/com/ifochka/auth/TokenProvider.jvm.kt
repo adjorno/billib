@@ -1,11 +1,10 @@
-package com.ifochka.m14n.data.auth
+package com.ifochka.auth
 
-import com.ifochka.m14n.BuildKonfig
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 
 actual suspend fun getFirebaseToken(): String? {
-    if (BuildKonfig.FIREBASE_APP_ID.isEmpty()) {
+    if (AuthConfig.current.appId.isEmpty()) {
         println("[Auth] getFirebaseToken: no app ID, returning null")
         return null
     }

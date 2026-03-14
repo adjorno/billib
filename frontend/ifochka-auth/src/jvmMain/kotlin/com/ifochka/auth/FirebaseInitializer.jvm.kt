@@ -1,21 +1,22 @@
-package com.ifochka.m14n.data.auth
+package com.ifochka.auth
 
 import android.app.Application
 import com.google.firebase.FirebasePlatform
-import com.ifochka.m14n.BuildKonfig
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseOptions
 import dev.gitlive.firebase.initialize
 import java.util.prefs.Preferences
 
-actual fun initFirebase() {
-    val appId = BuildKonfig.FIREBASE_APP_ID.ifEmpty {
-        if (BuildKonfig.USE_FIREBASE_EMULATOR) "1:000000000000:android:emulator" else return
+actual fun initFirebase(config: FirebaseAuthConfig) {
+    AuthConfig.current = config
+
+    val appId = config.appId.ifEmpty {
+        if (config.useEmulator) "1:000000000000:android:emulator" else return
     }
 
-    println("[Auth] initFirebase: appId=$appId emulator=${BuildKonfig.USE_FIREBASE_EMULATOR}")
+    println("[Auth] initFirebase: appId=$appId emulator=${config.useEmulator}")
 
-    val prefs = Preferences.userRoot().node("com/ifochka/m14n/firebase")
+    val prefs = Preferences.userRoot().node("com/ifochka/auth/firebase")
 
     FirebasePlatform.initializeFirebasePlatform(
         object : FirebasePlatform() {
@@ -56,8 +57,8 @@ actual fun initFirebase() {
         context = Application(),
         options = FirebaseOptions(
             applicationId = appId,
-            apiKey = BuildKonfig.FIREBASE_API_KEY,
-            projectId = BuildKonfig.FIREBASE_PROJECT_ID,
+            apiKey = config.apiKey,
+            projectId = config.projectId,
         ),
     )
 

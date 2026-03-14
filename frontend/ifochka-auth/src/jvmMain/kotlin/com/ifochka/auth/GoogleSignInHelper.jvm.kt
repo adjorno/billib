@@ -1,6 +1,5 @@
-package com.ifochka.m14n.data.auth
+package com.ifochka.auth
 
-import com.ifochka.m14n.BuildKonfig
 import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.GoogleAuthProvider
 import io.ktor.http.ContentType
@@ -25,13 +24,13 @@ import java.util.Base64
 private const val OAUTH_PORT = 8765
 
 actual suspend fun getGoogleCredential(): AuthCredential? {
-    if (BuildKonfig.GOOGLE_WEB_CLIENT_ID.isEmpty()) return null
+    if (AuthConfig.current.googleWebClientId.isEmpty()) return null
     return runCatching {
         val state = randomBase64(16)
         val nonce = randomBase64(16)
         val redirectUri = "http://localhost:$OAUTH_PORT/callback"
         val authUrl = buildGoogleAuthUrl(
-            clientId = BuildKonfig.GOOGLE_WEB_CLIENT_ID,
+            clientId = AuthConfig.current.googleWebClientId,
             redirectUri = redirectUri,
             state = state,
             nonce = nonce,

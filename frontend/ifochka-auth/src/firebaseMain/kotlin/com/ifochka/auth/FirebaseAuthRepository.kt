@@ -1,7 +1,5 @@
-package com.ifochka.m14n.data.auth
+package com.ifochka.auth
 
-import com.ifochka.m14n.BuildKonfig
-import com.ifochka.m14n.data.api.M14nApi
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthCredential
 import dev.gitlive.firebase.auth.EmailAuthProvider
@@ -13,10 +11,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class FirebaseAuthRepository(
-    private val api: M14nApi,
+    private val onUserSync: suspend () -> Unit,
     private val scope: CoroutineScope,
 ) : AuthRepository {
-    // On JVM desktop without FIREBASE_APP_ID, Firebase.auth throws — detect eagerly.
+    // On JVM desktop without appId, Firebase.auth throws — detect eagerly.
     // On Android and future iOS, Firebase is always available via the platform config file.
     private val isFirebaseAvailable = runCatching { Firebase.auth }.isSuccess
 
@@ -31,7 +29,7 @@ class FirebaseAuthRepository(
     init {
         println("[Auth] Firebase available: $isFirebaseAvailable")
         if (isFirebaseAvailable) {
-            if (BuildKonfig.USE_FIREBASE_EMULATOR) {
+            if (AuthConfig.current.useEmulator) {
                 runCatching { Firebase.auth.useEmulator("localhost", 9099) }
             }
             scope.launch {
@@ -47,9 +45,7 @@ class FirebaseAuthRepository(
             scope.launch {
                 runCatching {
                     Firebase.auth.authStateChanged.collect { user ->
-                        val newState = if (user?.isAnonymous ==
-                            false
-                        ) {
+                        val newState = if (user?.isAnonymous == false) {
                             AuthState.SignedIn(user?.email)
                         } else {
                             AuthState.Anonymous
@@ -57,9 +53,8 @@ class FirebaseAuthRepository(
                         println("[Auth] authStateChanged: uid=${user?.uid} anonymous=${user?.isAnonymous} → $newState")
                         _authState.value = newState
                         if (user != null) {
-                            api.syncUser()
-                                .onSuccess { println("[Auth] syncUser ok") }
-                                .onFailure { println("[Auth] syncUser failed: $it") }
+                            onUserSync()
+                                .also { println("[Auth] syncUser ok") }
                         }
                     }
                 }.onFailure { println("[Auth] authStateChanged collection failed: $it") }
@@ -103,8 +98,6 @@ class FirebaseAuthRepository(
                 .onSuccess { println("[Auth] linkWithCredential: linked ok, uid=${it.user?.uid}") }
                 .getOrElse { exception ->
                     println("[Auth] linkWithCredential: failed (${exception.message})")
-                    // Only fall back on credential collision; rethrow all other failures
-                    // (e.g. network errors) so callers can surface them properly.
                     if (exception.message?.contains("credential-already-in-use", ignoreCase = true) == true ||
                         exception.message?.contains("EMAIL_EXISTS", ignoreCase = true) == true
                     ) {

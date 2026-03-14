@@ -29,8 +29,8 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ifochka.auth.AuthState
 import com.ifochka.core.share.ShareManager
-import com.ifochka.m14n.data.auth.AuthState
 import com.ifochka.m14n.data.model.ChartTrack
 import com.ifochka.m14n.data.util.DateUtils
 import com.ifochka.m14n.ui.auth.AuthViewModel

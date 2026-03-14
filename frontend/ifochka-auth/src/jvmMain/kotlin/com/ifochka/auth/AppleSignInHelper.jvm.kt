@@ -1,4 +1,4 @@
-package com.ifochka.m14n.data.auth
+package com.ifochka.auth
 
 import dev.gitlive.firebase.auth.AuthCredential
 

@@ -63,6 +63,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.ktor.server.core)
             implementation(libs.ktor.server.cio)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
