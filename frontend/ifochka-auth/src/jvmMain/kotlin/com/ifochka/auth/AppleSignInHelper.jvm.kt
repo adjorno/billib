@@ -16,20 +16,20 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.awt.Desktop
+import java.net.ServerSocket
 import java.net.URI
 import java.net.URLEncoder
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 
-private const val OAUTH_PORT = 8765
-
 actual suspend fun getAppleCredential(): AuthCredential? {
     if (AuthConfig.current.appleServiceId.isEmpty()) return null
     return runCatching {
+        val port = ServerSocket(0).use { it.localPort }
         val rawNonce = randomAppleBase64(32)
         val hashedNonce = sha256Hex(rawNonce)
-        val state = buildAppleState(port = OAUTH_PORT, rawNonce = rawNonce)
+        val state = buildAppleState(port = port, rawNonce = rawNonce)
         val appleCallbackBase = AuthConfig.current.appleCallbackUrl.trimEnd('/')
             .ifEmpty { AuthConfig.current.apiBaseUrl.trimEnd('/') }
         val redirectUri = "$appleCallbackBase/auth/apple/callback"
@@ -40,7 +40,7 @@ actual suspend fun getAppleCredential(): AuthCredential? {
             hashedNonce = hashedNonce,
         )
         val deferred = CompletableDeferred<String>()
-        val server = embeddedServer(CIO, port = OAUTH_PORT) {
+        val server = embeddedServer(CIO, port = port) {
             routing {
                 get("/callback") {
                     val token = call.request.queryParameters["token"] ?: error("no token")
