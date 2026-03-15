@@ -67,7 +67,7 @@ async function jsSignInWithApplePopup(serviceId, apiBaseUrl) {
     AppleID.auth.init({
         clientId: serviceId,
         scope: 'name email',
-        redirectURI: 'https://m14n.com',
+        redirectURI: 'https://api.m14n.com/auth/apple/callback',
         nonce: hashedNonce,
         usePopup: true,
     });
