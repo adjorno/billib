@@ -75,7 +75,7 @@ async function jsSignInWithApplePopup(serviceId, apiBaseUrl) {
     const idToken = response.authorization.id_token;
 
     // 4. Exchange for Firebase custom token
-    const res = await fetch(apiBaseUrl.replace(/\/$/, '') + '/auth/apple/custom-token', {
+    const res = await fetch(new URL('/auth/apple/custom-token', apiBaseUrl), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ appleIdToken: idToken, nonce: rawNonce }),
