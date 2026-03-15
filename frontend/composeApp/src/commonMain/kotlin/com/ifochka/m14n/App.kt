@@ -178,7 +178,7 @@ fun App() {
                                     Text(
                                         text = BuildKonfig.VERSION_NAME,
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
