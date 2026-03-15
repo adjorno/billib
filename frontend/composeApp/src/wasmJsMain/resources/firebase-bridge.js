@@ -84,7 +84,9 @@ async function jsSignInWithApplePopup(serviceId, apiBaseUrl) {
     const { customToken } = await res.json();
 
     // 5. Sign in — onAuthStateChanged fires and syncs state automatically
+    console.log('[Auth] jsSignInWithApplePopup: calling signInWithCustomToken — onAuthStateChanged may fire inside this await');
     await firebase.auth().signInWithCustomToken(customToken);
+    console.log('[Auth] jsSignInWithApplePopup: signInWithCustomToken resolved — returning to Kotlin');
 }
 async function jsGetRedirectResult() {
     try {
@@ -121,7 +123,15 @@ function jsOnAuthStateChanged(callback) {
         console.log('[Auth] onAuthStateChanged: uid=' + user.uid
             + ' isAnonymous=' + user.isAnonymous
             + ' provider=' + (user.providerData[0]?.providerId ?? 'none'));
-        callback(!user.isAnonymous);
+        const isSignedIn = !user.isAnonymous;
+        console.log('[Auth] onAuthStateChanged: about to call Kotlin callback — check if signInWithCustomToken resolved log appears BEFORE or AFTER this');
+        // Defer one microtask to avoid re-entrancy into Kotlin/Wasm when
+        // signInWithCustomToken triggers onAuthStateChanged within its own Promise chain.
+        Promise.resolve().then(() => {
+            console.log('[Auth] onAuthStateChanged: deferred callback firing — invoking Kotlin callback now');
+            callback(isSignedIn);
+            console.log('[Auth] onAuthStateChanged: Kotlin callback returned successfully');
+        });
     });
 }
 function jsGetCurrentUserEmail() {
