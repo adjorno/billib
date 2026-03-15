@@ -67,11 +67,19 @@ async function jsSignInWithApplePopup(serviceId, apiBaseUrl) {
     AppleID.auth.init({
         clientId: serviceId,
         scope: 'name email',
-        redirectURI: 'https://m14n-41a5a.firebaseapp.com/__/auth/handler',
+        redirectURI: 'https://api.m14n.com/auth/apple/callback',
         nonce: hashedNonce,
         usePopup: true,
     });
-    const response = await AppleID.auth.signIn();
+    console.log('[Auth] jsSignInWithApplePopup: AppleID.auth.signIn() starting...');
+    let response;
+    try {
+        response = await AppleID.auth.signIn();
+    } catch (appleError) {
+        console.error('[Auth] jsSignInWithApplePopup: AppleID.auth.signIn() threw:', JSON.stringify(appleError));
+        throw new Error('[Auth] Apple sign-in failed: ' + (appleError.error || JSON.stringify(appleError)));
+    }
+    console.log('[Auth] jsSignInWithApplePopup: AppleID.auth.signIn() resolved');
     const idToken = response.authorization.id_token;
 
     // 4. Exchange for Firebase custom token
