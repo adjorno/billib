@@ -39,12 +39,13 @@ actual suspend fun getAppleCredential(): AuthCredential? {
             state = state,
             hashedNonce = hashedNonce,
         )
-        val deferred = CompletableDeferred<String>()
+        val deferred = CompletableDeferred<Pair<String, String?>>()
         val server = embeddedServer(CIO, port = port) {
             routing {
                 get("/callback") {
                     val token = call.request.queryParameters["token"] ?: error("no token")
-                    deferred.complete(token)
+                    val email = call.request.queryParameters["email"]?.takeIf { it.isNotBlank() }
+                    deferred.complete(token to email)
                     call.respondText(
                         text = "<html><body>Signed in with Apple. You can close this tab.</body></html>",
                         contentType = ContentType.Text.Html,
@@ -56,10 +57,11 @@ actual suspend fun getAppleCredential(): AuthCredential? {
             withContext(Dispatchers.IO) {
                 Desktop.getDesktop().browse(URI(authUrl))
             }
-            val customToken = deferred.await()
-            if (LogFlags.AUTH) println("[Auth] getAppleCredential: custom token received")
+            val (customToken, email) = deferred.await()
+            if (LogFlags.AUTH) println("[Auth] getAppleCredential: custom token received email=$email")
             Firebase.auth.signInWithCustomToken(customToken)
             if (LogFlags.AUTH) println("[Auth] getAppleCredential: signed in with custom token")
+            pendingDirectSignInEmail = email
         } finally {
             server.stop(gracePeriodMillis = 100, timeoutMillis = 500)
         }
