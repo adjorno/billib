@@ -67,7 +67,7 @@ async function jsSignInWithApplePopup(serviceId, apiBaseUrl) {
     AppleID.auth.init({
         clientId: serviceId,
         scope: 'name email',
-        redirectURI: 'https://m14n.com',
+        redirectURI: 'https://m14n-41a5a.firebaseapp.com/__/auth/handler',
         nonce: hashedNonce,
         usePopup: true,
     });
