@@ -19,7 +19,9 @@ class WasmFirebaseAuthRepository(
     override fun start() {
         jsOnAuthStateChanged { isSignedIn ->
             val newState = if (isSignedIn) {
-                AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())
+                val email = runCatching { jsGetCurrentUserEmail() }.getOrNull()
+                    ?: error("Authenticated user has no email")
+                AuthState.SignedIn(email)
             } else {
                 AuthState.Anonymous
             }
@@ -56,7 +58,9 @@ class WasmFirebaseAuthRepository(
         return runCatching { jsSignInWithGoogle().await<JsAny?>() }
             .onSuccess {
                 val wasAlreadySignedIn = _authState.value is AuthState.SignedIn
-                _authState.value = AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())
+                val email = runCatching { jsGetCurrentUserEmail() }.getOrNull()
+                    ?: error("Authenticated user has no email after Google sign-in")
+                _authState.value = AuthState.SignedIn(email)
                 if (!wasAlreadySignedIn) {
                     // UC3: linkWithPopup does not fire onAuthStateChanged — manual sync needed
                     jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
