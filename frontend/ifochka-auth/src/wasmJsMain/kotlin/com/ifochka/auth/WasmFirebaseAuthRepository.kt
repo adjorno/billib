@@ -19,7 +19,9 @@ class WasmFirebaseAuthRepository(
     override fun start() {
         jsOnAuthStateChanged { isSignedIn ->
             val newState = if (isSignedIn) {
-                AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())
+                val email = runCatching { jsGetCurrentUserEmail() }.getOrNull()
+                    ?: error("Authenticated user has no email")
+                AuthState.SignedIn(email)
             } else {
                 AuthState.Anonymous
             }
@@ -56,7 +58,9 @@ class WasmFirebaseAuthRepository(
         return runCatching { jsSignInWithGoogle().await<JsAny?>() }
             .onSuccess {
                 val wasAlreadySignedIn = _authState.value is AuthState.SignedIn
-                _authState.value = AuthState.SignedIn(runCatching { jsGetCurrentUserEmail() }.getOrNull())
+                val email = runCatching { jsGetCurrentUserEmail() }.getOrNull()
+                    ?: error("Authenticated user has no email after Google sign-in")
+                _authState.value = AuthState.SignedIn(email)
                 if (!wasAlreadySignedIn) {
                     // UC3: linkWithPopup does not fire onAuthStateChanged — manual sync needed
                     jsConsoleLog("[Auth] linkWithGoogle popup completed — syncing state")
@@ -75,9 +79,15 @@ class WasmFirebaseAuthRepository(
     }
 
     override suspend fun linkWithApple(): Result<Unit> {
-        jsConsoleLog("[Auth] linkWithApple → initiating redirect to Apple...")
-        return runCatching { jsSignInWithApple().await<JsAny?>() }
-            .onSuccess { jsConsoleLog("[Auth] linkWithApple redirect initiated — auth completes on next page load") }
+        val serviceId = AuthConfig.current.appleServiceId
+        val apiBaseUrl = AuthConfig.current.apiBaseUrl
+        if (serviceId.isEmpty()) {
+            jsConsoleError("[Auth] linkWithApple: appleServiceId not configured")
+            return Result.failure(IllegalStateException("appleServiceId not configured"))
+        }
+        jsConsoleLog("[Auth] linkWithApple → opening Apple popup...")
+        return runCatching { jsSignInWithApplePopup(serviceId, apiBaseUrl).await<JsAny?>() }
+            .onSuccess { jsConsoleLog("[Auth] linkWithApple popup completed — onAuthStateChanged will sync state") }
             .onFailure { jsConsoleError("[Auth] linkWithApple failed: $it") }
             .map { }
     }

@@ -33,7 +33,8 @@ class SecurityConfig(
                 "/swagger-ui.html",
                 "/v3/api-docs/**",
                 "/dev/token",
-                "/auth/custom-token",
+                "/auth/google/custom-token",
+                "/auth/apple/custom-token",
                 "/auth/apple/callback",
             )
             .cors { it.configurationSource(corsSource()) }

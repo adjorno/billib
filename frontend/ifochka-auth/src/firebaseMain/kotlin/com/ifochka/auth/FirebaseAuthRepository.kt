@@ -29,7 +29,8 @@ class FirebaseAuthRepository(
             val currentUser = runCatching { Firebase.auth.currentUser }.getOrNull()
             if (LogFlags.AUTH) {
                 println(
-                    "[Auth] Current user on start: uid=${currentUser?.uid} anonymous=${currentUser?.isAnonymous}",
+                    "[Auth] Current user on start: uid=${currentUser?.uid} " +
+                        "anonymous=${runCatching { currentUser?.isAnonymous }.getOrNull()}",
                 )
             }
             if (currentUser == null) {
@@ -86,10 +87,19 @@ class FirebaseAuthRepository(
     }
 
     override suspend fun linkWithApple(): Result<Unit> {
-        val credential = getAppleCredential() ?: return Result.success(Unit)
+        val credential = getAppleCredential() ?: run {
+            if (LogFlags.AUTH) println("[Auth] linkWithApple: sign-in handled directly — syncing state")
+            syncStateFromCurrentUser()
+            return Result.success(Unit)
+        }
         val current = Firebase.auth.currentUser
             ?: return Result.failure(IllegalStateException("No current user"))
-        if (LogFlags.AUTH) println("[Auth] linkWithApple: uid=${current.uid} anonymous=${current.isAnonymous}")
+        if (LogFlags.AUTH) {
+            println(
+                "[Auth] linkWithApple: uid=${current.uid} " +
+                    "anonymous=${runCatching { current.isAnonymous }.getOrNull()}",
+            )
+        }
         return try {
             current.linkWithCredential(credential)
             if (LogFlags.AUTH) println("[Auth] linkWithApple: linked ok")
@@ -130,7 +140,12 @@ class FirebaseAuthRepository(
     private suspend fun linkWithCredential(credential: AuthCredential): Result<Unit> {
         val current = Firebase.auth.currentUser
             ?: return Result.failure(IllegalStateException("No current user"))
-        if (LogFlags.AUTH) println("[Auth] linkWithCredential: uid=${current.uid} anonymous=${current.isAnonymous}")
+        if (LogFlags.AUTH) {
+            println(
+                "[Auth] linkWithCredential: uid=${current.uid} " +
+                    "anonymous=${runCatching { current.isAnonymous }.getOrNull()}",
+            )
+        }
         return try {
             current.linkWithCredential(credential)
             if (LogFlags.AUTH) println("[Auth] linkWithCredential: linked ok")

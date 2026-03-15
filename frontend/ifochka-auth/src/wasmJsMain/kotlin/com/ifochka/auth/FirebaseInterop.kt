@@ -34,6 +34,12 @@ internal external fun jsSignInWithGoogle(): Promise<JsAny?>
 @JsFun("() => jsSignInWithApple()")
 internal external fun jsSignInWithApple(): Promise<JsAny?>
 
+@JsFun("(serviceId, apiBaseUrl) => jsSignInWithApplePopup(serviceId, apiBaseUrl)")
+internal external fun jsSignInWithApplePopup(
+    serviceId: String,
+    apiBaseUrl: String,
+): Promise<JsAny?>
+
 @JsFun("() => jsGetRedirectResult()")
 internal external fun jsGetRedirectResult(): Promise<JsAny?>
 

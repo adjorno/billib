@@ -44,124 +44,17 @@
     <script src="splash-screen.js"></script>
 
     <!-- localStorage Bridge for Artwork Persistence -->
-    <script>
-        function jsLocalStorageGet(key) {
-            return localStorage.getItem(key);
-        }
-
-        function jsLocalStorageSet(key, value) {
-            localStorage.setItem(key, value);
-        }
-
-        console.log('[localStorage Bridge] Initialized');
-    </script>
+    <script src="localstorage-bridge.js"></script>
 
     <!-- Firebase compat SDK (sync <script> → guaranteed before composeApp.js) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script>
-        function jsFirebaseInit(apiKey, projectId, appId, authDomain) {
-            firebase.initializeApp({ apiKey: apiKey, projectId: projectId, appId: appId, authDomain: authDomain });
-        }
-        function jsUseFirebaseEmulator() {
-            firebase.auth().useEmulator("http://localhost:9099");
-        }
-        function jsSignInAnonymously() {
-            console.log('[Auth] Signing in anonymously...');
-            return firebase.auth().signInAnonymously();
-        }
-        function jsGetIdToken() {
-            const user = firebase.auth().currentUser;
-            return user ? user.getIdToken(false) : Promise.resolve(null);
-        }
-        function jsGetIsAnonymous() {
-            const user = firebase.auth().currentUser;
-            return user ? user.isAnonymous : true;
-        }
-        function jsIsSignedIn() {
-            return firebase.auth().currentUser !== null;
-        }
-        function jsLinkWithEmail(email, password) {
-            const user = firebase.auth().currentUser;
-            const cred = firebase.auth.EmailAuthProvider.credential(email, password);
-            return user ? user.linkWithCredential(cred)
-                        : firebase.auth().createUserWithEmailAndPassword(email, password);
-        }
-        function jsSignInWithEmail(email, password) {
-            return firebase.auth().signInWithEmailAndPassword(email, password);
-        }
-        async function jsSignInWithGoogle() {
-            const user = firebase.auth().currentUser;
-            console.log('[Auth] Sign in with Google — currentUser:', user ? `uid=${user.uid} isAnonymous=${user.isAnonymous}` : 'none');
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                return user ? await user.linkWithPopup(provider) : await firebase.auth().signInWithPopup(provider);
-            } catch (error) {
-                if (error.code === 'auth/credential-already-in-use') {
-                    if (error.credential) {
-                        console.log('[Auth] UC4: credential-already-in-use — signInWithCredential to switch to existing account');
-                        return await firebase.auth().signInWithCredential(error.credential);
-                    } else {
-                        console.warn('[Auth] UC4: credential-already-in-use but error.credential is null — cannot recover (emulator limitation?)');
-                    }
-                }
-                throw error;
-            }
-        }
-        function jsSignInWithApple() {
-            const user = firebase.auth().currentUser;
-            const provider = new firebase.auth.OAuthProvider('apple.com');
-            return user ? user.linkWithRedirect(provider) : firebase.auth().signInWithRedirect(provider);
-        }
-        async function jsGetRedirectResult() {
-            try {
-                const result = await firebase.auth().getRedirectResult();
-                if (result && result.user) {
-                    console.log('[Auth] Redirect result: uid=' + result.user.uid + ' provider=' + result.additionalUserInfo?.providerId);
-                } else {
-                    console.log('[Auth] Redirect result: no pending redirect');
-                }
-            } catch (error) {
-                console.error('[Auth] Redirect result error:', error.code, error.message);
-                if (error.code === 'auth/credential-already-in-use') {
-                    const credential = error.credential
-                        || (() => { try { return firebase.auth.OAuthProvider.credentialFromError(error); } catch(e) { return null; } })()
-                        || (() => { try { return firebase.auth.GoogleAuthProvider.credentialFromError(error); } catch(e) { return null; } })();
-                    if (credential) {
-                        console.log('[Auth] Credential already in use — signing in with existing credential');
-                        await firebase.auth().signInWithCredential(credential);
-                    } else {
-                        console.warn('[Auth] credential-already-in-use but credential is null — cannot recover');
-                    }
-                }
-            }
-        }
-        function jsOnAuthStateChanged(callback) {
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (!user) {
-                    // Null fires transiently on cold start before signInAnonymously completes.
-                    // When logout is implemented, it must update _authState manually in Kotlin
-                    // rather than relying on this null emission.
-                    console.log('[Auth] onAuthStateChanged: signed out — skipping');
-                    return;
-                }
-                console.log('[Auth] onAuthStateChanged: uid=' + user.uid
-                    + ' isAnonymous=' + user.isAnonymous
-                    + ' provider=' + (user.providerData[0]?.providerId ?? 'none'));
-                callback(!user.isAnonymous);
-            });
-        }
-        function jsGetCurrentUserEmail() {
-            return firebase.auth().currentUser?.email ?? null;
-        }
-        function jsConsoleLog(msg) {
-            console.log(msg);
-        }
-        function jsConsoleError(msg) {
-            console.error(msg);
-        }
-        console.log('[Firebase Bridge] Initialized');
-    </script>
+
+    <!-- Apple Sign-In JS SDK -->
+    <script src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+
+    <!-- Firebase Auth Bridge -->
+    <script src="firebase-bridge.js"></script>
 
     <script src="composeApp.js"></script>
 </body>
