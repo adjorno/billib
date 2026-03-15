@@ -153,7 +153,10 @@ class FirebaseAuthRepository(
         val user = runCatching { Firebase.auth.currentUser }.getOrNull()
         if (LogFlags.AUTH) println("[Auth] syncStateFromCurrentUser: uid=${runCatching { user?.uid }.getOrNull()}")
         if (user == null) return
-        val email = runCatching { user.email }.getOrNull()
+        // pendingDirectSignInEmail is set by JVM sign-in helpers because firebase-java-sdk
+        // does not populate FirebaseUser.email after signInWithCustomToken.
+        val email = pendingDirectSignInEmail?.also { pendingDirectSignInEmail = null }
+            ?: runCatching { user.email }.getOrNull()
             ?: runCatching { user.providerData.firstNotNullOfOrNull { it.email } }.getOrNull()
         if (email.isNullOrBlank()) {
             if (LogFlags.AUTH) println("[Auth] syncStateFromCurrentUser: no email — user is anonymous, skipping")

@@ -66,10 +66,12 @@ class AuthController(
             logger.warn("[AppleCallback] Failed to resolve Firebase UID")
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
+        val email = resolveAppleEmailByUid(uid)
         val customToken = auth.createCustomToken(uid)
-        logger.info("[AppleCallback] Issued custom token for uid=$uid")
+        logger.info("[AppleCallback] Issued custom token for uid=$uid email=$email")
         val encodedToken = URLEncoder.encode(customToken, StandardCharsets.UTF_8)
-        val redirectUrl = "http://localhost:${callbackState.port}/callback?token=$encodedToken"
+        val encodedEmail = URLEncoder.encode(email ?: "", StandardCharsets.UTF_8)
+        val redirectUrl = "http://localhost:${callbackState.port}/callback?token=$encodedToken&email=$encodedEmail"
         return ResponseEntity.status(HttpStatus.FOUND)
             .header(HttpHeaders.LOCATION, redirectUrl)
             .build()
@@ -88,6 +90,11 @@ class AuthController(
                 ?.localId
         }.onFailure { logger.warn("[CustomToken] Google token exchange failed: ${it.message}") }.getOrNull()
     }
+
+    private fun resolveAppleEmailByUid(uid: String): String? =
+        runCatching { auth.getUser(uid)?.email }
+            .onFailure { logger.warn("[AppleCallback] Failed to fetch email for uid=$uid: ${it.message}") }
+            .getOrNull()
 
     private fun resolveFirebaseUidFromApple(
         appleIdToken: String,

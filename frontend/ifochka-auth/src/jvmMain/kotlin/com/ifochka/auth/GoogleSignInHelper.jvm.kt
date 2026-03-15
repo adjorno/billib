@@ -69,6 +69,8 @@ actual suspend fun getGoogleCredential(): AuthCredential? {
             if (customToken != null) {
                 Firebase.auth.signInWithCustomToken(customToken)
                 if (LogFlags.AUTH) println("[Auth] getGoogleCredential: signed in with custom token")
+                pendingDirectSignInEmail = extractEmailFromJwt(idToken)
+                if (LogFlags.AUTH) println("[Auth] getGoogleCredential: pendingEmail=$pendingDirectSignInEmail")
             } else {
                 if (LogFlags.AUTH) println("[Auth] getGoogleCredential: custom token exchange failed")
             }
@@ -151,6 +153,14 @@ private fun callbackHtml(
       }
     </script><p>Signing in...</p></body></html>
     """.trimIndent()
+
+internal fun extractEmailFromJwt(idToken: String): String? =
+    runCatching {
+        val payload = idToken.split(".").getOrNull(1) ?: return@runCatching null
+        val padded = payload.padEnd((payload.length + 3) / 4 * 4, '=')
+        val json = String(Base64.getUrlDecoder().decode(padded))
+        Json.parseToJsonElement(json).jsonObject["email"]?.jsonPrimitive?.content
+    }.getOrNull()
 
 private fun validateNonce(
     idToken: String,
