@@ -30,17 +30,32 @@ class AuthController(
     private val auth = FirebaseAuth.getInstance(firebaseApp)
     private val restClient = RestClient.create()
 
-    @PostMapping("/custom-token")
-    fun customToken(
-        @RequestBody body: CustomTokenRequest,
+    @PostMapping("/google/custom-token")
+    fun googleCustomToken(
+        @RequestBody body: GoogleCustomTokenRequest,
     ): ResponseEntity<CustomTokenResponse> {
-        val uid = resolveFirebaseUid(body.googleIdToken)
-            ?: run {
-                logger.warn("[CustomToken] No valid ID token provided")
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            }
+        val uid = resolveFirebaseUid(body.googleIdToken) ?: run {
+            logger.warn("[GoogleCustomToken] Token exchange failed")
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
         val customToken = auth.createCustomToken(uid)
-        logger.info("[CustomToken] Issued for uid=$uid")
+        logger.info("[GoogleCustomToken] Issued for uid=$uid")
+        return ResponseEntity.ok(CustomTokenResponse(customToken = customToken))
+    }
+
+    @PostMapping("/apple/custom-token")
+    fun appleCustomToken(
+        @RequestBody body: AppleCustomTokenRequest,
+    ): ResponseEntity<CustomTokenResponse> {
+        val uid = resolveFirebaseUidFromApple(
+            appleIdToken = body.appleIdToken,
+            rawNonce = body.nonce,
+        ) ?: run {
+            logger.warn("[AppleCustomToken] Token exchange failed")
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
+        val customToken = auth.createCustomToken(uid)
+        logger.info("[AppleCustomToken] Issued for uid=$uid")
         return ResponseEntity.ok(CustomTokenResponse(customToken = customToken))
     }
 
@@ -113,8 +128,13 @@ class AuthController(
         }.onFailure { logger.warn("[AppleCallback] Apple token exchange failed: ${it.message}") }.getOrNull()
     }
 
-    data class CustomTokenRequest(
+    data class GoogleCustomTokenRequest(
         val googleIdToken: String = "",
+    )
+
+    data class AppleCustomTokenRequest(
+        val appleIdToken: String = "",
+        val nonce: String = "",
     )
 
     data class CustomTokenResponse(

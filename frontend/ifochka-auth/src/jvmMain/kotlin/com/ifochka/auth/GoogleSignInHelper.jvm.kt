@@ -99,10 +99,10 @@ private suspend fun exchangeForCustomToken(googleIdToken: String): String? =
                 println("[Auth] exchangeForCustomToken: apiBaseUrl not set")
                 return@runCatching null
             }
-            println("[Auth] exchangeForCustomToken: POST $apiBaseUrl/auth/custom-token")
+            println("[Auth] exchangeForCustomToken: POST $apiBaseUrl/auth/google/custom-token")
             val requestBody = Json.encodeToString(CustomTokenRequest(googleIdToken))
             val request = HttpRequest.newBuilder()
-                .uri(URI.create("$apiBaseUrl/auth/custom-token"))
+                .uri(URI.create("$apiBaseUrl/auth/google/custom-token"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()

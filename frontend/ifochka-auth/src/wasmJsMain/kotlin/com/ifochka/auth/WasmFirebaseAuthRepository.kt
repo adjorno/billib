@@ -79,9 +79,15 @@ class WasmFirebaseAuthRepository(
     }
 
     override suspend fun linkWithApple(): Result<Unit> {
-        jsConsoleLog("[Auth] linkWithApple → initiating redirect to Apple...")
-        return runCatching { jsSignInWithApple().await<JsAny?>() }
-            .onSuccess { jsConsoleLog("[Auth] linkWithApple redirect initiated — auth completes on next page load") }
+        val serviceId = AuthConfig.current.appleServiceId
+        val apiBaseUrl = AuthConfig.current.apiBaseUrl
+        if (serviceId.isEmpty()) {
+            jsConsoleError("[Auth] linkWithApple: appleServiceId not configured")
+            return Result.failure(IllegalStateException("appleServiceId not configured"))
+        }
+        jsConsoleLog("[Auth] linkWithApple → opening Apple popup...")
+        return runCatching { jsSignInWithApplePopup(serviceId, apiBaseUrl).await<JsAny?>() }
+            .onSuccess { jsConsoleLog("[Auth] linkWithApple popup completed — onAuthStateChanged will sync state") }
             .onFailure { jsConsoleError("[Auth] linkWithApple failed: $it") }
             .map { }
     }
