@@ -6,12 +6,15 @@ import android.app.NotificationManager
 import android.os.Build
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ifochka.m14n.di.appModule
+import com.ifochka.m14n.initAndroidFirebase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class M14nApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        initAndroidFirebase()
 
         startKoin {
             androidContext(this@M14nApplication)
