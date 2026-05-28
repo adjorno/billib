@@ -6,20 +6,23 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.RestClientResponseException
 import java.io.File
 
 @Service
 class PlayIntegrityService(
     @Value("\${play.integrity.allowed-packages:}") allowedPackages: String,
 ) : IntegrityService {
-
     private val log = LoggerFactory.getLogger(PlayIntegrityService::class.java)
     private val restClient = RestClient.create()
     private val useEmulator = System.getenv("USE_FIREBASE_EMULATOR") == "true"
     private val credentials: GoogleCredentials? = if (useEmulator) null else loadCredentials()
     private val allowedSet = allowedPackages.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
 
-    override fun verify(token: String, packageName: String): IntegrityVerdict {
+    override fun verify(
+        token: String,
+        packageName: String,
+    ): IntegrityVerdict {
         if (useEmulator) {
             log.info("[PlayIntegrity] Emulator mode — returning stub pass verdict")
             return IntegrityVerdict(
@@ -41,8 +44,9 @@ class PlayIntegrityService(
         }
 
         return runCatching {
-            credentials!!.refreshIfExpired()
-            val accessToken = credentials.accessToken.tokenValue
+            val creds = requireNotNull(credentials) { "Credentials not initialized for non-emulator mode" }
+            creds.refreshIfExpired()
+            val accessToken = requireNotNull(creds.accessToken?.tokenValue) { "Access token unavailable after refresh" }
 
             val response = restClient.post()
                 .uri("https://playintegrity.googleapis.com/v1/$packageName:decodeIntegrityToken")
@@ -64,7 +68,8 @@ class PlayIntegrityService(
                 licensingVerdict = licenseVerdict,
             )
         }.onFailure {
-            log.warn("[PlayIntegrity] Verification failed: ${it.message}", it)
+            val body = (it as? RestClientResponseException)?.responseBodyAsString
+            log.warn("[PlayIntegrity] Verification failed: ${it.message} body=$body", it)
         }.getOrElse {
             IntegrityVerdict(
                 pass = false,
