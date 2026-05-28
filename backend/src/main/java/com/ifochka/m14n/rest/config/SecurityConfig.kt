@@ -36,6 +36,7 @@ class SecurityConfig(
                 "/auth/google/custom-token",
                 "/auth/apple/custom-token",
                 "/auth/apple/callback",
+                "/integrity/verify",
             )
             .cors { it.configurationSource(corsSource()) }
             .csrf { it.disable() }
